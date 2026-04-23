@@ -24,9 +24,9 @@ body {
 /* HEADER */
 
 .header {
-  max-width: 1120px;
+  max-width: 1280px;
   margin: 1.2rem auto 0;
-  padding: 1rem 1.2rem;
+  padding: 1rem 1.5rem;
   border: 1px solid var(--border);
   border-radius: 999px;
   background: rgba(10, 10, 10, 0.65);
@@ -73,17 +73,18 @@ nav {
 nav a {
   color: #e9dfcf;
   text-decoration: none;
+  font-size: 1.05rem;
 }
 
 /* HERO */
 
 .hero {
-  max-width: 1120px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 5.5rem 1rem 3.2rem;
+  padding: 6rem 2rem 4rem;
   display: grid;
-  grid-template-columns: 1.2fr 0.8fr;
-  gap: 1.4rem;
+  grid-template-columns: 1.25fr 0.75fr;
+  gap: 2rem;
   position: relative;
   isolation: isolate;
 }
@@ -113,13 +114,15 @@ nav a {
 .hero h1 {
   margin: 1rem 0;
   font-family: Georgia, serif;
-  font-size: clamp(2rem, 5vw, 3.9rem);
-  line-height: 1.15;
+  font-size: clamp(3rem, 6vw, 5.2rem);
+  line-height: 1.05;
 }
 
 .hero p {
   color: var(--muted);
-  max-width: 60ch;
+  max-width: 52ch;
+  font-size: 1.15rem;
+  line-height: 1.6;
 }
 
 /* BOTÕES */
@@ -226,4 +229,14 @@ nav a {
     width: 80px;
     height: 80px;
   }
+}
+section h2 {
+  font-size: 2rem;
+  margin-bottom: 0.8rem;
+}
+
+section p {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  max-width: 70ch;
 }
