@@ -524,8 +524,9 @@ section p {
 }
 
 .subscribe-section p {
-  opacity: 0.7;
+  text-align: center;
   margin-bottom: 20px;
+  opacity: 0.8;
 }
 
 .subscribe-img {
