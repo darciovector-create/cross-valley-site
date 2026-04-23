@@ -523,10 +523,36 @@ section p {
   margin-bottom: 10px;
 }
 
-.subscribe-section p {
+.subscribe-section {
+  max-width: 1280px;
+  margin: 80px auto 0;
+  padding: 60px 20px;
   text-align: center;
-  margin-bottom: 20px;
-  opacity: 0.8;
+}
+
+.subscribe-section h2 {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.subscribe-section p {
+  margin: 0 auto 24px;
+  max-width: 500px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.subscribe-img {
+  max-width: 320px;
+  width: 100%;
+  display: block;
+  margin: 0 auto;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.subscribe-img:hover {
+  transform: scale(1.05);
 }
 
 .subscribe-img {
@@ -544,4 +570,12 @@ section p {
   height: auto;
   display: block;
   margin: 0 auto;
+}
+#story,
+#music,
+#visuals,
+#contact {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 20px;
 }
