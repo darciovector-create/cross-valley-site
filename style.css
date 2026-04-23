@@ -572,10 +572,47 @@ section p {
   margin: 0 auto;
 }
 #story,
-#music,
 #visuals,
 #contact {
   max-width: 900px;
   margin: 0 auto;
   padding: 0 20px;
+}
+
+#music {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.music-card {
+  max-width: 760px;
+}
+
+.subscribe-section {
+  max-width: 900px;
+  margin: 80px auto 0;
+  padding: 50px 20px;
+  text-align: center;
+}
+
+.subscribe-section p {
+  margin: 18px auto 0;
+  max-width: 520px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 1.05rem;
+}
+
+.subscribe-img {
+  max-width: 360px;
+  width: 100%;
+  display: block;
+  margin: 0 auto;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.subscribe-img:hover {
+  transform: scale(1.05);
 }
