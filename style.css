@@ -32,9 +32,10 @@ body {
   border-radius: 999px;
   background: rgba(10, 10, 10, 0.65);
   backdrop-filter: blur(10px);
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
   align-items: center;
-  justify-content: space-between;
+  gap: 24px;
 }
 
 /* LOGO */
@@ -57,6 +58,33 @@ body {
     0 0 0 1px rgba(240, 191, 120, 0.25),
     0 0 18px rgba(255, 255, 255, 0.18),
     0 12px 30px rgba(0, 0, 0, 0.6);
+}
+.brand-center {
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.35rem;
+  color: var(--gold);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.btn-subscribe {
+  background: linear-gradient(135deg, #ff3b30, #b30000);
+  color: white;
+  text-decoration: none;
+  padding: 0.7rem 1rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 10px 24px rgba(179, 0, 0, 0.35);
 }
 
 /* NAV */
@@ -382,6 +410,19 @@ section p {
     padding: 4rem 1.5rem 3rem;
   }
 
+  .header {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .header-right {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
   .hero-bg-overlay {
     border-radius: 16px;
   }
@@ -412,6 +453,17 @@ section p {
     gap: 0.65rem;
     font-size: 0.9rem;
   }
+
+  .brand-center {
+    font-size: 0.95rem;
+    letter-spacing: 0.2rem;
+  }
+
+  .btn-subscribe {
+    font-size: 0.85rem;
+    padding: 0.65rem 0.9rem;
+  }
+}
 
   nav a {
     font-size: 0.9rem;
