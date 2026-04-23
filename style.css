@@ -513,3 +513,27 @@ section p {
   justify-content: center;
   align-items: center;
 }
+.subscribe-section {
+  text-align: center;
+  margin-top: 80px;
+}
+
+.subscribe-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 10px;
+}
+
+.subscribe-section p {
+  opacity: 0.7;
+  margin-bottom: 20px;
+}
+
+.subscribe-img {
+  max-width: 320px;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.subscribe-img:hover {
+  transform: scale(1.05);
+}
