@@ -537,3 +537,10 @@ section p {
 .subscribe-img:hover {
   transform: scale(1.05);
 }
+.brand-logo {
+  max-width: 220px;
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
