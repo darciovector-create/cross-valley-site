@@ -27,15 +27,15 @@ body {
 .header {
   max-width: 1280px;
   margin: 1.2rem auto 0;
-  padding: 1rem 1.5rem;
+  padding: 1rem 1.8rem;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: rgba(10, 10, 10, 0.65);
+  background: rgba(10, 10, 10, 0.72);
   backdrop-filter: blur(10px);
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 24px;
+  gap: 30px;
 }
 
 /* LOGO */
@@ -59,35 +59,30 @@ body {
     0 0 18px rgba(255, 255, 255, 0.18),
     0 12px 30px rgba(0, 0, 0, 0.6);
 }
+
+/* BRAND CENTER */
+
 .brand-center {
   text-align: center;
-  font-size: 1.15rem;
+}
+
+.brand-center span {
+  font-size: 2rem;
   font-weight: 700;
   letter-spacing: 0.35rem;
   color: var(--gold);
   text-transform: uppercase;
   white-space: nowrap;
+  text-shadow: 0 0 18px rgba(240, 191, 120, 0.18);
 }
+
+/* NAV */
 
 .header-right {
   display: flex;
   align-items: center;
   gap: 18px;
 }
-
-.btn-subscribe {
-  background: linear-gradient(135deg, #ff3b30, #b30000);
-  color: white;
-  text-decoration: none;
-  padding: 0.7rem 1rem;
-  border-radius: 999px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  white-space: nowrap;
-  box-shadow: 0 10px 24px rgba(179, 0, 0, 0.35);
-}
-
-/* NAV */
 
 nav {
   display: flex;
@@ -98,6 +93,30 @@ nav a {
   color: #e9dfcf;
   text-decoration: none;
   font-size: 1.05rem;
+}
+
+/* SUBSCRIBE BUTTON */
+
+.btn-subscribe {
+  background: linear-gradient(135deg, #ff3b30, #b30000);
+  color: #ffffff;
+  text-decoration: none;
+  padding: 0.72rem 1rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  white-space: nowrap;
+  box-shadow: 0 10px 24px rgba(179, 0, 0, 0.35);
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-subscribe:hover {
+  color: #ffffff;
+  text-decoration: none;
+  transform: translateY(-1px);
 }
 
 /* HERO */
@@ -410,7 +429,14 @@ section p {
     padding: 4rem 1.5rem 3rem;
   }
 
+  .hero-bg-overlay {
+    border-radius: 16px;
+  }
+
   .header {
+    margin: 1rem;
+    border-radius: 18px;
+    padding: 1rem;
     grid-template-columns: 1fr;
     justify-items: center;
     text-align: center;
@@ -420,17 +446,6 @@ section p {
   .header-right {
     flex-direction: column;
     gap: 12px;
-  }
-}
-
-  .hero-bg-overlay {
-    border-radius: 16px;
-  }
-
-  .header {
-    margin: 1rem;
-    border-radius: 18px;
-    padding: 0.9rem 1rem;
   }
 
   .whatsapp {
@@ -454,17 +469,6 @@ section p {
     font-size: 0.9rem;
   }
 
-  .brand-center {
-    font-size: 0.95rem;
-    letter-spacing: 0.2rem;
-  }
-
-  .btn-subscribe {
-    font-size: 0.85rem;
-    padding: 0.65rem 0.9rem;
-  }
-}
-
   nav a {
     font-size: 0.9rem;
   }
@@ -480,6 +484,16 @@ section p {
 
   .hero h1 {
     font-size: clamp(2.4rem, 12vw, 4rem);
+  }
+
+  .brand-center span {
+    font-size: 1.15rem;
+    letter-spacing: 0.18rem;
+  }
+
+  .btn-subscribe {
+    font-size: 0.85rem;
+    padding: 0.65rem 0.9rem;
   }
 
   .whatsapp::after {
