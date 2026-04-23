@@ -300,3 +300,37 @@ body {
   height: 28px;
   filter: invert(1);
 }
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.6);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 10px rgba(37, 211, 102, 0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.whatsapp {
+  animation: pulse 2s infinite;
+}
+.whatsapp::after {
+  content: "Fale comigo";
+  position: absolute;
+  right: 70px;
+  background: #000;
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  opacity: 0;
+  transition: 0.3s;
+  white-space: nowrap;
+}
+
+.whatsapp:hover::after {
+  opacity: 1;
+}
