@@ -507,3 +507,18 @@ section p {
     padding: 0.7rem 1rem;
   }
 }
+
+/* BRAND LOGO */
+.brand-logo {
+  height: 60px;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 0 10px rgba(240, 191, 120, 0.25));
+}
+
+.brand-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
