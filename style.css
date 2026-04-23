@@ -263,3 +263,9 @@ section p {
 .whatsapp:hover {
   transform: scale(1.1);
 }
+body {
+  padding-bottom: 80px;
+}
+.whatsapp {
+  right: 50px;
+}
