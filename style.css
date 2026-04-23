@@ -242,8 +242,9 @@ section p {
 }
 .whatsapp {
   position: fixed;
-  bottom: 25px;
-  right: 25px;
+  bottom: 30px;
+  right: 30px;
+}
   background: #25D366;
   color: white;
   font-size: 26px;
