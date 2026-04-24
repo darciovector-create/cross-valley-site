@@ -240,6 +240,19 @@ section p {
 .music-card:hover {
   transform: translateY(-6px);
 }
+/* EFEITO CINEMA NAS IMAGENS DAS MÚSICAS */
+.music-image-wrap {
+  overflow: hidden;
+}
+
+.music-image-wrap img {
+  transition: transform 0.5s ease, filter 0.5s ease;
+}
+
+.music-card:hover .music-image-wrap img {
+  transform: scale(1.08);
+  filter: brightness(1.12);
+}
 
 .music-image-wrap {
   width: 100%;
