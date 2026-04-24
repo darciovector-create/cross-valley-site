@@ -177,6 +177,36 @@
       </iframe>
     </div>
   </section>
+  
+  <!-- PLAYER PRO -->
+<section id="player-pro" class="player-pro-section reveal">
+  <span class="section-kicker">LISTEN ANYTIME</span>
+  <h2>Cross Valley Player</h2>
+
+  <div class="player-pro-card">
+    <img id="proCover" src="assets/thumb1.jpg" alt="Cover">
+
+    <div class="player-pro-info">
+      <h3 id="proTitle">He Sang About God...</h3>
+      <p>Cross Valley</p>
+
+      <input type="range" id="proProgress" value="0" min="0" max="100">
+
+      <div class="player-pro-time">
+        <span id="proCurrent">0:00</span>
+        <span id="proDuration">0:00</span>
+      </div>
+
+      <div class="player-pro-controls">
+        <button onclick="proPrev()">⏮</button>
+        <button onclick="proToggle()" id="proPlay">▶</button>
+        <button onclick="proNext()">⏭</button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="proAudio"></audio>
+</section>
 
   <!-- VISUALS -->
   <section id="visuals" class="content-section">
