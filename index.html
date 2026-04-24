@@ -303,6 +303,83 @@ const observer = new IntersectionObserver((entries) => {
 document.querySelectorAll(".reveal").forEach(el => {
   observer.observe(el);
 });
+<script>
+const proSongs = [
+  {
+    title: "He Sang About God...",
+    src: "ativos/audio/quarto-silencioso.mp3",
+    cover: "assets/thumb1.jpg"
+  },
+  {
+    title: "The Final Day",
+    src: "ativos/audio/último-dia.mp3",
+    cover: "assets/thumb2.jpg"
+  }
+];
+
+let proIndex = 0;
+
+const proAudio = document.getElementById("proAudio");
+const proTitle = document.getElementById("proTitle");
+const proCover = document.getElementById("proCover");
+const proPlay = document.getElementById("proPlay");
+const proProgress = document.getElementById("proProgress");
+const proCurrent = document.getElementById("proCurrent");
+const proDuration = document.getElementById("proDuration");
+
+function proLoadSong() {
+  proAudio.src = proSongs[proIndex].src;
+  proTitle.innerText = proSongs[proIndex].title;
+  proCover.src = proSongs[proIndex].cover;
+}
+
+function proToggle() {
+  if (proAudio.paused) {
+    proAudio.play();
+    proPlay.innerText = "⏸";
+  } else {
+    proAudio.pause();
+    proPlay.innerText = "▶";
+  }
+}
+
+function proNext() {
+  proIndex = (proIndex + 1) % proSongs.length;
+  proLoadSong();
+  proAudio.play();
+  proPlay.innerText = "⏸";
+}
+
+function proPrev() {
+  proIndex = (proIndex - 1 + proSongs.length) % proSongs.length;
+  proLoadSong();
+  proAudio.play();
+ proPlay.innerText = "⏸";
+}
+
+function formatTime(seconds) {
+  const min = Math.floor(seconds / 60);
+  const sec = Math.floor(seconds % 60);
+  return min + ":" + (sec < 10 ? "0" + sec : sec);
+}
+
+proAudio.addEventListener("loadedmetadata", () => {
+  proDuration.innerText = formatTime(proAudio.duration);
+});
+
+proAudio.addEventListener("timeupdate", () => {
+  proProgress.value = (proAudio.currentTime / proAudio.duration) * 100 || 0;
+  proCurrent.innerText = formatTime(proAudio.currentTime);
+});
+
+proProgress.addEventListener("input", () => {
+  proAudio.currentTime = (proProgress.value / 100) * proAudio.duration;
+});
+
+proAudio.addEventListener("ended", proNext);
+
+proLoadSong();
 </script>
+  
 </body>
 </html>
