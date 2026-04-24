@@ -12,7 +12,6 @@
 
 <body>
 
-  <!-- HEADER -->
   <header class="header">
     <div class="logo">
       <img src="assets/cross-valley-logo.png" class="logo-img" alt="Cross Valley logo">
@@ -24,9 +23,9 @@
 
     <div class="header-right">
       <nav>
-        <a href="#story">Story</a>
+        <a href="#video">Video</a>
         <a href="#music">Music</a>
-        <a href="#visuals">Visuals</a>
+        <a href="#story">Story</a>
         <a href="#contact">Contact</a>
       </nav>
 
@@ -36,7 +35,6 @@
     </div>
   </header>
 
-  <!-- HERO -->
   <section class="hero">
     <div class="hero-text">
       <span class="tagline">CINEMATIC GOSPEL COUNTRY</span>
@@ -78,17 +76,26 @@
     </div>
   </section>
 
-  <!-- STORY -->
-  <section id="story" class="content-section">
-    <span class="section-kicker">THE HEART BEHIND THE SONGS</span>
-    <h2>Our Story</h2>
-    <p>
-      Cross Valley was born from the desire to turn pain into purpose and music into testimony.
-      Each song is a journey through faith, valleys, and redemption — always pointing back to Jesus Christ.
-    </p>
+  <section id="video" class="featured-video-section">
+    <div class="section-heading">
+      <span class="section-kicker">WATCH THE FEATURED VIDEO</span>
+      <h2>Featured Video</h2>
+      <p>
+        Experience the message, the atmosphere, and the story behind the music.
+      </p>
+    </div>
+
+    <div class="featured-video-frame">
+      <iframe
+        src="https://www.youtube.com/embed/JK-lyAn9o40"
+        title="Cross Valley Featured Video"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen>
+      </iframe>
+    </div>
   </section>
 
-  <!-- MUSIC -->
   <section id="music" class="music-section">
     <div class="section-heading">
       <span class="section-kicker">LATEST RELEASES</span>
@@ -141,28 +148,15 @@
     </div>
   </section>
 
-  <!-- FEATURED VIDEO -->
-  <section class="featured-video-section">
-    <div class="section-heading">
-      <span class="section-kicker">WATCH THE FEATURED VIDEO</span>
-      <h2>Featured Video</h2>
-      <p>
-        Experience the message, the atmosphere, and the story behind the music.
-      </p>
-    </div>
-
-    <div class="featured-video-frame">
-      <iframe
-        src="https://www.youtube.com/embed/JK-lyAn9o40"
-        title="Cross Valley Featured Video"
-        frameborder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowfullscreen>
-      </iframe>
-    </div>
+  <section id="story" class="content-section">
+    <span class="section-kicker">THE HEART BEHIND THE SONGS</span>
+    <h2>Our Story</h2>
+    <p>
+      Cross Valley was born from the desire to turn pain into purpose and music into testimony.
+      Each song is a journey through faith, valleys, and redemption — always pointing back to Jesus Christ.
+    </p>
   </section>
 
-  <!-- VISUALS -->
   <section id="visuals" class="content-section">
     <span class="section-kicker">CINEMATIC VISUAL IDENTITY</span>
     <h2>Visuals</h2>
@@ -171,7 +165,6 @@
     </p>
   </section>
 
-  <!-- CONTACT -->
   <section id="contact" class="content-section">
     <span class="section-kicker">PARTNERSHIPS & MINISTRY</span>
     <h2>Contact</h2>
@@ -181,7 +174,6 @@
     <p>Email: darciovector@gmail.com</p>
   </section>
 
-  <!-- SUBSCRIBE -->
   <section class="subscribe-section">
     <a href="https://www.youtube.com/@CrossValleyCountryGospel" target="_blank">
       <img src="assets/subscribe.png" class="subscribe-img" alt="Subscribe to Cross Valley">
@@ -190,17 +182,14 @@
     <p>Receive new music and messages of faith.</p>
   </section>
 
-  <!-- FOOTER -->
   <footer class="footer">
     <p>© 2026 Cross Valley — All rights reserved</p>
   </footer>
 
-  <!-- WHATSAPP -->
   <a href="https://wa.me/5517997070627" target="_blank" class="whatsapp" aria-label="WhatsApp">
     <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg" alt="WhatsApp">
   </a>
 
-  <!-- VIDEO MODAL -->
   <div class="video-modal" id="videoModal">
     <div class="video-modal-content">
       <button class="video-close" id="closePreview" aria-label="Close video">×</button>
