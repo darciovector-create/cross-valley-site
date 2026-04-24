@@ -222,6 +222,22 @@
     <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg" alt="WhatsApp">
   </a>
 
+  <!-- FIXED SPOTIFY STYLE PLAYER -->
+  <div class="fixed-player" id="fixedPlayer">
+    <img id="fixedCover" src="assets/thumb1.jpg" alt="Current song cover">
+
+    <div class="fixed-info">
+      <strong id="fixedTitle">He Sang About God…</strong>
+      <span>Cross Valley Radio</span>
+    </div>
+
+    <div class="fixed-controls">
+      <button onclick="prevSong()">⏮</button>
+      <button onclick="togglePlay()" id="fixedPlayBtn">▶</button>
+      <button onclick="nextSong()">⏭</button>
+    </div>
+  </div>
+
   <div class="video-modal" id="videoModal">
     <div class="video-modal-content">
       <button class="video-close" id="closePreview" aria-label="Close video">×</button>
@@ -277,15 +293,27 @@
     ];
 
     let currentSong = 0;
+
     const radioAudio = document.getElementById("radioAudio");
     const radioTitle = document.getElementById("radioTitle");
     const radioCover = document.getElementById("radioCover");
     const radioPlayBtn = document.getElementById("radioPlayBtn");
 
+    const fixedPlayer = document.getElementById("fixedPlayer");
+    const fixedTitle = document.getElementById("fixedTitle");
+    const fixedCover = document.getElementById("fixedCover");
+    const fixedPlayBtn = document.getElementById("fixedPlayBtn");
+
+    function updatePlayerUI() {
+      radioTitle.innerText = playlist[currentSong].title;
+      radioCover.src = playlist[currentSong].cover;
+      fixedTitle.innerText = playlist[currentSong].title;
+      fixedCover.src = playlist[currentSong].cover;
+    }
+
     function loadSong(index) {
       radioAudio.src = playlist[index].src;
-      radioTitle.innerText = playlist[index].title;
-      radioCover.src = playlist[index].cover;
+      updatePlayerUI();
     }
 
     function playSong(index) {
@@ -293,15 +321,20 @@
       loadSong(currentSong);
       radioAudio.play();
       radioPlayBtn.innerText = "⏸";
+      fixedPlayBtn.innerText = "⏸";
+      fixedPlayer.classList.add("active");
     }
 
     function togglePlay() {
       if (radioAudio.paused) {
         radioAudio.play();
         radioPlayBtn.innerText = "⏸";
+        fixedPlayBtn.innerText = "⏸";
+        fixedPlayer.classList.add("active");
       } else {
         radioAudio.pause();
         radioPlayBtn.innerText = "▶";
+        fixedPlayBtn.innerText = "▶";
       }
     }
 
