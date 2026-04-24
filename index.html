@@ -24,6 +24,7 @@
     <div class="header-right">
       <nav>
         <a href="#video">Video</a>
+        <a href="#radio">Radio</a>
         <a href="#music">Music</a>
         <a href="#story">Story</a>
         <a href="#contact">Contact</a>
@@ -54,7 +55,7 @@
           ▶ Watch on YouTube
         </a>
 
-        <a href="https://www.youtube.com/watch?v=JK-lyAn9o40" target="_blank" class="btn-secondary">
+        <a href="#radio" class="btn-secondary">
           🎧 Listen Now
         </a>
       </div>
@@ -93,6 +94,39 @@
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
         allowfullscreen>
       </iframe>
+    </div>
+  </section>
+
+  <section id="radio" class="radio-section">
+    <div class="section-heading">
+      <span class="section-kicker">LISTEN ANYTIME</span>
+      <h2>Cross Valley Radio</h2>
+      <p>Songs of faith for the road, the night, and the valley.</p>
+    </div>
+
+    <div class="radio-player">
+      <div class="radio-current">
+        <img id="radioCover" src="assets/thumb1.jpg" alt="Current song cover">
+
+        <div class="radio-info">
+          <span>Now Playing</span>
+          <h3 id="radioTitle">He Sang About God…</h3>
+          <p>Cross Valley</p>
+        </div>
+      </div>
+
+      <div class="radio-controls">
+        <button onclick="prevSong()" aria-label="Previous song">⏮</button>
+        <button onclick="togglePlay()" id="radioPlayBtn" aria-label="Play or pause">▶</button>
+        <button onclick="nextSong()" aria-label="Next song">⏭</button>
+      </div>
+
+      <audio id="radioAudio"></audio>
+
+      <div class="radio-list">
+        <button onclick="playSong(0)">🎧 He Sang About God… And The Entire Room Fell Silent</button>
+        <button onclick="playSong(1)">🎧 The Final Day</button>
+      </div>
     </div>
   </section>
 
@@ -230,6 +264,62 @@
         previewFrame.src = "";
       }
     });
+
+    const playlist = [
+      {
+        title: "He Sang About God…",
+        src: "assets/audio/room-silent.mp3",
+        cover: "assets/thumb1.jpg"
+      },
+      {
+        title: "The Final Day",
+        src: "assets/audio/final-day.mp3",
+        cover: "assets/thumb2.jpg"
+      }
+    ];
+
+    let currentSong = 0;
+    const radioAudio = document.getElementById("radioAudio");
+    const radioTitle = document.getElementById("radioTitle");
+    const radioCover = document.getElementById("radioCover");
+    const radioPlayBtn = document.getElementById("radioPlayBtn");
+
+    function loadSong(index) {
+      radioAudio.src = playlist[index].src;
+      radioTitle.innerText = playlist[index].title;
+      radioCover.src = playlist[index].cover;
+    }
+
+    function playSong(index) {
+      currentSong = index;
+      loadSong(currentSong);
+      radioAudio.play();
+      radioPlayBtn.innerText = "⏸";
+    }
+
+    function togglePlay() {
+      if (radioAudio.paused) {
+        radioAudio.play();
+        radioPlayBtn.innerText = "⏸";
+      } else {
+        radioAudio.pause();
+        radioPlayBtn.innerText = "▶";
+      }
+    }
+
+    function nextSong() {
+      currentSong = (currentSong + 1) % playlist.length;
+      playSong(currentSong);
+    }
+
+    function prevSong() {
+      currentSong = (currentSong - 1 + playlist.length) % playlist.length;
+      playSong(currentSong);
+    }
+
+    radioAudio.addEventListener("ended", nextSong);
+
+    loadSong(currentSong);
   </script>
 
 </body>
