@@ -1,287 +1,124 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cross Valley</title>
 
-  <title>Cross Valley | Cinematic Gospel Country</title>
-  <meta name="description" content="Cinematic gospel country music about pain, redemption, faith, and transformation through Jesus Christ." />
-
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-  <header class="header">
-    <div class="logo">
-      <img src="assets/cross-valley-logo.png" class="logo-img" alt="Cross Valley logo">
-    </div>
+<header class="header">
+  <img src="assets/cross-valley-logo.png" class="logo">
 
-    <div class="brand-center">
-      <img src="assets/logo-full.png" class="brand-logo" alt="Cross Valley">
-    </div>
+  <nav>
+    <a href="#radio">Rádio</a>
+    <a href="#music">Música</a>
+    <a href="#story">História</a>
+    <a href="#contact">Contato</a>
+  </nav>
 
-    <div class="header-right">
-      <nav>
-        <a href="#video">Video</a>
-        <a href="#radio">Radio</a>
-        <a href="#music">Music</a>
-        <a href="#story">Story</a>
-        <a href="#contact">Contact</a>
-      </nav>
+  <a href="https://www.youtube.com/@CrossValleyCountryGospel" target="_blank" class="btn-subscribe">
+    Inscreva-se
+  </a>
+</header>
 
-      <a href="https://www.youtube.com/@CrossValleyCountryGospel" target="_blank" class="btn-subscribe">
-        Subscribe
-      </a>
-    </div>
-  </header>
+<section class="hero">
+  <h1>Canções para o vale,<br>fé para a noite.</h1>
 
-  <section class="hero">
-    <div class="hero-text">
-      <span class="tagline">CINEMATIC GOSPEL COUNTRY</span>
+  <p>
+    Histórias profundas de dor, fé e redenção através de Jesus Cristo.
+  </p>
 
-      <h1>
-        Songs for the valley,<br>
-        faith for the night.
-      </h1>
-
-      <p>
-        Deep stories of pain, surrender, and redemption through Jesus Christ —
-        told with raw emotion, acoustic soul, and cinematic country sound.
-      </p>
-
-      <div class="buttons">
-        <a href="https://www.youtube.com/@CrossValleyCountryGospel" target="_blank" class="btn-primary">
-          ▶ Watch on YouTube
-        </a>
-
-        <a href="#radio" class="btn-secondary">
-          🎧 Listen Now
-        </a>
-      </div>
-    </div>
-
-    <div class="hero-highlight">
-      <img src="assets/persona.jpg" class="persona-img" alt="Cross Valley artist">
-
-      <h3>Now Featured</h3>
-      <h2>He Sang About God… And The Entire Room Fell Silent</h2>
-
-      <p>
-        A powerful moment of faith where a simple song about God silences the room and awakens hearts.
-      </p>
-
-      <button class="play-btn" id="openPreview">
-        ▶ Play Preview
-      </button>
-    </div>
-  </section>
-
-  <section id="video" class="featured-video-section">
-    <div class="section-heading">
-      <span class="section-kicker">WATCH THE FEATURED VIDEO</span>
-      <h2>Featured Video</h2>
-      <p>
-        Experience the message, the atmosphere, and the story behind the music.
-      </p>
-    </div>
-
-    <div class="featured-video-frame">
-      <iframe
-        src="https://www.youtube.com/embed/JK-lyAn9o40"
-        title="Cross Valley Featured Video"
-        frameborder="0"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        allowfullscreen>
-      </iframe>
-    </div>
-  </section>
-
-  <section id="radio" class="radio-section">
-    <div class="section-heading">
-      <span class="section-kicker">LISTEN ANYTIME</span>
-      <h2>Cross Valley Radio</h2>
-      <p>Songs of faith for the road, the night, and the valley.</p>
-    </div>
-
-    <div class="radio-player">
-      <div class="radio-current">
-        <img id="radioCover" src="assets/thumb1.jpg" alt="Current song cover">
-
-        <div class="radio-info">
-          <span>Now Playing</span>
-          <h3 id="radioTitle">He Sang About God…</h3>
-          <p>Cross Valley</p>
-        </div>
-      </div>
-
-      <div class="radio-controls">
-        <button onclick="prevSong()" aria-label="Previous song">⏮</button>
-        <button onclick="togglePlay()" id="radioPlayBtn" aria-label="Play or pause">▶</button>
-        <button onclick="nextSong()" aria-label="Next song">⏭</button>
-      </div>
-
-      <audio id="radioAudio"></audio>
-
-      <div class="radio-list">
-        <button onclick="playSong(0)">🎧 He Sang About God… And The Entire Room Fell Silent</button>
-        <button onclick="playSong(1)">🎧 The Final Day</button>
-      </div>
-    </div>
-  </section>
-
-  <section id="music" class="music-section">
-    <div class="section-heading">
-      <span class="section-kicker">LATEST RELEASES</span>
-      <h2>Music</h2>
-      <p>
-        Cinematic gospel country songs crafted for listeners walking through pain, faith, surrender, and redemption.
-      </p>
-    </div>
-
-    <div class="music-grid">
-      <article class="music-card premium">
-        <div class="music-image-wrap">
-          <img src="assets/thumb1.jpg" class="music-thumb" alt="He Sang About God thumbnail">
-        </div>
-
-        <div class="music-content">
-          <span class="music-label">Featured Single</span>
-          <h3>He Sang About God… And The Entire Room Fell Silent</h3>
-          <p>
-            A powerful moment of faith where a simple song about God silences the room and awakens hearts.
-          </p>
-
-          <a href="https://www.youtube.com/watch?v=JK-lyAn9o40" target="_blank" class="btn-primary">
-            ▶ Watch on YouTube
-          </a>
-        </div>
-      </article>
-
-      <article class="music-card premium">
-        <div class="music-image-wrap">
-          <img src="assets/thumb2.jpg" class="music-thumb" alt="The Final Day thumbnail">
-        </div>
-
-        <div class="music-content">
-          <span class="music-label">New Release</span>
-          <h3>The Final Day</h3>
-          <p>
-            This powerful country gospel song tells the story of a man reflecting on his life, his mistakes,
-            and the moment he will stand before God. “The Final Day” is more than just a song — it is a
-            spiritual journey of repentance and redemption.
-          </p>
-
-          <a href="https://www.youtube.com/watch?v=fsI8KNYVgTI" target="_blank" class="btn-primary">
-            ▶ Watch on YouTube
-          </a>
-        </div>
-      </article>
-    </div>
-  </section>
-
-  <section id="story" class="content-section">
-    <span class="section-kicker">THE HEART BEHIND THE SONGS</span>
-    <h2>Why These Songs Exist</h2>
-    <p>
-      Cross Valley was born from the desire to turn pain into purpose and music into testimony.
-      Each song is a journey through faith, valleys, and redemption — always pointing back to Jesus Christ.
-    </p>
-  </section>
-
-  <section id="visuals" class="content-section">
-    <span class="section-kicker">CINEMATIC VISUAL IDENTITY</span>
-    <h2>Visuals</h2>
-    <p>
-      Every image and video is crafted to reflect the depth, emotion, and spiritual journey behind the music.
-    </p>
-  </section>
-
-  <section id="contact" class="content-section">
-    <span class="section-kicker">PARTNERSHIPS & MINISTRY</span>
-    <h2>Contact</h2>
-    <p>
-      For partnerships, collaborations, or ministry opportunities, get in touch.
-    </p>
-    <p>Email: darciovector@gmail.com</p>
-  </section>
-
-  <section class="subscribe-section">
-    <a href="https://www.youtube.com/@CrossValleyCountryGospel" target="_blank">
-      <img src="assets/subscribe.png" class="subscribe-img" alt="Subscribe to Cross Valley">
+  <div class="hero-buttons">
+    <a href="https://www.youtube.com/@CrossValleyCountryGospel" target="_blank" class="btn-primary">
+      ▶ Assistir no YouTube
     </a>
 
-    <p>Receive new music and messages of faith.</p>
-  </section>
+    <a href="#radio" class="btn-secondary">
+      🎧 Ouça agora
+    </a>
+  </div>
+</section>
 
-  <footer class="footer">
-    <p>© 2026 Cross Valley — All rights reserved</p>
-  </footer>
+<section id="radio" class="radio-section">
+  <h2>Rádio Cross Valley</h2>
 
-  <a href="https://wa.me/5517997070627" target="_blank" class="whatsapp" aria-label="WhatsApp">
-    <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/whatsapp.svg" alt="WhatsApp">
+  <div class="radio-player">
+
+    <img id="cover" src="assets/thumb1.jpg">
+
+    <h3 id="title">Carregando...</h3>
+
+    <div class="controls">
+      <button onclick="prev()">⏮</button>
+      <button onclick="playPause()" id="playBtn">▶</button>
+      <button onclick="next()">⏭</button>
+    </div>
+
+    <audio id="audio"></audio>
+
+  </div>
+</section>
+
+<section id="music" class="section">
+  <h2>Música</h2>
+
+  <div class="music-grid">
+
+    <div class="card">
+      <img src="assets/thumb1.jpg">
+      <h3>Ele cantou sobre Deus...</h3>
+      <a href="https://www.youtube.com/watch?v=JK-lyAn9o40" target="_blank">Assistir</a>
+    </div>
+
+    <div class="card">
+      <img src="assets/thumb2.jpg">
+      <h3>O Último Dia</h3>
+      <a href="https://www.youtube.com/watch?v=fsI8KNYVgTI" target="_blank">Assistir</a>
+    </div>
+
+  </div>
+</section>
+
+<section id="story" class="section">
+  <h2>A mensagem por trás das canções</h2>
+  <p>
+    Cada música nasce da dor, passa pela fé e termina na redenção.
+  </p>
+</section>
+
+<section id="contact" class="section">
+  <h2>Contato</h2>
+  <p>Email: darciovector@gmail.com</p>
+</section>
+
+<section class="subscribe">
+  <a href="https://www.youtube.com/@CrossValleyCountryGospel" target="_blank">
+    <img src="assets/subscribe.png">
   </a>
+</section>
 
-  <!-- FIXED SPOTIFY STYLE PLAYER -->
-  <div class="fixed-player" id="fixedPlayer">
-    <img id="fixedCover" src="assets/thumb1.jpg" alt="Current song cover">
+<footer>
+  © 2026 Cross Valley
+</footer>
 
-    <div class="fixed-info">
-      <strong id="fixedTitle">He Sang About God…</strong>
-      <span>Cross Valley Radio</span>
-    </div>
+<!-- PLAYER FIXO -->
+<div class="player-fixed" id="playerFixed">
+  <img id="fixedCover" src="assets/thumb1.jpg">
 
-    <div class="fixed-controls">
-      <button onclick="prevSong()">⏮</button>
-      <button onclick="togglePlay()" id="fixedPlayBtn">▶</button>
-      <button onclick="nextSong()">⏭</button>
-    </div>
-  </div>
+  <span id="fixedTitle">Tocando...</span>
 
-  <div class="video-modal" id="videoModal">
-    <div class="video-modal-content">
-      <button class="video-close" id="closePreview" aria-label="Close video">×</button>
-      <div class="video-wrapper">
-        <iframe
-          id="previewFrame"
-          src=""
-          title="Cross Valley Preview"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-          allowfullscreen>
-        </iframe>
-      </div>
-    </div>
-  </div>
+  <button onclick="playPause()">▶</button>
+</div>
 
-  <script>
-    const openPreview = document.getElementById("openPreview");
-    const closePreview = document.getElementById("closePreview");
-    const videoModal = document.getElementById("videoModal");
-    const previewFrame = document.getElementById("previewFrame");
+<script>
 
-    const videoEmbedUrl = "https://www.youtube.com/embed/JK-lyAn9o40?autoplay=1";
-
-    openPreview.addEventListener("click", () => {
-      previewFrame.src = videoEmbedUrl;
-      videoModal.classList.add("active");
-    });
-
-    closePreview.addEventListener("click", () => {
-      videoModal.classList.remove("active");
-      previewFrame.src = "";
-    });
-
-    videoModal.addEventListener("click", (event) => {
-      if (event.target === videoModal) {
-        videoModal.classList.remove("active");
-        previewFrame.src = "";
-      }
-    });
-
-    const playlist = [
+const playlist = [
   {
-    title: "Ele cantou sobre Deus...",
+    title: "Ele cantou sobre Deus",
     src: "ativos/audio/quarto-silencioso.mp3",
     cover: "assets/thumb1.jpg"
   },
@@ -292,66 +129,43 @@
   }
 ];
 
-    let currentSong = 0;
+let i = 0;
+let audio = document.getElementById("audio");
 
-    const radioAudio = document.getElementById("radioAudio");
-    const radioTitle = document.getElementById("radioTitle");
-    const radioCover = document.getElementById("radioCover");
-    const radioPlayBtn = document.getElementById("radioPlayBtn");
+function load(){
+  audio.src = playlist[i].src;
+  document.getElementById("title").innerText = playlist[i].title;
+  document.getElementById("cover").src = playlist[i].cover;
+  document.getElementById("fixedTitle").innerText = playlist[i].title;
+  document.getElementById("fixedCover").src = playlist[i].cover;
+}
 
-    const fixedPlayer = document.getElementById("fixedPlayer");
-    const fixedTitle = document.getElementById("fixedTitle");
-    const fixedCover = document.getElementById("fixedCover");
-    const fixedPlayBtn = document.getElementById("fixedPlayBtn");
+function playPause(){
+  if(audio.paused){
+    audio.play();
+    document.getElementById("playBtn").innerText = "⏸";
+    document.getElementById("playerFixed").style.display = "flex";
+  } else {
+    audio.pause();
+    document.getElementById("playBtn").innerText = "▶";
+  }
+}
 
-    function updatePlayerUI() {
-      radioTitle.innerText = playlist[currentSong].title;
-      radioCover.src = playlist[currentSong].cover;
-      fixedTitle.innerText = playlist[currentSong].title;
-      fixedCover.src = playlist[currentSong].cover;
-    }
+function next(){
+  i = (i+1)%playlist.length;
+  load();
+  audio.play();
+}
 
-    function loadSong(index) {
-      radioAudio.src = playlist[index].src;
-      updatePlayerUI();
-    }
+function prev(){
+  i = (i-1+playlist.length)%playlist.length;
+  load();
+  audio.play();
+}
 
-    function playSong(index) {
-      currentSong = index;
-      loadSong(currentSong);
-      radioAudio.play();
-      radioPlayBtn.innerText = "⏸";
-      fixedPlayBtn.innerText = "⏸";
-      fixedPlayer.classList.add("active");
-    }
+load();
 
-    function togglePlay() {
-      if (radioAudio.paused) {
-        radioAudio.play();
-        radioPlayBtn.innerText = "⏸";
-        fixedPlayBtn.innerText = "⏸";
-        fixedPlayer.classList.add("active");
-      } else {
-        radioAudio.pause();
-        radioPlayBtn.innerText = "▶";
-        fixedPlayBtn.innerText = "▶";
-      }
-    }
-
-    function nextSong() {
-      currentSong = (currentSong + 1) % playlist.length;
-      playSong(currentSong);
-    }
-
-    function prevSong() {
-      currentSong = (currentSong - 1 + playlist.length) % playlist.length;
-      playSong(currentSong);
-    }
-
-    radioAudio.addEventListener("ended", nextSong);
-
-    loadSong(currentSong);
-  </script>
+</script>
 
 </body>
 </html>
