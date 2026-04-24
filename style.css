@@ -481,3 +481,57 @@ section p {
     width: 280px !important;
   }
 }
+/* =========================
+   HOLLYWOOD MOTION EFFECTS
+========================= */
+
+.hero,
+.content-section,
+.music-section,
+.featured-video-section,
+.subscribe-section {
+  animation: fadeUpHollywood 1s ease both;
+}
+
+@keyframes fadeUpHollywood {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero-highlight,
+.music-card,
+.featured-video-frame,
+.subscribe-img {
+  transition: transform 0.4s ease, box-shadow 0.4s ease, filter 0.4s ease;
+}
+
+.hero-highlight:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.55);
+}
+
+.music-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 30px 75px rgba(0, 0, 0, 0.6);
+}
+
+.featured-video-frame:hover {
+  transform: scale(1.02);
+}
+
+.persona-img,
+.music-thumb {
+  transition: transform 0.45s ease;
+}
+
+.hero-highlight:hover .persona-img,
+.music-card:hover .music-thumb {
+  transform: scale(1.05);
+}
