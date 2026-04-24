@@ -1,6 +1,5 @@
 :root {
   --bg: #0a0a0a;
-  --bg-soft: #121212;
   --text: #efe9de;
   --muted: #c8bca8;
   --gold: #f0bf78;
@@ -38,8 +37,6 @@ body {
   gap: 30px;
 }
 
-/* LOGO */
-
 .logo {
   display: flex;
   align-items: center;
@@ -60,23 +57,19 @@ body {
     0 12px 30px rgba(0, 0, 0, 0.6);
 }
 
-/* BRAND CENTER */
-
 .brand-center {
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.brand-center span {
-  font-size: 2rem;
-  font-weight: 700;
-  letter-spacing: 0.35rem;
-  color: var(--gold);
-  text-transform: uppercase;
-  white-space: nowrap;
-  text-shadow: 0 0 18px rgba(240, 191, 120, 0.18);
+.brand-logo {
+  max-width: 220px;
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
 }
-
-/* NAV */
 
 .header-right {
   display: flex;
@@ -95,8 +88,6 @@ nav a {
   font-size: 1.05rem;
 }
 
-/* SUBSCRIBE BUTTON */
-
 .btn-subscribe {
   background: linear-gradient(135deg, #ff3b30, #b30000);
   color: #ffffff;
@@ -107,7 +98,6 @@ nav a {
   font-weight: 700;
   white-space: nowrap;
   box-shadow: 0 10px 24px rgba(179, 0, 0, 0.35);
-  border: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -129,23 +119,7 @@ nav a {
   grid-template-columns: 1.25fr 0.75fr;
   gap: 2rem;
   position: relative;
-  isolation: isolate;
 }
-
-/* CINEMATIC BACKGROUND */
-
-.hero-bg-overlay {
-  position: absolute;
-  inset: 0;
-  border-radius: 24px;
-  background:
-    linear-gradient(180deg, rgba(8, 8, 8, 0.45), rgba(8, 8, 8, 0.85)),
-    url("assets/stage-bg.png") center / cover no-repeat;
-  z-index: -1;
-  filter: saturate(0.95) contrast(1.05);
-}
-
-/* TEXT */
 
 .tagline {
   color: var(--gold);
@@ -213,7 +187,6 @@ nav a {
   box-shadow: 0 26px 52px rgba(0, 0, 0, 0.44);
   padding: 1.5rem;
   align-self: center;
-  position: relative;
   overflow: hidden;
 }
 
@@ -229,8 +202,6 @@ nav a {
   line-height: 1.3;
 }
 
-/* ARTIST IMAGE */
-
 .persona-img {
   width: 100%;
   max-width: 320px;
@@ -240,7 +211,23 @@ nav a {
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
 }
 
-/* INNER SECTIONS */
+/* SECTIONS */
+
+#story,
+#visuals,
+#contact {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 4rem 20px 2rem;
+  display: block;
+}
+
+#music {
+  max-width: 950px;
+  margin: 0 auto;
+  padding: 4rem 20px 2rem;
+  display: block;
+}
 
 section h2 {
   font-size: 2rem;
@@ -253,43 +240,79 @@ section p {
   max-width: 70ch;
 }
 
-/* MUSIC SECTION */
+/* MUSIC */
 
 .music-card {
-  display: flex;
-  gap: 22px;
-  align-items: flex-start;
-  margin-top: 30px;
-  padding: 20px;
+  width: 100%;
+  margin-top: 28px;
+  padding: 22px;
   border: 1px solid var(--border);
   border-radius: 20px;
   background: linear-gradient(170deg, rgba(18, 18, 18, 0.92), rgba(8, 8, 8, 0.96));
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
 }
 
+.music-top {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 18px;
+}
+
 .music-thumb {
-  width: 240px;
-  max-width: 100%;
-  border-radius: 16px;
+  width: 180px;
+  border-radius: 14px;
   display: block;
-  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
   flex-shrink: 0;
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.35);
 }
 
-.music-info {
-  flex: 1;
-}
-
-.music-info h3 {
-  margin: 0 0 12px;
-  font-size: 1.3rem;
-  line-height: 1.35;
+.music-title h3 {
+  margin: 0;
+  font-size: 1.35rem;
+  line-height: 1.3;
   color: var(--text);
 }
 
-.music-info p {
-  margin: 0 0 16px;
-  max-width: 60ch;
+.music-card p {
+  max-width: 100%;
+  margin: 0 0 18px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.music-button {
+  text-align: center;
+}
+
+/* SUBSCRIBE SECTION */
+
+.subscribe-section {
+  max-width: 900px;
+  margin: 70px auto 40px;
+  padding: 50px 20px;
+  text-align: center;
+}
+
+.subscribe-img {
+  max-width: 360px;
+  width: 100%;
+  display: block;
+  margin: 0 auto;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.subscribe-img:hover {
+  transform: scale(1.05);
+}
+
+.subscribe-section p {
+  margin: 18px auto 0;
+  max-width: 520px;
+  color: var(--muted);
+  text-align: center;
+  font-size: 1.05rem;
 }
 
 /* FOOTER */
@@ -309,7 +332,6 @@ section p {
   right: 50px;
   background: #25D366;
   color: white;
-  font-size: 26px;
   width: 55px;
   height: 55px;
   display: flex;
@@ -389,7 +411,6 @@ section p {
   border: 1px solid rgba(255, 255, 255, 0.12);
   border-radius: 18px;
   padding: 18px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
 }
 
 .video-close {
@@ -429,10 +450,6 @@ section p {
     padding: 4rem 1.5rem 3rem;
   }
 
-  .hero-bg-overlay {
-    border-radius: 16px;
-  }
-
   .header {
     margin: 1rem;
     border-radius: 18px;
@@ -448,18 +465,19 @@ section p {
     gap: 12px;
   }
 
-  .whatsapp {
-    right: 24px;
-    bottom: 24px;
-  }
-
-  .music-card {
+  .music-top {
     flex-direction: column;
+    align-items: flex-start;
   }
 
   .music-thumb {
     width: 100%;
     max-width: 420px;
+  }
+
+  .whatsapp {
+    right: 24px;
+    bottom: 24px;
   }
 }
 
@@ -478,6 +496,10 @@ section p {
     height: 80px;
   }
 
+  .brand-logo {
+    max-width: 170px;
+  }
+
   .hero {
     padding: 4rem 1.25rem 3rem;
   }
@@ -486,18 +508,9 @@ section p {
     font-size: clamp(2.4rem, 12vw, 4rem);
   }
 
-  .brand-center span {
-    font-size: 1.15rem;
-    letter-spacing: 0.18rem;
-  }
-
   .btn-subscribe {
     font-size: 0.85rem;
     padding: 0.65rem 0.9rem;
-  }
-
-  .whatsapp::after {
-    display: none;
   }
 
   .btn-primary,
@@ -506,113 +519,12 @@ section p {
     font-size: 0.9rem;
     padding: 0.7rem 1rem;
   }
-}
 
-.brand-center {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-.subscribe-section {
-  text-align: center;
-  margin-top: 80px;
-}
+  .subscribe-img {
+    max-width: 280px;
+  }
 
-.subscribe-section h2 {
-  font-size: 1.8rem;
-  margin-bottom: 10px;
-}
-
-.subscribe-section {
-  max-width: 1280px;
-  margin: 80px auto 0;
-  padding: 60px 20px;
-  text-align: center;
-}
-
-.subscribe-section h2 {
-  font-size: 2rem;
-  margin-bottom: 10px;
-}
-
-.subscribe-section p {
-  margin: 0 auto 24px;
-  max-width: 500px;
-  color: var(--muted);
-  text-align: center;
-}
-
-.subscribe-img {
-  max-width: 320px;
-  width: 100%;
-  display: block;
-  margin: 0 auto;
-  transition: transform 0.3s ease;
-  cursor: pointer;
-}
-
-.subscribe-img:hover {
-  transform: scale(1.05);
-}
-
-.subscribe-img {
-  max-width: 320px;
-  transition: transform 0.3s ease;
-  cursor: pointer;
-}
-
-.subscribe-img:hover {
-  transform: scale(1.05);
-}
-.brand-logo {
-  max-width: 220px;
-  width: 100%;
-  height: auto;
-  display: block;
-  margin: 0 auto;
-}
-#story,
-#visuals,
-#contact {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-#music {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 0 20px;
-}
-
-.music-card {
-  max-width: 760px;
-}
-
-.subscribe-section {
-  max-width: 900px;
-  margin: 80px auto 0;
-  padding: 50px 20px;
-  text-align: center;
-}
-
-.subscribe-section p {
-  margin: 18px auto 0;
-  max-width: 520px;
-  color: var(--muted);
-  text-align: center;
-  font-size: 1.05rem;
-}
-
-.subscribe-img {
-  max-width: 360px;
-  width: 100%;
-  display: block;
-  margin: 0 auto;
-  transition: transform 0.3s ease;
-  cursor: pointer;
-}
-
-.subscribe-img:hover {
-  transform: scale(1.05);
+  .whatsapp::after {
+    display: none;
+  }
 }
