@@ -17,6 +17,7 @@ body {
     linear-gradient(rgba(0, 0, 0, 0.82), rgba(0, 0, 0, 0.92)),
     url("assets/stage-bg.png") center center / cover no-repeat fixed;
   color: white;
+  animation: fadeCinema 1.4s ease;
 }
 
 /* HEADER */
@@ -93,6 +94,7 @@ nav a {
   display: grid;
   grid-template-columns: 1.25fr 0.75fr;
   gap: 2rem;
+  animation: fadeUpCinema 1s ease both;
 }
 
 .tagline,
@@ -183,12 +185,15 @@ section p {
   max-width: 1000px;
   margin: 0 auto;
   padding: 5rem 2rem;
+  text-align: center;
+  animation: fadeUpCinema 1s ease both;
 }
 
 .content-section h2,
 .section-heading h2 {
   font-size: 2.4rem;
-  margin: 0.7rem 0;
+  margin: 0.7rem 0 20px;
+  text-align: center;
 }
 
 .section-heading {
@@ -197,12 +202,21 @@ section p {
   margin: 0 auto 3rem;
 }
 
+.content-section p,
+.music-section p,
+.featured-video-section p {
+  max-width: 700px;
+  margin: 0 auto 30px;
+}
+
 /* MUSIC PREMIUM */
 
 .music-section {
   max-width: 1200px;
   margin: 0 auto;
   padding: 5rem 2rem;
+  text-align: center;
+  animation: fadeUpCinema 1s ease both;
 }
 
 .music-grid {
@@ -221,11 +235,13 @@ section p {
 }
 
 .music-card:hover {
-  transform: translateY(-6px);
+  transform: scale(1.03);
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
 }
 
 .music-image-wrap {
   width: 100%;
+  overflow: hidden;
 }
 
 .music-thumb {
@@ -233,6 +249,12 @@ section p {
   display: block;
   aspect-ratio: 16 / 9;
   object-fit: cover;
+  transform: scale(1.06);
+  transition: transform 0.4s ease;
+}
+
+.music-card:hover .music-thumb {
+  transform: scale(1.1);
 }
 
 .music-content {
@@ -249,6 +271,8 @@ section p {
 
 .music-content p {
   min-height: 115px;
+  font-size: 0.98rem;
+  line-height: 1.55;
 }
 
 /* FEATURED VIDEO */
@@ -266,6 +290,11 @@ section p {
   overflow: hidden;
   border: 1px solid var(--border);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  transition: transform 0.4s ease, filter 0.4s ease;
+}
+
+.featured-video-frame:hover {
+  transform: scale(1.02);
 }
 
 .featured-video-frame iframe {
@@ -274,42 +303,132 @@ section p {
   display: block;
 }
 
+/* CROSS VALLEY RADIO */
+
+.radio-section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 5rem 2rem;
+  text-align: center;
+  animation: fadeUpCinema 1s ease both;
+}
+
+.radio-player {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: linear-gradient(170deg, rgba(18, 18, 18, 0.95), rgba(8, 8, 8, 0.98));
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.radio-current {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  text-align: left;
+}
+
+.radio-current img {
+  width: 110px;
+  height: 110px;
+  object-fit: cover;
+  border-radius: 16px;
+  box-shadow: 0 14px 35px rgba(0, 0, 0, 0.45);
+}
+
+.radio-info span {
+  color: var(--gold);
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.radio-info h3 {
+  margin: 8px 0 4px;
+  font-family: Georgia, serif;
+  font-size: 1.5rem;
+  color: var(--text);
+}
+
+.radio-info p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.radio-controls {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin: 26px 0;
+}
+
+.radio-controls button {
+  width: 52px;
+  height: 52px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: rgba(20, 20, 20, 0.85);
+  color: #fff;
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+.radio-controls button:hover {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: #101010;
+}
+
+.radio-list {
+  display: grid;
+  gap: 10px;
+}
+
+.radio-list button {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.radio-list button:hover {
+  border-color: rgba(240, 191, 120, 0.7);
+  color: var(--gold);
+}
+
 /* SUBSCRIBE */
 
 .subscribe-section {
   text-align: center;
-  margin: 70px auto 50px;
-  padding: 40px 20px;
+  margin: 35px auto 50px;
+  padding: 20px 20px 40px;
+  animation: fadeUpCinema 1s ease both;
 }
 
 .subscribe-img {
-  width: 420px !important;
-  max-width: 90vw !important;
+  width: 520px !important;
+  max-width: 92vw !important;
   display: block;
   margin: 0 auto;
-
   filter: drop-shadow(0 0 25px rgba(255, 200, 0, 0.7));
   animation: pulseGlow 2.2s infinite ease-in-out;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, filter 0.4s ease;
 }
 
 .subscribe-img:hover {
   transform: scale(1.08);
 }
 
-@keyframes pulseGlow {
-  0% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 20px rgba(255, 200, 0, 0.5));
-  }
-  50% {
-    transform: scale(1.06);
-    filter: drop-shadow(0 0 40px rgba(255, 220, 80, 1));
-  }
-  100% {
-    transform: scale(1);
-    filter: drop-shadow(0 0 20px rgba(255, 200, 0, 0.5));
-  }
+.subscribe-section p {
+  margin-top: 22px;
+  color: var(--muted);
+  font-size: 1.1rem;
 }
 
 /* FOOTER */
@@ -395,6 +514,45 @@ section p {
   height: 100%;
 }
 
+/* ANIMAÇÕES */
+
+@keyframes fadeCinema {
+  from {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeUpCinema {
+  from {
+    opacity: 0;
+    transform: translateY(28px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulseGlow {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 20px rgba(255, 200, 0, 0.5));
+  }
+  50% {
+    transform: scale(1.06);
+    filter: drop-shadow(0 0 40px rgba(255, 220, 80, 1));
+  }
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 20px rgba(255, 200, 0, 0.5));
+  }
+}
+
 /* RESPONSIVO */
 
 @media (max-width: 900px) {
@@ -430,6 +588,7 @@ section p {
     height: 85px;
   }
 }
+
 @media (max-width: 768px) {
   .hero {
     padding: 4rem 1.5rem 2rem;
@@ -443,8 +602,7 @@ section p {
   .buttons {
     justify-content: center;
   }
-}
-@media (max-width: 768px) {
+
   .hero-highlight {
     margin-top: 30px;
     text-align: center;
@@ -453,8 +611,7 @@ section p {
   .persona-img {
     max-width: 220px;
   }
-}
-@media (max-width: 768px) {
+
   .music-card {
     display: block;
   }
@@ -475,118 +632,22 @@ section p {
     width: 100%;
     margin-top: 12px;
   }
-}
-@media (max-width: 768px) {
+
   .featured-video-frame {
     border-radius: 16px;
   }
-}
-@media (max-width: 768px) {
+
   .subscribe-img {
     width: 280px !important;
   }
-}
-/* =========================
-   CENTRALIZAÇÃO DE TÍTULOS
-========================= */
 
-.content-section,
-.music-section,
-.featured-video-section {
-  text-align: center;
-}
-
-.content-section h2,
-.music-section h2,
-.featured-video-section h2 {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.content-section p,
-.music-section p,
-.featured-video-section p {
-  max-width: 700px;
-  margin: 0 auto 30px;
-}
-/* =========================
-   ANIMAÇÃO CINEMATOGRÁFICA
-========================= */
-
-body {
-  animation: fadeCinema 1.4s ease;
-}
-
-@keyframes fadeCinema {
-  from {
-    opacity: 0;
-    transform: scale(1.02);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-/* =========================
-   HOLLYWOOD FINAL TOUCH
-========================= */
-
-/* MUSIC: mais visual, menos texto */
-.music-thumb {
-  transform: scale(1.06);
-  transition: transform 0.4s ease;
-}
-
-.music-card:hover .music-thumb {
-  transform: scale(1.1);
-}
-
-.music-content p {
-  font-size: 0.98rem;
-  line-height: 1.55;
-}
-
-/* SUBSCRIBE maior e mais próximo */
-.subscribe-section {
-  margin-top: 35px;
-  padding-top: 20px;
-}
-
-.subscribe-img {
-  width: 520px !important;
-  max-width: 92vw !important;
-}
-
-/* MOVIMENTO CINEMATOGRÁFICO */
-.hero,
-.content-section,
-.music-section,
-.featured-video-section,
-.subscribe-section {
-  animation: fadeUpCinema 1s ease both;
-}
-
-@keyframes fadeUpCinema {
-  from {
-    opacity: 0;
-    transform: translateY(28px);
+  .radio-current {
+    flex-direction: column;
+    text-align: center;
   }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  .radio-current img {
+    width: 180px;
+    height: 180px;
   }
-}
-
-/* Zoom suave nas imagens principais */
-.persona-img,
-.music-thumb,
-.featured-video-frame,
-.subscribe-img {
-  transition: transform 0.4s ease, filter 0.4s ease;
-}
-
-.persona-img:hover,
-.featured-video-frame:hover {
-  transform: scale(1.02);
 }
