@@ -17,10 +17,9 @@
   align-items: center;
   gap: 14px;
   z-index: 3000;
-  opacity: 0;
-  pointer-events: none;
-  transition: all 0.35s ease;
-}
+  opacity: 1;
+pointer-events: auto;
+transform: translateX(-50%) translateY(0);
 
 .fixed-player.active {
   opacity: 1;
