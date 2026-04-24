@@ -336,6 +336,7 @@ const proPlay = document.getElementById("proPlay");
 const proProgress = document.getElementById("proProgress");
 const proCurrent = document.getElementById("proCurrent");
 const proDuration = document.getElementById("proDuration");
+const audioWave = document.getElementById("audioWave");
 
 function proLoadSong() {
   proAudio.src = proSongs[proIndex].src;
@@ -347,9 +348,12 @@ function proToggle() {
   if (proAudio.paused) {
     proAudio.play();
     proPlay.innerText = "⏸";
+    audioWave.classList.add("active");
+    audioWave.classList.add("active");
   } else {
     proAudio.pause();
     proPlay.innerText = "▶";
+    audioWave.classList.remove("active");
   }
 }
 
