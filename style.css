@@ -486,3 +486,26 @@ section p {
     width: 280px !important;
   }
 }
+/* =========================
+   CENTRALIZAÇÃO DE TÍTULOS
+========================= */
+
+.content-section,
+.music-section,
+.featured-video-section {
+  text-align: center;
+}
+
+.content-section h2,
+.music-section h2,
+.featured-video-section h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.content-section p,
+.music-section p,
+.featured-video-section p {
+  max-width: 700px;
+  margin: 0 auto 30px;
+}
