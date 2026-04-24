@@ -566,3 +566,21 @@ section p {
   margin-top: 22px;
   text-align: center;
 }
+@keyframes pulseGlow {
+  0% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 20px rgba(255, 200, 0, 0.5));
+  }
+  50% {
+    transform: scale(1.05);
+    filter: drop-shadow(0 0 35px rgba(255, 220, 80, 0.9));
+  }
+  100% {
+    transform: scale(1);
+    filter: drop-shadow(0 0 20px rgba(255, 200, 0, 0.5));
+  }
+}
+
+.subscribe-img {
+  animation: pulseGlow 2.5s infinite;
+}
