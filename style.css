@@ -570,3 +570,93 @@ perspective: 1000px;
   opacity: 1;
   transform: translateY(0);
 }
+
+/* PLAYER PRO */
+
+.player-pro-section {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 5rem 2rem;
+  text-align: center;
+}
+
+.player-pro-card {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 28px;
+  align-items: center;
+  margin: 2rem auto 0;
+  padding: 28px;
+  border-radius: 26px;
+  border: 1px solid var(--border);
+  background: linear-gradient(170deg, rgba(18,18,18,0.96), rgba(8,8,8,0.98));
+  box-shadow: 0 28px 70px rgba(0,0,0,0.55);
+  text-align: left;
+}
+
+.player-pro-card img {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 20px;
+}
+
+.player-pro-info h3 {
+  font-family: Georgia, serif;
+  font-size: 1.8rem;
+  margin: 0 0 8px;
+}
+
+.player-pro-info p {
+  margin: 0 0 20px;
+  color: var(--muted);
+}
+
+#proProgress {
+  width: 100%;
+  cursor: pointer;
+}
+
+.player-pro-time {
+  display: flex;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin-top: 8px;
+}
+
+.player-pro-controls {
+  margin-top: 22px;
+  display: flex;
+  gap: 14px;
+}
+
+.player-pro-controls button {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: rgba(20,20,20,0.75);
+  color: white;
+  cursor: pointer;
+}
+
+.player-pro-controls button:hover {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: #111;
+}
+
+@media (max-width: 768px) {
+  .player-pro-card {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .player-pro-card img {
+    margin: 0 auto;
+  }
+
+  .player-pro-controls {
+    justify-content: center;
+  }
+}
