@@ -665,13 +665,13 @@ perspective: 1000px;
 .audio-wave {
   display: flex;
   align-items: center;
- gap: 3px;
+gap: 4px;
   margin-left: 18px;
  height: 40px;
 }
 
 .audio-wave span {
-  width: 5px;
+ width: 4px;
  height: 10px;
   border-radius: 999px;
   background: linear-gradient(180deg, var(--gold), #ffe29a);
