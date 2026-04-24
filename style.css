@@ -548,3 +548,21 @@ section p {
   font-size: 1.1rem;
   opacity: 0.8;
 }
+.subscribe-img {
+  width: 420px !important;
+  max-width: 90vw !important;
+  display: block;
+  margin: 0 auto;
+  filter: drop-shadow(0 0 22px rgba(255, 190, 40, 0.55));
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.subscribe-img:hover {
+  transform: scale(1.08);
+  filter: drop-shadow(0 0 35px rgba(255, 210, 60, 0.85));
+}
+
+.subscribe-section p {
+  margin-top: 22px;
+  text-align: center;
+}
