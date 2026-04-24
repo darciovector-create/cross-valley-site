@@ -485,26 +485,18 @@ section p {
    HOLLYWOOD MOTION EFFECTS
 ========================= */
 
-.hero,
-.content-section,
-.music-section,
-.featured-video-section,
-.subscribe-section {
-  animation: fadeUpHollywood 1s ease both;
+/* SCROLL CINEMA REAL */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 0.9s ease;
 }
 
-@keyframes fadeUpHollywood {
-  from {
-    opacity: 0;
-    transform: translateY(28px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.reveal.show {
+  opacity: 1;
+  transform: translateY(0);
 }
-
 .hero-highlight,
 .music-card,
 .featured-video-frame,
@@ -534,4 +526,17 @@ section p {
 .hero-highlight:hover .persona-img,
 .music-card:hover .music-thumb {
   transform: scale(1.05);
+}
+
+/* SCROLL CINEMA REAL */
+
+.reveal {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: all 0.9s ease;
+}
+
+.reveal.show {
+  opacity: 1;
+  transform: translateY(0);
 }
