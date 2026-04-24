@@ -235,10 +235,12 @@ section p {
   background: linear-gradient(170deg, rgba(18, 18, 18, 0.95), rgba(8, 8, 8, 0.98));
   box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
   transition: 0.3s ease;
+  transform-style: preserve-3d;
+perspective: 1000px;
 }
 
 .music-card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-6px) scale(1.02) rotateX(3deg) rotateY(-3deg);
 }
 /* EFEITO CINEMA NAS IMAGENS DAS MÚSICAS */
 .music-image-wrap {
