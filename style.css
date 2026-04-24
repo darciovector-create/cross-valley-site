@@ -430,3 +430,59 @@ section p {
     height: 85px;
   }
 }
+@media (max-width: 768px) {
+  .hero {
+    padding: 4rem 1.5rem 2rem;
+    text-align: center;
+  }
+
+  .hero h1 {
+    font-size: 2.6rem;
+  }
+
+  .buttons {
+    justify-content: center;
+  }
+}
+@media (max-width: 768px) {
+  .hero-highlight {
+    margin-top: 30px;
+    text-align: center;
+  }
+
+  .persona-img {
+    max-width: 220px;
+  }
+}
+@media (max-width: 768px) {
+  .music-card {
+    display: block;
+  }
+
+  .music-thumb {
+    width: 100%;
+  }
+
+  .music-content {
+    padding: 16px;
+  }
+
+  .music-content p {
+    min-height: auto;
+  }
+
+  .music-content .btn-primary {
+    width: 100%;
+    margin-top: 12px;
+  }
+}
+@media (max-width: 768px) {
+  .featured-video-frame {
+    border-radius: 16px;
+  }
+}
+@media (max-width: 768px) {
+  .subscribe-img {
+    width: 280px !important;
+  }
+}
