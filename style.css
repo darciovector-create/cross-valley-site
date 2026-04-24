@@ -144,6 +144,21 @@ section p {
   background: linear-gradient(135deg, var(--gold), var(--gold-dark));
   color: #101010;
 }
+/* BOTÃO INTERATIVO (efeito Hollywood) */
+.btn-primary,
+.btn-secondary {
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: scale(1.08);
+  box-shadow: 0 12px 30px rgba(240, 191, 120, 0.35);
+}
+
+.btn-secondary:hover {
+  transform: scale(1.05);
+  border-color: var(--gold);
+}
 
 .btn-secondary,
 .play-btn {
