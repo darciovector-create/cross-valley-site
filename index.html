@@ -54,7 +54,7 @@
   </header>
 
   <!-- HERO -->
-  <section class="hero">
+ <section class="hero reveal">
     <div class="hero-text">
       <span class="tagline">CINEMATIC GOSPEL COUNTRY</span>
 
@@ -95,7 +95,7 @@
   </section>
 
   <!-- STORY -->
-  <section id="story" class="content-section">
+  <section id="story" class="content-section reveal">
     <span class="section-kicker">THE HEART BEHIND THE SONGS</span>
    <h2>Why These Songs Exist</h2>
     <p>
@@ -259,5 +259,20 @@
     });
   </script>
 
+  <script>
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add("show");
+    }
+  });
+}, {
+  threshold: 0.15
+});
+
+document.querySelectorAll(".reveal").forEach(el => {
+  observer.observe(el);
+});
+</script>
 </body>
 </html>
