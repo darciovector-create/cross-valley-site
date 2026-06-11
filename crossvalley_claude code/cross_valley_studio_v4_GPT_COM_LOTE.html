@@ -400,7 +400,7 @@
           <span class="result-block-label">📖 Análise Bíblica</span>
           <button class="copy-btn" onclick="copyBlock('analise_biblica',this)">Copiar</button>
         </div>
-        <div class="result-block-body" id="analise_biblica" style="font-family:monospace;font-size:12px;white-space:pre-wrap;"></div>
+        <div class="result-block-body" id="analise_biblica" style="padding:0;"></div>
       </div>
 
       <div class="result-block hl">
@@ -470,6 +470,14 @@
           <button class="copy-btn" onclick="copyBlock('seo',this)">Copiar</button>
         </div>
         <div class="result-block-body" id="seo"></div>
+      </div>
+
+      <div class="result-block hl">
+        <div class="result-block-header">
+          <span class="result-block-label">📌 Comentário fixado (colar e fixar após publicar)</span>
+          <button class="copy-btn" onclick="copyBlock('comentario_fixado',this)">Copiar</button>
+        </div>
+        <div class="result-block-body" id="comentario_fixado"></div>
       </div>
 
       <div class="result-block">
@@ -542,13 +550,6 @@
         <div class="result-block-body" id="capitulos" style="font-family:monospace;font-size:12px;"></div>
       </div>
 
-      <div class="result-block">
-        <div class="result-block-header">
-          <span class="result-block-label">📌 Comentário fixado (colar e fixar após publicar)</span>
-          <button class="copy-btn" onclick="copyBlock('comentario_fixado',this)">Copiar</button>
-        </div>
-        <div class="result-block-body" id="comentario_fixado"></div>
-      </div>
 
       <div class="result-block">
         <div class="result-block-header">
@@ -762,10 +763,9 @@ function cleanPromptPT(c) {
 }
 
 function sceneTitle(c, i) {
-  const parte = c?.parte ? ` — ${c.parte}` : '';
+  const num = String(i + 1).padStart(3, '0');
   const tempo = c?.tempo ? ` (${c.tempo})` : '';
-  const tipo = c?.tipo ? ` [${String(c.tipo).toUpperCase()}]` : '';
-  return `CENA ${i + 1}${parte}${tempo}${tipo}`;
+  return `${num}${tempo}`;
 }
 
 function copyTextToClipboard(texto, btn, msg) {
@@ -791,51 +791,39 @@ function copiarTodasCenas(btn) {
 }
 
 function copiarTodasEN(btn) {
-  const texto = cenasData.map((c, i) => `${sceneTitle(c, i)}
-
-${cleanPromptEN(c)}`).join('\n\n' + '='.repeat(80) + '\n\n');
-
+  const texto = cenasData.map((c, i) => {
+    const num = String(i + 1).padStart(3, '0');
+    return `${num} ${cleanPromptEN(c)}`;
+  }).join('\n\n');
   copyTextToClipboard(texto, btn, 'EN copiado!');
 }
 
 function copiarPromptsLoteEN(btn) {
-  const texto = cenasData.map(c => cleanPromptEN(c)).join('\n\n');
-
+  const texto = cenasData.map((c, i) => {
+    const num = String(i + 1).padStart(3, '0');
+    return `${num} ${cleanPromptEN(c)}`;
+  }).join('\n\n');
   copyTextToClipboard(texto, btn, 'Lote EN copiado!');
 }
 
 function copiarTodasCompleto(btn) {
-  const blocoEN = cenasData.map((c, i) => `${sceneTitle(c, i)}
-
-${cleanPromptEN(c)}`).join('\n\n' + '='.repeat(80) + '\n\n');
-
-  const blocoPT = cenasData.map((c, i) => `${sceneTitle(c, i)}
-
-${cleanPromptPT(c)}`).join('\n\n' + '='.repeat(80) + '\n\n');
-
-  const textoFinal = `================ ENGLISH — COPY TO VO3 ================
-
-${blocoEN}
-
-
-================ PORTUGUÊS — CONSULTA ================
-
-${blocoPT}`;
-
-  copyTextToClipboard(textoFinal, btn, 'EN+PT copiado!');
+  const texto = cenasData.map((c, i) => {
+    const num = String(i + 1).padStart(3, '0');
+    const tempo = c.tempo ? `(${c.tempo})` : '';
+    return `${tempo}\n\n${num} ${cleanPromptEN(c)}\n\n📖 Tradução — para você entender (português)\n${cleanPromptPT(c)}`;
+  }).join('\n\n');
+  copyTextToClipboard(texto, btn, 'EN+PT copiado!');
 }
 
 function copiarTudo(btn) {
   if (!currentData) return;
   const d = currentData;
 
-  const blocoEN = (d.cenas || []).map((c, i) => `${sceneTitle(c, i)}
-
-${cleanPromptEN(c)}`).join('\n\n' + '='.repeat(80) + '\n\n');
-
-  const blocoPT = (d.cenas || []).map((c, i) => `${sceneTitle(c, i)}
-
-${cleanPromptPT(c)}`).join('\n\n' + '='.repeat(80) + '\n\n');
+  const blocoCenas = (d.cenas || []).map((c, i) => {
+    const num = String(i + 1).padStart(3, '0');
+    const tempo = c.tempo ? `(${c.tempo})` : '';
+    return `${tempo}\n\n${num} ${cleanPromptEN(c)}\n\n📖 Tradução\n${cleanPromptPT(c)}`;
+  }).join('\n\n');
 
   const texto = `
 =====================================
@@ -875,28 +863,22 @@ PROMPT SUNO
 -----------
 ${d.suno_prompt || ''}
 
-PROMPTS VEO 3 — ENGLISH — COPY TO VO3
--------------------------------------
-${blocoEN}
-
-PROMPTS VEO 3 — PORTUGUÊS — CONSULTA
-------------------------------------
-${blocoPT}
+PROMPTS VEO 3 — CENAS
+${blocoCenas}
 
 DESCRIÇÃO SEO YOUTUBE
----------------------
 ${d.seo_descricao || ''}
 
+COMENTÁRIO FIXADO
+${d.comentario_fixado || ''}
+
 TAGS
-----
 ${d.tags || ''}
 
 CONCEITO DE THUMBNAIL
----------------------
 ${d.thumbnail_conceito || ''}
 
 LEGENDA SRT (INGLÊS)
---------------------
 ${d.srt_en || ''}
 
 ════════════════════════════════════════════════
@@ -915,9 +897,6 @@ ${d.hashtags || ''}
 CAPÍTULOS AUTOMÁTICOS
 ${d.capitulos || ''}
 
-COMENTÁRIO FIXADO
-${d.comentario_fixado || ''}
-
 CTA FINAL
 ${d.cta_final || ''}
 
@@ -932,7 +911,7 @@ ${d.mapa_emocional || ''}
 // ── AUTO DOWNLOAD TXT ──
 function autoDownloadTxt(d) {
   try {
-    const cenas = (d.cenas||[]).map((c,i) => `${sceneTitle(c, i)}\n${cleanPromptEN(c)}\n\n📖 Tradução — para você entender (português)\n${cleanPromptPT(c)}`).join('\n\n' + '='.repeat(80) + '\n\n');
+    const cenas = (d.cenas||[]).map((c,i) => { const num=String(i+1).padStart(3,'0'); const tempo=c.tempo?`(${c.tempo})`:''; return `${tempo}\n\n${num} ${cleanPromptEN(c)}\n\n📖 Tradução — para você entender (português)\n${cleanPromptPT(c)}`; }).join('\n\n');
     const texto = `CROSS VALLEY GOSPEL CREATOR STUDIO
 Tema: ${d.tema} | ${new Date().toLocaleString('pt-BR')}
 
@@ -966,6 +945,9 @@ ${cenas}
 
 DESCRIÇÃO SEO YOUTUBE
 ${d.seo_descricao}
+
+COMENTÁRIO FIXADO
+${d.comentario_fixado || ''}
 
 TAGS
 ${d.tags}
@@ -1019,7 +1001,7 @@ ${d.mapa_emocional || ''}`;
 function downloadTxt() {
   if (!currentData) return;
   const d = currentData;
-  const cenas = (d.cenas||[]).map((c,i) => `${sceneTitle(c, i)}\n${cleanPromptEN(c)}\n\n📖 Tradução — para você entender (português)\n${cleanPromptPT(c)}`).join('\n\n' + '='.repeat(80) + '\n\n');
+  const cenas = (d.cenas||[]).map((c,i) => { const num=String(i+1).padStart(3,'0'); const tempo=c.tempo?`(${c.tempo})`:''; return `${tempo}\n\n${num} ${cleanPromptEN(c)}\n\n📖 Tradução — para você entender (português)\n${cleanPromptPT(c)}`; }).join('\n\n');
   const texto = `CROSS VALLEY GOSPEL CREATOR STUDIO
 Tema: ${d.tema} | ${new Date().toLocaleString('pt-BR')}
 
@@ -1053,6 +1035,9 @@ ${cenas}
 
 DESCRIÇÃO SEO YOUTUBE
 ${d.seo_descricao}
+
+COMENTÁRIO FIXADO
+${d.comentario_fixado || ''}
 
 TAGS
 ${d.tags}
@@ -1107,16 +1092,12 @@ function renderCenas(cenas) {
   cenas.forEach((c, i) => {
     const div = document.createElement('div');
     div.className = 'cena-item';
+    const numPad = String(i+1).padStart(3,'0');
     div.innerHTML = `
       <div class="cena-header">
-        <span class="cena-numero">Cena ${i+1} de ${cenas.length}</span>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <span class="cena-tipo ${c.tipo==='video'?'video':'foto'}">${c.tipo==='video'?'Clipe de vídeo':'Imagem parada'}</span>
-          <button class="cena-copy" onclick="copiarCena(${i},this)">Copiar</button>
-        </div>
+        <span class="cena-numero" style="font-size:13px;font-weight:700;color:var(--gold);letter-spacing:.04em;">${numPad} &nbsp;<span style="color:var(--text-muted);font-weight:400;font-size:12px;">(${c.tempo||''})</span></span>
+        <button class="cena-copy" onclick="copiarCena(${i},this)">Copiar</button>
       </div>
-      <div class="cena-parte">${c.parte}</div>
-      <div class="cena-tempo">${c.tempo}</div>
       <div style="margin-bottom:8px;">
         <div class="cena-prompt">${cleanPromptEN(c)}</div>
       </div>
@@ -1129,13 +1110,11 @@ function renderCenas(cenas) {
 }
 function copiarCena(idx, btn) {
   const c = cenasData[idx];
-  const numCena = idx + 1;
-  const totalCenas = cenasData.length;
-  const tipo = c.tipo === 'video' ? 'VÍDEO' : 'FOTO';
-  const cabecalho = `CENA ${numCena} de ${totalCenas} — ${c.parte} (${c.tempo}) [${tipo}]`;
+  const num = String(idx + 1).padStart(3, '0');
+  const tempo = c.tempo ? `(${c.tempo})` : '';
   const en = cleanPromptEN(c);
   const pt = cleanPromptPT(c);
-  const texto = `${cabecalho}\n\n${en}\n\n📖 Tradução — para você entender (português)\n${pt}`;
+  const texto = `${tempo}\n\n${num} ${en}\n\n📖 Tradução — para você entender (português)\n${pt}`;
   navigator.clipboard.writeText(texto).then(() => {
     btn.textContent = 'Copiado!';
     btn.classList.add('copied');
@@ -1256,18 +1235,18 @@ function renderResult(json) {
   const blocoAnalise = document.getElementById('bloco_analise_biblica');
   if (json.analise_biblica && typeof json.analise_biblica === 'object') {
     const a = json.analise_biblica;
-    const textoAnalise = [
-      `Versículo:          ${a.versiculo||''}`,
-      `Texto (EN):         ${a.texto_biblico||''}`,
-      `Texto (PT):         ${a.texto_biblico_pt||''}`,
-      ``,
-      `Tema Central:       ${a.tema_central||''}`,
-      `Mensagem:           ${a.mensagem||''}`,
-      `Aplicação Prática:  ${a.aplicacao_pratica||''}`,
-      `Promessa de Deus:   ${a.promessa_de_deus||''}`,
-      `Emoção Central:     ${a.emocao_central||''}`
-    ].join('\n');
-    document.getElementById('analise_biblica').textContent = textoAnalise;
+    const rows = [
+      ['📖 Versículo', a.versiculo||''],
+      ['🔤 Texto (EN)', a.texto_biblico||''],
+      ['🔤 Texto (PT)', a.texto_biblico_pt||''],
+      ['🎯 Tema Central', a.tema_central||''],
+      ['💬 Mensagem', a.mensagem||''],
+      ['🌱 Aplicação Prática', a.aplicacao_pratica||''],
+      ['🙏 Promessa de Deus', a.promessa_de_deus||''],
+      ['❤️ Emoção Central', a.emocao_central||'']
+    ];
+    const html = rows.map(([label, val]) => val ? `<div style="padding:10px 16px;border-bottom:.5px solid var(--border);"><div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:4px;">${label}</div><div style="font-size:13px;color:var(--text);line-height:1.6;">${val}</div></div>` : '').join('');
+    document.getElementById('analise_biblica').innerHTML = html;
     blocoAnalise.style.display = '';
   } else {
     blocoAnalise.style.display = 'none';
