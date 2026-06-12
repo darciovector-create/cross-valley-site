@@ -456,9 +456,10 @@
         <div class="result-block-header">
           <span class="result-block-label teal">Prompts Veo 3 — cenas sincronizadas com a música</span>
           <div style="display:flex;gap:10px;">
-            <button class="copy-btn" onclick="copiarTodasEN(this)" style="color:var(--gold)">Copiar todas EN</button>
-            <button class="copy-btn" onclick="copiarPromptsLoteEN(this)" style="color:#22c55e">Prompts em lote EN</button>
-            <button class="copy-btn" onclick="copiarTodasCompleto(this)">Copiar tudo EN+PT</button>
+            <button class="copy-btn" onclick="copiarTodasEN(this)" style="color:var(--gold)">Lista EN (VO3)</button>
+            <button class="copy-btn" onclick="copiarListaPT(this)" style="color:#7dd3fc">Lista PT (VO3)</button>
+            <button class="copy-btn" onclick="copiarPromptsLoteEN(this)" style="color:#22c55e">Lote EN</button>
+            <button class="copy-btn" onclick="copiarTodasCompleto(this)">EN+PT juntos</button>
           </div>
         </div>
         <div class="cenas-list" id="cenasList"></div>
@@ -804,6 +805,14 @@ function copiarPromptsLoteEN(btn) {
     return `${num} ${cleanPromptEN(c)}`;
   }).join('\n\n');
   copyTextToClipboard(texto, btn, 'Lote EN copiado!');
+}
+
+function copiarListaPT(btn) {
+  const texto = cenasData.map((c, i) => {
+    const num = String(i + 1).padStart(3, '0');
+    return `${num} ${cleanPromptPT(c)}`;
+  }).join('\n\n');
+  copyTextToClipboard(texto, btn, 'Lista PT copiada!');
 }
 
 function copiarTodasCompleto(btn) {
