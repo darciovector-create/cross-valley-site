@@ -455,11 +455,12 @@
       <div class="result-block hl-teal">
         <div class="result-block-header">
           <span class="result-block-label teal">Prompts Veo 3 — cenas sincronizadas com a música</span>
-          <div style="display:flex;gap:10px;">
-            <button class="copy-btn" onclick="copiarTodasEN(this)" style="color:var(--gold)">Lista EN (VO3)</button>
-            <button class="copy-btn" onclick="copiarListaPT(this)" style="color:#7dd3fc">Lista PT (VO3)</button>
-            <button class="copy-btn" onclick="copiarPromptsLoteEN(this)" style="color:#22c55e">Lote EN</button>
-            <button class="copy-btn" onclick="copiarTodasCompleto(this)">EN+PT juntos</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="copy-btn" onclick="copiarNoCharacterEN(this)" style="color:var(--gold)">NO CHARACTER EN</button>
+            <button class="copy-btn" onclick="copiarNoCharacterPT(this)" style="color:#fbbf24">NO CHARACTER PT</button>
+            <button class="copy-btn" onclick="copiarLockedCharacterEN(this)" style="color:#7dd3fc">LOCKED CHARACTER EN</button>
+            <button class="copy-btn" onclick="copiarLockedCharacterPT(this)" style="color:#93c5fd">LOCKED CHARACTER PT</button>
+            <button class="copy-btn" onclick="copiarTodasCompleto(this)" style="color:#a3a3a3">EN+PT juntos</button>
           </div>
         </div>
         <div class="cenas-list" id="cenasList"></div>
@@ -788,31 +789,65 @@ function copyBlock(id, btn) {
 }
 
 function copiarTodasCenas(btn) {
-  copiarTodasEN(btn);
+  copiarNoCharacterEN(btn);
 }
 
 function copiarTodasEN(btn) {
-  const texto = cenasData.map((c, i) => {
-    const num = String(i + 1).padStart(3, '0');
-    return `${num} ${cleanPromptEN(c)}`;
-  }).join('\n\n');
-  copyTextToClipboard(texto, btn, 'EN copiado!');
+  copiarNoCharacterEN(btn);
+}
+
+function isNoCharacter(c) {
+  const en = cleanPromptEN(c);
+  return /^NO CHARACTER/i.test(en.trim());
+}
+
+function isLockedCharacter(c) {
+  const en = cleanPromptEN(c);
+  return /^LOCKED CHARACTER/i.test(en.trim());
+}
+
+function copiarNoCharacterEN(btn) {
+  const linhas = cenasData
+    .map((c, i) => ({ c, num: String(i + 1).padStart(3, '0') }))
+    .filter(({ c }) => isNoCharacter(c))
+    .map(({ c, num }) => `${num} ${cleanPromptEN(c)}`);
+  if (!linhas.length) { copyTextToClipboard('(nenhuma cena NO CHARACTER encontrada)', btn, 'Vazio'); return; }
+  copyTextToClipboard(linhas.join('\n\n'), btn, 'NO CHARACTER EN copiado!');
+}
+
+function copiarNoCharacterPT(btn) {
+  const linhas = cenasData
+    .map((c, i) => ({ c, num: String(i + 1).padStart(3, '0') }))
+    .filter(({ c }) => isNoCharacter(c))
+    .map(({ c, num }) => `${num} ${cleanPromptPT(c)}`);
+  if (!linhas.length) { copyTextToClipboard('(nenhuma cena NO CHARACTER encontrada)', btn, 'Vazio'); return; }
+  copyTextToClipboard(linhas.join('\n\n'), btn, 'NO CHARACTER PT copiado!');
+}
+
+function copiarLockedCharacterEN(btn) {
+  const linhas = cenasData
+    .map((c, i) => ({ c, num: String(i + 1).padStart(3, '0') }))
+    .filter(({ c }) => isLockedCharacter(c))
+    .map(({ c, num }) => `${num} ${cleanPromptEN(c)}`);
+  if (!linhas.length) { copyTextToClipboard('(nenhuma cena LOCKED CHARACTER encontrada)', btn, 'Vazio'); return; }
+  copyTextToClipboard(linhas.join('\n\n'), btn, 'LOCKED CHARACTER EN copiado!');
+}
+
+function copiarLockedCharacterPT(btn) {
+  const linhas = cenasData
+    .map((c, i) => ({ c, num: String(i + 1).padStart(3, '0') }))
+    .filter(({ c }) => isLockedCharacter(c))
+    .map(({ c, num }) => `${num} ${cleanPromptPT(c)}`);
+  if (!linhas.length) { copyTextToClipboard('(nenhuma cena LOCKED CHARACTER encontrada)', btn, 'Vazio'); return; }
+  copyTextToClipboard(linhas.join('\n\n'), btn, 'LOCKED CHARACTER PT copiado!');
 }
 
 function copiarPromptsLoteEN(btn) {
-  const texto = cenasData.map((c, i) => {
-    const num = String(i + 1).padStart(3, '0');
-    return `${num} ${cleanPromptEN(c)}`;
-  }).join('\n\n');
-  copyTextToClipboard(texto, btn, 'Lote EN copiado!');
+  copiarNoCharacterEN(btn);
 }
 
 function copiarListaPT(btn) {
-  const texto = cenasData.map((c, i) => {
-    const num = String(i + 1).padStart(3, '0');
-    return `${num} ${cleanPromptPT(c)}`;
-  }).join('\n\n');
-  copyTextToClipboard(texto, btn, 'Lista PT copiada!');
+  copiarNoCharacterPT(btn);
 }
 
 function copiarTodasCompleto(btn) {
