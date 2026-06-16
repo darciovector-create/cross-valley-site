@@ -187,10 +187,10 @@ def _detect_music_dna(p):
             'seta': 'nenhuma seta — a dor do rosto é o elemento principal',
             'textos': [
                 ('3AM BROKE ME','dor'), ('I HIT THE FLOOR','dor'),
-                ('THEN GOD SHOWED UP','virada'), ('HE FOUND ME THERE','virada'),
-                ('NOT ALONE AT 3AM','esperança'), ('GOD WAS IN THE DARK','esperança'),
-                ('HE NEVER LEFT','promessa'), ('EVEN IN THE NIGHT','promessa'),
-                ('I SURVIVED THAT NIGHT','declaração'), ('GOD CARRIED ME THROUGH','declaração'),
+                ('GOD SHOWED UP','virada'), ('HE FOUND ME','virada'),
+                ('NOT ALONE AT 3AM','esperança'), ('GOD IN THE DARK','esperança'),
+                ('HE NEVER LEFT','promessa'), ('IN THE NIGHT','promessa'),
+                ('I SURVIVED','declaração'), ('GOD CARRIED ME','declaração'),
             ],
         }
     elif any(x in data for x in ['trust','lean not','surrender','let go','give it all','your will','not mine']):
@@ -203,11 +203,11 @@ def _detect_music_dna(p):
             'composicao': 'meio corpo — mãos em destaque abertas para o céu, postura de entrega',
             'seta': 'seta amarela suave apontando para a luz no horizonte',
             'textos': [
-                ('I STOPPED FIGHTING','dor'), ('I WAS HOLDING ON TOO TIGHT','dor'),
-                ('I LET GO','virada'), ('SURRENDER CHANGED EVERYTHING','virada'),
+                ('I STOPPED FIGHTING','dor'), ('I HELD TOO TIGHT','dor'),
+                ('I LET GO','virada'), ('I SURRENDERED','virada'),
                 ('PEACE FOUND ME','esperança'), ('TRUST HIM','esperança'),
                 ('HIS WILL BE DONE','promessa'), ('GOD HAS A PLAN','promessa'),
-                ('FINALLY FREE','declaração'), ('I TRUST HIM NOW','declaração'),
+                ('FINALLY FREE','declaração'), ('I TRUST HIM','declaração'),
             ],
         }
     elif any(x in data for x in ['rebuilt','restored','new','straight','made a way','path','road ahead','begin again']):
@@ -254,7 +254,7 @@ def _detect_music_dna(p):
             'composicao': 'close no rosto com luz divina lateral, ou mãos em destaque recebendo algo',
             'seta': 'nenhuma seta — a luz divina já direciona o olhar naturalmente',
             'textos': [
-                ('I DID NOT DESERVE IT','dor'), ('I WAS TOO FAR GONE','dor'),
+                ('I DID NOT DESERVE','dor'), ('TOO FAR GONE','dor'),
                 ('HE CAUGHT ME','virada'), ('GRACE FOUND ME','virada'),
                 ('FORGIVEN','esperança'), ('HE SAVED ME','esperança'),
                 ('MERCY WINS','promessa'), ('HIS GRACE IS ENOUGH','promessa'),
@@ -271,7 +271,7 @@ def _detect_music_dna(p):
             'composicao': 'postura ereta e firme, olhar direto para a câmera ou ao horizonte',
             'seta': 'seta vermelha forte apontando para frente — em direção à vitória',
             'textos': [
-                ('I WAS LOSING','dor'), ('THE ENEMY LIED TO ME','dor'),
+                ('I WAS LOSING','dor'), ('THE ENEMY LIED','dor'),
                 ('THEN I STOOD UP','virada'), ('GOD SAID FIGHT','virada'),
                 ('HE FIGHTS FOR ME','esperança'), ('VICTORY COMING','esperança'),
                 ('THE BATTLE IS HIS','promessa'), ('GOD WILL WIN','promessa'),
@@ -292,7 +292,7 @@ def _detect_music_dna(p):
                 ('THEN HE HEALED ME','virada'), ('GOD TOUCHED THE WOUND','virada'),
                 ('HEALING IS COMING','esperança'), ('HE MENDS THE BROKEN','esperança'),
                 ('HE HEALS EVERY SCAR','promessa'), ('NO WOUND TOO DEEP','promessa'),
-                ('I AM HEALED','declaração'), ('SCARS TURNED TO TESTIMONY','declaração'),
+                ('I AM HEALED','declaração'), ('SCARS ARE TESTIMONY','declaração'),
             ],
         }
     else:
@@ -452,9 +452,18 @@ def get_openai_key(): return os.environ.get('OPENAI_API_KEY') or CFG.get('openai
 
 # Composições distintas para cada thumbnail — nunca as 3 iguais
 _COMPOSICOES = [
-    'CLOSE EXTREMO: rosto preenchendo 70-80% do quadro, expressão intensa, fundo completamente desfocado com bokeh pesado. Olhar direto para a câmera ou levemente para cima.',
-    'MEIO CORPO: da cintura para cima. Postura expressiva e específica da emoção (mãos abertas, punhos fechados, braços abertos). Ambiente visível e atmosférico ao fundo.',
-    'SILHUETA + HORIZONTE: figura em contraste dramático contra céu com cores intensas. Elemento divino visível (luz descendo, raio de sol). Composição ampla, personagem menor mas poderoso.',
+    {
+        'descricao': 'CLOSE EXTREMO: rosto preenchendo 70-80% do quadro. Olhar direto para a câmera ou levemente para cima. Fundo completamente desfocado (bokeh pesado). Iluminação cinematográfica: luz rim dourada de um lado, fill suave do outro. Rosto SEMPRE bem iluminado — sem sombras pesadas no rosto.',
+        'zona_texto': 'ZONA DO TEXTO: área ABAIXO do queixo ou no PEITO/BLAZER do personagem. NUNCA sobreponha o texto ao chapéu ou ao rosto. O texto deve estar em uma região de cor escura para garantir contraste e leitura.',
+    },
+    {
+        'descricao': 'MEIO CORPO: da cintura para cima. Postura expressiva e específica da emoção (mãos abertas, braços abertos, mão no coração). Ambiente atmosférico visível ao fundo. Rosto SEMPRE iluminado por luz natural do ambiente (pôr do sol, amanhecer). Sem sombra dura no rosto.',
+        'zona_texto': 'ZONA DO TEXTO: base inferior da imagem (últimos 25% da altura), centralizado ou alinhado à esquerda. Fundo atrás do texto deve ser escuro ou desfocado — nunca texto sobre região clara ou sobre o rosto.',
+    },
+    {
+        'descricao': 'SILHUETA + HORIZONTE: figura em contraste dramático contra céu com cores intensas (dourado, laranja, roxo). ATENÇÃO: mesmo sendo silhueta, o rosto deve ter contorno visível (rim light forte dourado ou branco) para que o personagem seja reconhecível. Não esconda o rosto em escuridão total.',
+        'zona_texto': 'ZONA DO TEXTO: parte SUPERIOR da imagem (primeiros 30% da altura), em arco ou linha reta, centralizado. O texto fica acima da silhueta, no céu colorido — sempre com boa legibilidade pelo contraste com o céu.',
+    },
 ]
 
 def build_story_prompts(p):
@@ -469,12 +478,14 @@ def build_story_prompts(p):
     moments = write_storyboard(p)[:3]
 
     prompts = []
-    for i, (m, composicao) in enumerate(zip(moments, _COMPOSICOES), 1):
+    for i, (m, comp) in enumerate(zip(moments, _COMPOSICOES), 1):
         texto_thumb = m.get('thumb', 'GOD WAS THERE')
         lyric_base  = m.get('lyric', '')
 
-        # Posição do texto varia por composição
-        posicao_texto = ['canto superior esquerdo, grande e em diagonal', 'base inferior direita, horizontal, grande', 'centro superior, letras em arco sobre a silhueta'][i - 1]
+        # Garante máximo 4 palavras no texto
+        palavras = texto_thumb.split()
+        if len(palavras) > 4:
+            texto_thumb = ' '.join(palavras[:4])
 
         prompt = (
             f'REFERENCE IMAGE IS MANDATORY.\n'
@@ -490,27 +501,28 @@ def build_story_prompts(p):
             f'=== PASSO 1 — EMOÇÃO ===\n'
             f'Emoção principal: {music_dna["emocao"]}\n'
             f'Expressão facial específica: {music_dna["expressao"]}\n'
-            f'PROIBIDO: choro genérico, expressão neutra, rosto vazio. A emoção deve ser ESPECÍFICA desta música.\n\n'
+            f'PROIBIDO: choro genérico, expressão neutra, rosto apagado. A emoção deve ser ESPECÍFICA desta música.\n\n'
 
             f'=== PASSO 2 — COMPOSIÇÃO ===\n'
-            f'{composicao}\n\n'
+            f'{comp["descricao"]}\n\n'
 
             f'=== PASSO 3 — PALETA DE CORES ===\n'
             f'{music_dna["paleta"]}\n'
-            f'As cores devem derivar do TEMA da música, não de um template fixo. Contraste alto. Atmosfera cinematográfica.\n\n'
+            f'Cores derivadas do TEMA da música. Alto contraste. Atmosfera cinematográfica. Qualidade de filme.\n\n'
 
             f'=== PASSO 4 — AMBIENTE / CENÁRIO ===\n'
             f'{music_dna["ambiente"]}\n'
-            f'O cenário reforça a mensagem da música — não é apenas decoração.\n\n'
+            f'O cenário reforça a mensagem da música — não é decoração genérica.\n\n'
 
             f'=== PASSO 5 — TEXTO NA THUMBNAIL ===\n'
             f'Texto: {texto_thumb}\n'
-            f'Posição: {posicao_texto}\n'
-            f'Fonte: grande, distressed, impactante. Legível em miniatura. SEM corte de texto.\n\n'
+            f'MÁXIMO 4 PALAVRAS — regra absoluta. Se o texto tiver mais de 4 palavras, use apenas as 4 primeiras.\n'
+            f'{comp["zona_texto"]}\n'
+            f'Fonte: grande, bold, distressed, impactante. Alta legibilidade em miniatura. SEM corte de texto. SEM texto escondido atrás do chapéu ou do rosto.\n\n'
 
             f'=== PASSO 6 — ELEMENTO EXTRA (SETA) ===\n'
             f'{music_dna["seta"]}\n'
-            f'REGRA: seta vermelha NÃO é padrão automático. Use seta APENAS se reforçar a narrativa desta música.\n'
+            f'REGRA ABSOLUTA: seta vermelha NÃO é padrão automático. Use seta APENAS se reforçar a narrativa desta música.\n'
             f'Se usar seta: estilo grosso, curvo, pintado — não PowerPoint. Cores possíveis: vermelha, amarela, laranja — conforme a emoção.\n\n'
 
             f'=== REGRAS FINAIS ===\n'
