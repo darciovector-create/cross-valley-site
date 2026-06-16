@@ -573,8 +573,8 @@ def create_project():
     root=clean(input(f'Caminho onde criar o projeto [ENTER = {DEFAULT_PATH}]: ')) or DEFAULT_PATH; name=input('Nome do projeto: ').strip();
     if not name: print('Informe o nome.'); return
     p=Path(root)/name; ensure_project(p); print('Projeto criado:',p)
-def organize_project():
-    p=Path(clean(input('Caminho do projeto: ')))
+def organize_project(p=None):
+    if p is None: p=Path(clean(input('Caminho do projeto: ')))
     if not p.exists(): print('Projeto não encontrado.'); return
     ensure_project(p); print('Estrutura conferida. Use 03_MIDIAS_BRUTAS e depois CAPCUT_FINAL conforme fluxo.')
 def update_persona_master():
@@ -702,9 +702,10 @@ def _safe_copy_with_sequence(src, dst_folder, seq, prefix):
     shutil.copy2(src, dst)
     return dst
 
-def montar_sequencia_capcut():
+def montar_sequencia_capcut(p=None):
     print("\n=== MONTAR SEQUENCIA CAPCUT - BUILD 015 ===")
-    p = Path(clean(input("Caminho do projeto: ")))
+    if p is None:
+        p = Path(clean(input("Caminho do projeto: ")))
     if not p.exists():
         print("Projeto nao encontrado.")
         return
