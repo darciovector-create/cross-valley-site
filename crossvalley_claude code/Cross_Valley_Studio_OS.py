@@ -172,65 +172,268 @@ def generate_seo(p):
     for name,content in [('SEO_YOUTUBE_COMPLETO.txt',full),('DESCRICAO_PREMIUM.txt',desc),('COMENTARIO_FIXADO.txt',pinned),('TAGS_VIRAIS.txt',tagtxt),('HASHTAGS.txt',hashtags)]: (p/'08_SEO'/name).write_text(content,encoding='utf-8')
     (p/'09_DOCUMENTOS'/'SEO_SCORE_REPORT.txt').write_text(f'SEO SCORE REPORT - BUILD 015\nProjeto: {p.name}\nVidIQ estimado: 94-98\nTubeBuddy estimado: 92-97\nCTR potencial: 90-99\n',encoding='utf-8')
     print(f'SEO Premium 2.0 gerado. Tags: {len(sel)} / {len(tagtxt)} caracteres')
+def _detect_music_dna(p):
+    """Lê a música e retorna um DNA visual único — paleta, emoção, ambiente, seta — derivados do tema."""
+    data = (p.name + '\n' + read_text(p)).lower()
+
+    if any(x in data for x in ['3 am','three in the morning','face down','hardwood floor','crying on the floor','sleepless']):
+        return {
+            'tema': 'DOR_QUEBRANTO',
+            'emocao': 'quebrantamento profundo — dor silenciosa às 3h da manhã',
+            'expressao': 'rosto tenso, olhos fechados ou marejados de lágrimas contidas — não choro genérico',
+            'paleta': 'azul profundo e cinza escuro dominantes, toque distante de dourado no horizonte',
+            'ambiente': 'quarto escuro às 3h da manhã, luz de rua entrando pela janela, ou chão de madeira',
+            'composicao': 'close extremo no rosto — 75% do quadro',
+            'seta': 'nenhuma seta — a dor do rosto é o elemento principal',
+            'textos': [
+                ('3AM BROKE ME','dor'), ('I HIT THE FLOOR','dor'),
+                ('THEN GOD SHOWED UP','virada'), ('HE FOUND ME THERE','virada'),
+                ('NOT ALONE AT 3AM','esperança'), ('GOD WAS IN THE DARK','esperança'),
+                ('HE NEVER LEFT','promessa'), ('EVEN IN THE NIGHT','promessa'),
+                ('I SURVIVED THAT NIGHT','declaração'), ('GOD CARRIED ME THROUGH','declaração'),
+            ],
+        }
+    elif any(x in data for x in ['trust','lean not','surrender','let go','give it all','your will','not mine']):
+        return {
+            'tema': 'ENTREGA_CONFIANCA',
+            'emocao': 'rendição e paz — o momento em que a luta termina e a fé começa',
+            'expressao': 'paz profunda, mãos abertas para cima, sorriso suave ou olhos fechados em entrega',
+            'paleta': 'dourado quente e branco suave, luz solar entrando, sensação de leveza',
+            'ambiente': 'campo aberto ao amanhecer, ou estrada rural com horizonte aberto',
+            'composicao': 'meio corpo — mãos em destaque abertas para o céu, postura de entrega',
+            'seta': 'seta amarela suave apontando para a luz no horizonte',
+            'textos': [
+                ('I STOPPED FIGHTING','dor'), ('I WAS HOLDING ON TOO TIGHT','dor'),
+                ('I LET GO','virada'), ('SURRENDER CHANGED EVERYTHING','virada'),
+                ('PEACE FOUND ME','esperança'), ('TRUST HIM','esperança'),
+                ('HIS WILL BE DONE','promessa'), ('GOD HAS A PLAN','promessa'),
+                ('FINALLY FREE','declaração'), ('I TRUST HIM NOW','declaração'),
+            ],
+        }
+    elif any(x in data for x in ['rebuilt','restored','new','straight','made a way','path','road ahead','begin again']):
+        return {
+            'tema': 'RESTAURACAO_VITORIA',
+            'emocao': 'vitória e restauração — o amanhecer depois da noite mais longa',
+            'expressao': 'determinação serena, olhar firme ao horizonte, leveza conquistada',
+            'paleta': 'dourado intenso e azul celeste, pôr do sol ou amanhecer com cores saturadas',
+            'ambiente': 'estrada rural ao entardecer, campo com luz dourada, colinas ao horizonte',
+            'composicao': 'silhueta contra o céu dramático, ou postura ereta olhando ao horizonte',
+            'seta': 'seta vermelha curva do escuro para a luz — contraste forte',
+            'textos': [
+                ('I WAS BROKEN','dor'), ('I HAD NOTHING LEFT','dor'),
+                ('THEN GOD MOVED','virada'), ('EVERYTHING CHANGED','virada'),
+                ('HE MADE A WAY','esperança'), ('A NEW ROAD AHEAD','esperança'),
+                ('HE RESTORES','promessa'), ('NEW BEGINNING','promessa'),
+                ('GOD REBUILT ME','declaração'), ('I AM NEW','declaração'),
+            ],
+        }
+    elif any(x in data for x in ['psalm 91','wings','shelter','refuge','protect','shadow of','almighty','dwell']):
+        return {
+            'tema': 'PROTECAO_DIVINA',
+            'emocao': 'segurança e refúgio — a paz de quem descobriu que Deus é escudo',
+            'expressao': 'reverência e alívio, olhar voltado para cima, gratidão visível',
+            'paleta': 'roxo e dourado, luz celestial descendo de cima, azul profundo ao fundo',
+            'ambiente': 'tempestade ao fundo com raio de luz divina cortando as nuvens',
+            'composicao': 'perfil olhando para cima, ou mãos em oração com luz descendo',
+            'seta': 'seta laranja apontando para cima — direção divina',
+            'textos': [
+                ('I WAS AFRAID','dor'), ('THE STORM HIT HARD','dor'),
+                ('THEN HE COVERED ME','virada'), ('GOD SHOWED UP','virada'),
+                ('UNDER HIS WINGS','esperança'), ('HE PROTECTS','esperança'),
+                ('SAFE IN HIM','promessa'), ('NO FEAR','promessa'),
+                ('HE IS MY SHIELD','declaração'), ('GOD FIGHTS FOR ME','declaração'),
+            ],
+        }
+    elif any(x in data for x in ['grace','mercy','forgive','saved','found me','undeserved','not worthy']):
+        return {
+            'tema': 'GRACA_SALVACAO',
+            'emocao': 'espanto e gratidão — a graça que não merecia mas recebeu',
+            'expressao': 'espanto genuíno, olhos marejados de alegria, expressão de quem não acredita que foi salvo',
+            'paleta': 'branco e dourado suave, luz envolvente e quente, sem sombras duras',
+            'ambiente': 'interior de igreja com luz filtrada, ou clareira na floresta com raios de sol',
+            'composicao': 'close no rosto com luz divina lateral, ou mãos em destaque recebendo algo',
+            'seta': 'nenhuma seta — a luz divina já direciona o olhar naturalmente',
+            'textos': [
+                ('I DID NOT DESERVE IT','dor'), ('I WAS TOO FAR GONE','dor'),
+                ('HE CAUGHT ME','virada'), ('GRACE FOUND ME','virada'),
+                ('FORGIVEN','esperança'), ('HE SAVED ME','esperança'),
+                ('MERCY WINS','promessa'), ('HIS GRACE IS ENOUGH','promessa'),
+                ('I AM FREE','declaração'), ('REDEEMED','declaração'),
+            ],
+        }
+    elif any(x in data for x in ['fight','battle','stand','warrior','strong','overcome','victory','enemy']):
+        return {
+            'tema': 'BATALHA_ESPIRITUAL',
+            'emocao': 'determinação e fé combatente — a força de quem sabe que Deus já venceu',
+            'expressao': 'olhar firme e determinado, postura forte, mandíbula definida — não raiva, mas fé combatente',
+            'paleta': 'roxo escuro e vermelho profundo com claridade dourada cortando ao fundo',
+            'ambiente': 'campo aberto com nuvens dramáticas e tempestade, ou penhasco com céu em chamas',
+            'composicao': 'postura ereta e firme, olhar direto para a câmera ou ao horizonte',
+            'seta': 'seta vermelha forte apontando para frente — em direção à vitória',
+            'textos': [
+                ('I WAS LOSING','dor'), ('THE ENEMY LIED TO ME','dor'),
+                ('THEN I STOOD UP','virada'), ('GOD SAID FIGHT','virada'),
+                ('HE FIGHTS FOR ME','esperança'), ('VICTORY COMING','esperança'),
+                ('THE BATTLE IS HIS','promessa'), ('GOD WILL WIN','promessa'),
+                ('I OVERCAME','declaração'), ('UNDEFEATED','declaração'),
+            ],
+        }
+    elif any(x in data for x in ['heal','broken heart','pain','wound','hurt','scars','mend']):
+        return {
+            'tema': 'CURA_RESTAURACAO',
+            'emocao': 'cura emocional — o momento em que a dor começa a ceder lugar à paz',
+            'expressao': 'vulnerabilidade e esperança ao mesmo tempo — olhos que sofreram mas ainda creem',
+            'paleta': 'azul suave transitando para dourado, como amanhecer após a chuva',
+            'ambiente': 'rio tranquilo ao amanhecer, ou campo molhado de chuva com sol nascendo',
+            'composicao': 'meio corpo com postura ligeiramente inclinada, começando a se erguer',
+            'seta': 'seta amarela curva do azul para o dourado — transição da dor para a cura',
+            'textos': [
+                ('THE PAIN WAS REAL','dor'), ('I CARRIED IT ALONE','dor'),
+                ('THEN HE HEALED ME','virada'), ('GOD TOUCHED THE WOUND','virada'),
+                ('HEALING IS COMING','esperança'), ('HE MENDS THE BROKEN','esperança'),
+                ('HE HEALS EVERY SCAR','promessa'), ('NO WOUND TOO DEEP','promessa'),
+                ('I AM HEALED','declaração'), ('SCARS TURNED TO TESTIMONY','declaração'),
+            ],
+        }
+    else:
+        return {
+            'tema': 'FE_ESPERANCA',
+            'emocao': 'esperança e fé — a certeza tranquila de quem confia em Deus',
+            'expressao': 'esperança serena, paz interior visível, olhar de quem sabe que Deus cuida',
+            'paleta': 'azul celeste e dourado, luz do amanhecer, sensação de leveza e claridade',
+            'ambiente': 'campo aberto ao amanhecer, celeiro rústico com luz entrando, ou rio tranquilo',
+            'composicao': 'meio corpo, olhar ao horizonte, postura aberta e esperançosa',
+            'seta': 'seta amarela suave em direção à luz — discreta, não dominante',
+            'textos': [
+                ('I WAS LOSING HOPE','dor'), ('EVERYTHING FELT WRONG','dor'),
+                ('THEN HE SPOKE','virada'), ('GOD REMINDED ME','virada'),
+                ('HOPE IS ALIVE','esperança'), ('DAWN IS COMING','esperança'),
+                ('HE PROMISED','promessa'), ('BETTER DAYS AHEAD','promessa'),
+                ('I BELIEVE','declaração'), ('FAITH WINS','declaração'),
+            ],
+        }
+
 def analyze_story_moments(p):
-    ensure_project(p); lines=lyrics(p) or ['I was face down on the floor','God found me in the dark','I finally let go']; moments=[]
-    for idx,line in enumerate(lines,1):
-        low=line.lower(); score=50; emotion='HOPE'; visual='Cross Valley in cinematic golden light'; thumb='HE FOUND ME'; god='golden heavenly light'; arrow='none'
-        if any(x in low for x in ['3 am','three in the morning','3:00','floor','face down','hardwood']): score=99; emotion='BROKENNESS'; visual='Cross Valley face down on the floor at 3:00 AM, crying, broken, dark blue room'; thumb='HE FOUND ME'; god='glowing hand of God reaching from golden light'; arrow='curved red arrow toward the tears or divine hand'
-        elif any(x in low for x in ['hand','lift','found me','carried','caught']): score=97; emotion='MIRACLE'; visual='a glowing hand of God reaching into darkness toward Cross Valley'; thumb='HE FOUND ME'; god='hand of God'; arrow='curved red arrow'
-        elif any(x in low for x in ['let go','surrender','trust','lean not','own understanding']): score=95; emotion='SURRENDER'; visual='Cross Valley releasing papers, maps, and plans from his hands into golden light'; thumb='I LET GO'; god='golden path opening'; arrow='yellow glow arrow to the light'
-        elif any(x in low for x in ['broken','nothing','empty','shaking','tears']): score=94; emotion='BROKENNESS'; visual='extreme close-up of Cross Valley crying, eyes full of tears, black cowboy hat'; thumb='GOD WAS THERE'; god='golden rim light'; arrow='none'
-        elif any(x in low for x in ['rebuilt','new','straight','path','road']): score=92; emotion='REDEMPTION'; visual='before and after split screen, darkness to golden road'; thumb='HE MADE A WAY'; god='sunrise road'; arrow='curved red arrow from dark to light'
-        if score>=88: moments.append({'score':score,'line':idx,'lyric':line,'emotion':emotion,'visual':visual,'thumb':thumb,'god':god,'arrow':arrow})
-    defaults=[{'score':98,'line':0,'lyric':'The night everything broke, God found him on the floor.','emotion':'BROKENNESS','visual':'Cross Valley lying on floor at 3:00 AM, crying, hand of God reaching down','thumb':'HE FOUND ME','god':'hand of God','arrow':'curved red arrow'},{'score':96,'line':0,'lyric':'He finally stopped trusting himself and surrendered to God.','emotion':'SURRENDER','visual':'Cross Valley kneeling, hands open, golden light above','thumb':'I LET GO','god':'golden light','arrow':'yellow glow arrow'},{'score':94,'line':0,'lyric':'God was there in the silence.','emotion':'REDEMPTION','visual':'extreme close-up tears, looking upward, golden rim light','thumb':'GOD WAS THERE','god':'heavenly glow','arrow':'none'}]
-    for d in defaults:
-        if len(moments)<5: moments.append(d)
-    return sorted(moments,key=lambda x:x['score'],reverse=True)[:5]
+    ensure_project(p)
+    dna = _detect_music_dna(p)
+    raw_lines = lyrics(p)
+
+    # Mapeamento de palavras-chave por emoção — baseado no DNA da música
+    mapa_emocao = {
+        'DOR_QUEBRANTO':      (['3 am','three in the morning','floor','face down','hardwood','sleepless','crying','alone in the dark'], 'BROKENNESS'),
+        'ENTREGA_CONFIANCA':  (['trust','lean not','surrender','let go','give it all','your will','not mine'], 'SURRENDER'),
+        'RESTAURACAO_VITORIA':(['rebuilt','restored','new','straight','made a way','path','road ahead','begin again'], 'REDEMPTION'),
+        'PROTECAO_DIVINA':    (['wings','shelter','refuge','protect','shadow','almighty','dwell'], 'PROTECTION'),
+        'GRACA_SALVACAO':     (['grace','mercy','forgive','saved','found me','undeserved','not worthy'], 'GRACE'),
+        'BATALHA_ESPIRITUAL': (['fight','battle','stand','warrior','strong','overcome','victory','enemy'], 'BATTLE'),
+        'CURA_RESTAURACAO':   (['heal','broken heart','pain','wound','hurt','scars','mend'], 'HEALING'),
+        'FE_ESPERANCA':       (['hope','faith','believe','trust','dawn','morning','new day'], 'HOPE'),
+    }
+
+    # Palavras secundárias que elevam qualquer linha
+    boost_words = ['god','lord','jesus','heaven','light','hand','voice','prayer','cross','spirit']
+
+    tema = dna['tema']
+    chaves_tema, emocao_tema = mapa_emocao.get(tema, (['hope','faith'], 'HOPE'))
+
+    moments = []
+    textos_usados = set()
+
+    for idx, line in enumerate(raw_lines or [], 1):
+        low = line.lower()
+        score = 50
+
+        # Pontua por palavras-chave do tema específico da música
+        hits_tema = sum(1 for k in chaves_tema if k in low)
+        score += hits_tema * 15
+
+        # Pontua por palavras espirituais genéricas
+        hits_boost = sum(1 for b in boost_words if b in low)
+        score += hits_boost * 5
+
+        # Desconta linhas muito curtas ou muito genéricas
+        if len(line.split()) < 3:
+            score -= 20
+
+        if score < 65:
+            continue
+
+        # Escolhe texto ainda não usado da lista do DNA
+        texto_escolhido = 'GOD WAS THERE'
+        for txt, cat in dna['textos']:
+            if txt not in textos_usados:
+                texto_escolhido = txt
+                textos_usados.add(txt)
+                break
+
+        moments.append({
+            'score': min(score, 99),
+            'line': idx,
+            'lyric': line,
+            'emotion': emocao_tema,
+            'visual': f'Cross Valley — {dna["composicao"]} — expressão de {dna["emocao"]} — {dna["ambiente"]}',
+            'thumb': texto_escolhido,
+            'god': f'elemento divino: {dna["paleta"]}',
+            'arrow': dna['seta'],
+            'hook': f'{dna["tema"].lower()} hook',
+        })
+
+    # Se não encontrou 3 momentos, gera com os melhores versos disponíveis
+    if len(moments) < 3 and raw_lines:
+        for idx, line in enumerate(raw_lines, 1):
+            if any(m['line'] == idx for m in moments):
+                continue
+            texto_escolhido = 'GOD WAS THERE'
+            for txt, cat in dna['textos']:
+                if txt not in textos_usados:
+                    texto_escolhido = txt
+                    textos_usados.add(txt)
+                    break
+            moments.append({
+                'score': 75,
+                'line': idx,
+                'lyric': line,
+                'emotion': emocao_tema,
+                'visual': f'Cross Valley — {dna["composicao"]} — {dna["ambiente"]}',
+                'thumb': texto_escolhido,
+                'god': dna['paleta'],
+                'arrow': dna['seta'],
+                'hook': f'{dna["tema"].lower()} hook',
+            })
+            if len(moments) >= 5:
+                break
+
+    return sorted(moments, key=lambda x: x['score'], reverse=True)[:5]
 
 def thumb_psychology_variants(moments):
-    variants=[]
-    used=set()
+    """Retorna os momentos já enriquecidos pelo DNA — sem sobrescrever com template fixo."""
+    textos_usados = set()
+    variants = []
     for m in moments:
-        m=dict(m)
-        lyric=m.get("lyric","").lower()
-        text=m.get("thumb","HE FOUND ME")
-        hook="faith hook"
-        if "three in the morning" in lyric or "3 am" in lyric or "3:00" in lyric:
-            text="3AM BROKE ME"; hook="specific time hook"; m["score"]=max(m.get("score",90),99)
-            m["visual"]=m.get("visual","") + ", include a visible digital clock reading 3:00 AM"
-        elif "face down" in lyric or "floor" in lyric or "hardwood" in lyric:
-            text="HE FOUND ME"; hook="rescue hook"; m["score"]=max(m.get("score",90),98)
-        elif "can't take" in lyric or "anymore" in lyric:
-            text="I WAS DONE"; hook="collapse hook"; m["score"]=max(m.get("score",90),97)
-        elif "shaking hands" in lyric or "something to hold" in lyric:
-            text="I COULDN'T HOLD ON"; hook="helplessness hook"; m["score"]=max(m.get("score",90),96)
-        elif "let go" in lyric:
-            text="I LET GO"; hook="surrender hook"; m["score"]=max(m.get("score",90),96)
-        elif "grace" in lyric or "hands" in lyric:
-            text="HE CAUGHT ME"; hook="grace hook"; m["score"]=max(m.get("score",90),95)
-        elif "rebuilt" in lyric or "nothing" in lyric:
-            text="GOD REBUILT ME"; hook="restoration hook"; m["score"]=max(m.get("score",90),95)
-        if text in used:
-            for alt in ["HE FOUND ME","3AM BROKE ME","I WAS DONE","HE CAUGHT ME","I LET GO","GOD REBUILT ME","HE WAS THERE"]:
-                if alt not in used:
-                    text=alt
+        m = dict(m)
+        texto = m.get('thumb', 'GOD WAS THERE')
+        if texto in textos_usados:
+            # Tenta texto alternativo do mesmo momento (se vier do DNA)
+            for alt in ['HE FOUND ME','I LET GO','GOD REBUILT ME','HE WAS THERE','FINALLY FREE',
+                        'I OVERCAME','HE HEALED ME','TRUST HIM','GRACE FOUND ME','I AM NEW']:
+                if alt not in textos_usados:
+                    texto = alt
                     break
-        used.add(text)
-        m["thumb"]=text
-        m["hook"]=hook
+        textos_usados.add(texto)
+        m['thumb'] = texto
         variants.append(m)
-    return sorted(variants, key=lambda x:x.get("score",0), reverse=True)
+    return sorted(variants, key=lambda x: x.get('score', 0), reverse=True)
 
 def masterpiece_score_item(m):
-    score=int(m.get("score",90))
-    text=m.get("thumb","")
-    visual=m.get("visual","").lower()
-    arrow=m.get("arrow","").lower()
-    lyric=m.get("lyric","").lower()
+    score = int(m.get('score', 90))
+    text = m.get('thumb', '')
+    visual = m.get('visual', '').lower()
+    emotion = m.get('emotion', '').lower()
+    # Pontua pela riqueza visual derivada da música (não por palavras fixas)
     if len(text.split()) <= 4: score += 2
-    if any(x in lyric for x in ["3 am","three in the morning","floor","face down"]): score += 3
-    if any(x in visual for x in ["cry","tear","floor","hand of god","3:00"]): score += 3
-    if any(x in arrow for x in ["curved","red","glow"]): score += 2
+    if any(x in visual for x in ['close','silhueta','perfil','meio corpo','mãos']): score += 3
+    if any(x in emotion for x in ['surrender','redemption','grace','battle','healing','hope','protection']): score += 2
+    if 'nenhuma seta' not in m.get('arrow','').lower() and m.get('arrow','').strip(): score += 1
     return min(100, score)
 
 def predict_ctr_from_score(score):
@@ -246,11 +449,103 @@ def write_storyboard(p):
     for i,m in enumerate(moments,1): lines += [f'#{i} - CTR ESTIMADO: {m["score"]}/100',f'Emoção: {m["emotion"]}',f'Texto da thumb: {m["thumb"]}',f'Cena: {m["visual"]}',f'Elemento divino: {m["god"]}',f'Seta: {m["arrow"]}',f'Linha/base: {m["lyric"]}','-'*60]
     out.write_text('\n'.join(lines),encoding='utf-8'); print(out); return moments
 def get_openai_key(): return os.environ.get('OPENAI_API_KEY') or CFG.get('openai_api_key','')
+
+# Composições distintas para cada thumbnail — nunca as 3 iguais
+_COMPOSICOES = [
+    'CLOSE EXTREMO: rosto preenchendo 70-80% do quadro, expressão intensa, fundo completamente desfocado com bokeh pesado. Olhar direto para a câmera ou levemente para cima.',
+    'MEIO CORPO: da cintura para cima. Postura expressiva e específica da emoção (mãos abertas, punhos fechados, braços abertos). Ambiente visível e atmosférico ao fundo.',
+    'SILHUETA + HORIZONTE: figura em contraste dramático contra céu com cores intensas. Elemento divino visível (luz descendo, raio de sol). Composição ampla, personagem menor mas poderoso.',
+]
+
 def build_story_prompts(p):
-    moments=write_storyboard(p)[:3]; thumb_dir=p/'07_THUMBNAILS'; thumb_dir.mkdir(parents=True,exist_ok=True); dna=(DNA_DIR/'CROSS_VALLEY_DNA.txt').read_text(encoding='utf-8',errors='ignore') if (DNA_DIR/'CROSS_VALLEY_DNA.txt').exists() else ''; prompts=[]
-    for i,m in enumerate(moments,1):
-        prompt=(f'REFERENCE IMAGE IS MANDATORY. Use PERSONA_MASTER.png as the official Cross Valley identity. Preserve mature man, shaved head, full black beard, black cowboy hat, black blazer, black shirt. Do not redesign the face.\n\nSTORY MOMENT:\n{m["lyric"]}\n\nVISUAL:\n{m["visual"]}\n\nEMOTION:\n{m["emotion"]} with extreme human emotion, tears, vulnerability, redemption.\n\nDIVINE ELEMENT:\n{m["god"]}\n\nARROW STYLE:\n{m["arrow"]}. Thick, curved, viral YouTube style, red/yellow glow, painted, strong outline, not PowerPoint.\n\nTEXT ON THUMBNAIL:\n{m["thumb"]}\n\nTHUMBNAIL RULES:\n16:9, cinematic Country Gospel, high CTR. Face 60-80%. Heavy bokeh. High contrast. Large readable distressed text. No text cutoff. No clutter.\n\nDNA:\n{dna}\n')
-        safe=api_safe(prompt); prompts.append(safe); (thumb_dir/f'STORY_PROMPT_THUMB_{i:02d}.txt').write_text(safe,encoding='utf-8')
+    ensure_project(p)
+    thumb_dir = p / '07_THUMBNAILS'
+    thumb_dir.mkdir(parents=True, exist_ok=True)
+    canal_dna = (DNA_DIR / 'CROSS_VALLEY_DNA.txt').read_text(encoding='utf-8', errors='ignore') if (DNA_DIR / 'CROSS_VALLEY_DNA.txt').exists() else ''
+    title = title_clean(p)
+
+    # DNA visual derivado da música
+    music_dna = _detect_music_dna(p)
+    moments = write_storyboard(p)[:3]
+
+    prompts = []
+    for i, (m, composicao) in enumerate(zip(moments, _COMPOSICOES), 1):
+        texto_thumb = m.get('thumb', 'GOD WAS THERE')
+        lyric_base  = m.get('lyric', '')
+
+        # Posição do texto varia por composição
+        posicao_texto = ['canto superior esquerdo, grande e em diagonal', 'base inferior direita, horizontal, grande', 'centro superior, letras em arco sobre a silhueta'][i - 1]
+
+        prompt = (
+            f'REFERENCE IMAGE IS MANDATORY.\n'
+            f'Use PERSONA_MASTER.png como identidade oficial do Cross Valley.\n'
+            f'PRESERVE: homem maduro, cabeça raspada, barba preta cheia, chapéu country preto, blazer preto, camisa preta.\n'
+            f'NÃO redesenhe o rosto. NÃO crie um cowboy genérico.\n\n'
+
+            f'=== MÚSICA ===\n'
+            f'Título: {title}\n'
+            f'Tema: {music_dna["tema"]}\n'
+            f'Verso/base: {lyric_base}\n\n'
+
+            f'=== PASSO 1 — EMOÇÃO ===\n'
+            f'Emoção principal: {music_dna["emocao"]}\n'
+            f'Expressão facial específica: {music_dna["expressao"]}\n'
+            f'PROIBIDO: choro genérico, expressão neutra, rosto vazio. A emoção deve ser ESPECÍFICA desta música.\n\n'
+
+            f'=== PASSO 2 — COMPOSIÇÃO ===\n'
+            f'{composicao}\n\n'
+
+            f'=== PASSO 3 — PALETA DE CORES ===\n'
+            f'{music_dna["paleta"]}\n'
+            f'As cores devem derivar do TEMA da música, não de um template fixo. Contraste alto. Atmosfera cinematográfica.\n\n'
+
+            f'=== PASSO 4 — AMBIENTE / CENÁRIO ===\n'
+            f'{music_dna["ambiente"]}\n'
+            f'O cenário reforça a mensagem da música — não é apenas decoração.\n\n'
+
+            f'=== PASSO 5 — TEXTO NA THUMBNAIL ===\n'
+            f'Texto: {texto_thumb}\n'
+            f'Posição: {posicao_texto}\n'
+            f'Fonte: grande, distressed, impactante. Legível em miniatura. SEM corte de texto.\n\n'
+
+            f'=== PASSO 6 — ELEMENTO EXTRA (SETA) ===\n'
+            f'{music_dna["seta"]}\n'
+            f'REGRA: seta vermelha NÃO é padrão automático. Use seta APENAS se reforçar a narrativa desta música.\n'
+            f'Se usar seta: estilo grosso, curvo, pintado — não PowerPoint. Cores possíveis: vermelha, amarela, laranja — conforme a emoção.\n\n'
+
+            f'=== REGRAS FINAIS ===\n'
+            f'Formato: 16:9 — 1536x1024. Cinematic Country Gospel. Alta qualidade.\n'
+            f'Cada thumbnail deve ter conceito visual ÚNICO e diferente das outras.\n'
+            f'NÃO repita: fundo escuro genérico + choro + seta vermelha + texto no mesmo lugar.\n'
+            f'A imagem deve contar a história DESTA música especificamente.\n\n'
+
+            f'DNA DO CANAL:\n{canal_dna}\n'
+        )
+        safe = api_safe(prompt)
+        prompts.append(safe)
+        (thumb_dir / f'STORY_PROMPT_THUMB_{i:02d}.txt').write_text(safe, encoding='utf-8')
+
+    # Salva os 10 textos disponíveis para escolha
+    textos = music_dna.get('textos', [])
+    linhas_textos = [
+        f'10 OPÇÕES DE TEXTO PARA THUMBNAIL — {title}',
+        f'Tema detectado: {music_dna["tema"]}',
+        '=' * 60, '',
+    ]
+    cat_atual = None
+    for txt, cat in textos:
+        if cat != cat_atual:
+            cat_atual = cat
+            linhas_textos.append(f'\n── {cat.upper()} ──')
+        linhas_textos.append(f'  • {txt}')
+    linhas_textos += ['', '=' * 60, 'Escolha o texto que mais combina com a thumbnail gerada.']
+    (thumb_dir / 'TEXTOS_THUMBNAIL_10_OPCOES.txt').write_text('\n'.join(linhas_textos), encoding='utf-8')
+
+    print(f'  Tema detectado  : {music_dna["tema"]}')
+    print(f'  Emoção          : {music_dna["emocao"][:60]}...')
+    print(f'  Paleta          : {music_dna["paleta"][:60]}...')
+    print(f'  3 prompts gerados com composições distintas.')
+    print(f'  10 textos salvos: TEXTOS_THUMBNAIL_10_OPCOES.txt')
     return prompts
 def ctr_report(p):
     moments=thumb_psychology_variants(analyze_story_moments(p))[:3]; out=p/'09_DOCUMENTOS'/'CTR_INTELLIGENCE_REPORT.txt'; lines=['CTR INTELLIGENCE REPORT - BUILD 015','='*60,f'Projeto: {p.name}','']
