@@ -1,0 +1,241 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>CrossValley Studio — Guia de Uso</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;500;600;700&display=swap');
+  :root{--gold:#FFD166;--gold-dark:#B8860B;--gold-light:#FFF0A0;--bg:#0D0D0D;--bg2:#161616;--bg3:#1C1C1C;--border:#2A2A2A;--text:#E8E8E8;--muted:#888;--green:#5FD980;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:13px;line-height:1.6;}
+  .cover{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 30%,#1a1200 0%,#0D0D0D 70%);border-bottom:1px solid var(--border);page-break-after:always;text-align:center;padding:60px 40px;}
+  .cover-cross{font-size:56px;color:var(--gold);margin-bottom:8px;}
+  .cover h1{font-family:'Anton',sans-serif;font-size:52px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;line-height:1.1;}
+  .cover h2{font-family:'Anton',sans-serif;font-size:22px;letter-spacing:8px;color:var(--muted);text-transform:uppercase;margin-top:6px;font-weight:400;}
+  .cover-line{width:120px;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:30px auto;}
+  .cover-desc{font-size:15px;color:var(--muted);max-width:480px;line-height:1.8;}
+  .cover-badge{margin-top:40px;display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+  .badge{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:6px 18px;font-size:12px;color:var(--gold);letter-spacing:1px;}
+  .cover-build{margin-top:50px;font-size:11px;color:#444;letter-spacing:2px;text-transform:uppercase;}
+  .page{max-width:860px;margin:0 auto;padding:60px 40px;}
+  .section-header{display:flex;align-items:center;gap:16px;margin:50px 0 24px;}
+  .section-icon{width:42px;height:42px;background:linear-gradient(135deg,var(--gold-dark),#6B5000);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+  .section-header h2{font-family:'Anton',sans-serif;font-size:26px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;}
+  .section-header .sub{font-size:12px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+  .divider{height:1px;background:linear-gradient(90deg,var(--gold-dark),transparent);margin:0 0 28px;}
+  .menu-grid{display:grid;gap:10px;}
+  .menu-card{background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--gold-dark);border-radius:10px;padding:14px 18px;display:grid;grid-template-columns:44px 1fr;gap:12px;align-items:start;}
+  .menu-card.highlight{background:linear-gradient(135deg,#1a1200,#0f0900);border-left-color:var(--gold);border-color:var(--gold-dark);box-shadow:0 0 20px rgba(255,209,102,0.08);}
+  .menu-num{font-family:'Anton',sans-serif;font-size:22px;color:var(--gold);line-height:1;padding-top:2px;}
+  .menu-card.highlight .menu-num{color:var(--gold-light);font-size:26px;}
+  .menu-title{font-size:13px;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;}
+  .menu-card.highlight .menu-title{color:var(--gold);font-size:15px;}
+  .menu-desc{font-size:12px;color:var(--muted);line-height:1.6;}
+  .menu-card.highlight .menu-desc{color:#bba040;}
+  .menu-desc ul{margin:6px 0 0 14px;}
+  .menu-desc li{margin-bottom:2px;}
+  .flow-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:16px;}
+  .flow-title{background:linear-gradient(90deg,#1a1200,var(--bg2));padding:12px 20px;font-weight:700;color:var(--gold);font-size:13px;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid var(--border);}
+  .flow-steps{padding:16px 20px;display:flex;flex-direction:column;gap:8px;}
+  .flow-step{display:flex;align-items:center;gap:12px;}
+  .step-num{width:24px;height:24px;background:var(--gold-dark);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#000;flex-shrink:0;}
+  .step-tag{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:2px 8px;font-size:10px;color:var(--gold);letter-spacing:.5px;text-transform:uppercase;flex-shrink:0;}
+  .step-text{font-size:12px;color:var(--text);}
+  .folder-tree{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:20px 24px;font-family:'Consolas','Courier New',monospace;font-size:12px;line-height:2;}
+  .folder-root{color:var(--gold);font-weight:700;}
+  .folder-dir{color:#7BAFD4;}
+  .folder-note{color:var(--muted);}
+  .cred-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  .cred-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px;display:flex;align-items:center;gap:14px;}
+  .cred-icon{font-size:28px;}
+  .cred-plat{font-weight:700;color:var(--text);font-size:13px;}
+  .cred-info{font-size:11px;color:var(--muted);margin-top:2px;}
+  .cred-ok{margin-left:auto;background:rgba(95,217,128,.15);border:1px solid rgba(95,217,128,.3);color:var(--green);font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:1px;}
+  .tips-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+  .tip{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;}
+  .tip-icon{font-size:18px;flex-shrink:0;}
+  .tip-text{font-size:12px;color:var(--muted);line-height:1.6;}
+  .tip-text strong{color:var(--text);}
+  .footer{margin-top:60px;border-top:1px solid var(--border);padding:30px 0;display:flex;justify-content:space-between;align-items:center;}
+  .footer-logo{font-family:'Anton',sans-serif;font-size:16px;color:var(--gold);letter-spacing:2px;}
+  .footer-info{font-size:11px;color:#444;text-align:right;}
+  @media print{body{background:#0D0D0D!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}.cover{min-height:auto;padding:80px 40px;}}
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="cover-cross">&#x271D;</div>
+  <h1>CrossValley<br>Studio</h1>
+  <h2>Claude Code</h2>
+  <div class="cover-line"></div>
+  <p class="cover-desc">Sistema Operacional de Producao Audiovisual com Inteligencia Artificial para o canal <strong style="color:var(--gold)">Cross Valley Country Gospel</strong>. Criacao, edicao e publicacao automatica de videos curtos.</p>
+  <div class="cover-badge">
+    <span class="badge">&#9654; YouTube Shorts</span>
+    <span class="badge">&#9711; Instagram Reels</span>
+    <span class="badge">&#9834; TikTok</span>
+    <span class="badge">&#10022; OpenAI GPT</span>
+    <span class="badge">&#9672; Whisper AI</span>
+  </div>
+  <div class="cover-build">BUILD 017 &middot; Maquina de Videos &middot; Junho 2025</div>
+</div>
+
+<div class="page">
+
+  <div class="section-header">
+    <div class="section-icon">&#128193;</div>
+    <div><h2>Estrutura de Pastas</h2><div class="sub">Organizacao de cada projeto de musica</div></div>
+  </div>
+  <div class="divider"></div>
+  <div class="folder-tree">
+    <div class="folder-root">PROJETOS / 32 NOME DA MUSICA /</div>
+    <div><span class="folder-dir">&nbsp;&nbsp;01_MUSICA /</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="folder-note">&larr; Arquivo MP3 da musica</span></div>
+    <div><span class="folder-dir">&nbsp;&nbsp;02_ROTEIRO /</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="folder-note">&larr; musica.txt com a letra</span></div>
+    <div><span class="folder-dir">&nbsp;&nbsp;03_MIDIAS_BRUTAS /</span></div>
+    <div><span class="folder-dir">&nbsp;&nbsp;&nbsp;&nbsp;PERSONA /</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="folder-note">&larr; Videos COM o Cross Valley (persona)</span></div>
+    <div><span class="folder-dir">&nbsp;&nbsp;&nbsp;&nbsp;SEM_PERSONA /</span>&nbsp;&nbsp;&nbsp;<span class="folder-note">&larr; B-roll, paisagens, natureza</span></div>
+    <div><span class="folder-dir">&nbsp;&nbsp;04_CAPCUT /</span></div>
+    <div><span class="folder-dir">&nbsp;&nbsp;&nbsp;&nbsp;CAPCUT_FINAL /</span>&nbsp;&nbsp;&nbsp;<span class="folder-note">&larr; Video exportado do CapCut</span></div>
+    <div><span class="folder-dir">&nbsp;&nbsp;05_EXPORTACOES /</span></div>
+    <div><span class="folder-dir">&nbsp;&nbsp;&nbsp;&nbsp;REELS /</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="folder-note">&larr; Reel 45s gerado pelo app</span></div>
+    <div><span class="folder-dir">&nbsp;&nbsp;06_LEGENDAS /</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="folder-note">&larr; Arquivos .SRT</span></div>
+    <div><span class="folder-dir">&nbsp;&nbsp;07_THUMBNAILS /</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="folder-note">&larr; Thumbnails geradas pela IA</span></div>
+    <div><span class="folder-dir">&nbsp;&nbsp;08_SEO /</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="folder-note">&larr; Titulo, descricao, hashtags</span></div>
+    <div><span class="folder-dir">&nbsp;&nbsp;09_DOCUMENTOS /</span>&nbsp;&nbsp;&nbsp;<span class="folder-note">&larr; URLs publicadas, relatorios</span></div>
+    <div><span class="folder-dir">&nbsp;&nbsp;10_DNA_MEMORY /</span>&nbsp;&nbsp;&nbsp;&nbsp;<span class="folder-note">&larr; Memoria visual do canal</span></div>
+  </div>
+
+  <div class="section-header" style="margin-top:50px">
+    <div class="section-icon">&#9889;</div>
+    <div><h2>Fluxo de Trabalho</h2><div class="sub">Como usar o app para cada musica nova</div></div>
+  </div>
+  <div class="divider"></div>
+
+  <div class="flow-box">
+    <div class="flow-title">&#9889; Fluxo Rapido &mdash; Video ja editado no CapCut</div>
+    <div class="flow-steps">
+      <div class="flow-step"><div class="step-num">1</div><span class="step-text">Clique em <strong>Selecionar</strong> e escolha a pasta do projeto</span></div>
+      <div class="flow-step"><div class="step-num">2</div><span class="step-tag">PUBLICACAO</span><span class="step-text">Clique em <strong>PUBLICAR TUDO</strong> &rarr; EXECUTAR</span></div>
+      <div class="flow-step"><div class="step-num">3</div><span class="step-text">&#10003; Pronto &mdash; Reel criado + publicado no YouTube + Instagram + TikTok automaticamente</span></div>
+    </div>
+  </div>
+
+  <div class="flow-box">
+    <div class="flow-title">&#128203; Fluxo Completo &mdash; Do zero ate publicacao</div>
+    <div class="flow-steps">
+      <div class="flow-step"><div class="step-num">1</div><span class="step-tag">PROJETO</span><span class="step-text">Criar Novo Projeto</span></div>
+      <div class="flow-step"><div class="step-num">2</div><span class="step-tag">CONTEUDO</span><span class="step-text">Gerar Legendas SRT</span></div>
+      <div class="flow-step"><div class="step-num">3</div><span class="step-tag">CONTEUDO</span><span class="step-text">Gerar SEO Premium 2.0</span></div>
+      <div class="flow-step"><div class="step-num">4</div><span class="step-tag">CONTEUDO</span><span class="step-text">Gerar Thumbnails IA</span></div>
+      <div class="flow-step"><div class="step-num">5</div><span class="step-tag">CONTEUDO</span><span class="step-text">Pacote YouTube Completo</span></div>
+      <div class="flow-step"><div class="step-num">6</div><span class="step-tag">EDICAO</span><span class="step-text">Montar Sequencia CapCut &rarr; editar no CapCut &rarr; exportar para CAPCUT_FINAL/</span></div>
+      <div class="flow-step"><div class="step-num">7</div><span class="step-tag">PUBLICACAO</span><span class="step-text"><strong>PUBLICAR TUDO</strong> &mdash; uma vez, tudo feito</span></div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-icon">&#128193;</div>
+    <div><h2>Projeto</h2><div class="sub">Criacao e organizacao</div></div>
+  </div>
+  <div class="divider"></div>
+  <div class="menu-grid">
+    <div class="menu-card"><div class="menu-num">01</div><div><div class="menu-title">Criar Novo Projeto</div><div class="menu-desc">Cria a estrutura completa de pastas para uma nova musica. O app pergunta o numero e nome (ex: <em>32 AMAZING GRACE</em>) e gera todas as subpastas automaticamente.</div></div></div>
+    <div class="menu-card"><div class="menu-num">02</div><div><div class="menu-title">Organizar Projeto</div><div class="menu-desc">Reorganiza um projeto existente &mdash; move arquivos para as pastas corretas e cria pastas que estejam faltando.</div></div></div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-icon">&#128221;</div>
+    <div><h2>Conteudo</h2><div class="sub">Geracao de material com IA</div></div>
+  </div>
+  <div class="divider"></div>
+  <div class="menu-grid">
+    <div class="menu-card"><div class="menu-num">03</div><div><div class="menu-title">Gerar Legendas SRT</div><div class="menu-desc">Gera arquivo de legenda .SRT sincronizado com a musica, baseado na letra em <em>02_ROTEIRO/musica.txt</em>. Pede a duracao total e quando a voz comeca.</div></div></div>
+    <div class="menu-card"><div class="menu-num">04</div><div><div class="menu-title">Gerar SEO Premium 2.0</div><div class="menu-desc">Gera com IA: titulo otimizado para YouTube, descricao completa com palavras-chave e lista de hashtags para Instagram e TikTok. Salva em <em>08_SEO/</em>.</div></div></div>
+    <div class="menu-card"><div class="menu-num">05</div><div><div class="menu-title">Gerar Thumbnails IA</div><div class="menu-desc">Gera thumbnails virais usando GPT Image com base nos momentos emocionais da letra. Estilo visual do canal: setas vermelhas, persona Cross Valley. Salva em <em>07_THUMBNAILS/</em>.</div></div></div>
+    <div class="menu-card"><div class="menu-num">06</div><div><div class="menu-title">Pacote YouTube Completo</div><div class="menu-desc">Gera tudo para o YouTube de uma vez: titulo, descricao, tags e capitulos. Ideal para copiar e colar direto no YouTube Studio.</div></div></div>
+    <div class="menu-card"><div class="menu-num">07</div><div><div class="menu-title">Gerar Prompts Story DNA</div><div class="menu-desc">Gera prompts de imagem para as cenas do video, baseado no DNA Visual do canal (estilo Cross Valley). Usado para gerar imagens com IA para o video principal.</div></div></div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-icon">&#128269;</div>
+    <div><h2>Analise</h2><div class="sub">Inteligencia de conteudo</div></div>
+  </div>
+  <div class="divider"></div>
+  <div class="menu-grid">
+    <div class="menu-card"><div class="menu-num">08</div><div><div class="menu-title">Story Analyzer</div><div class="menu-desc">Analisa a letra e identifica os momentos mais virais &mdash; versos com maior potencial emocional. Gera pontuacao CTR para cada momento.</div></div></div>
+    <div class="menu-card"><div class="menu-num">09</div><div><div class="menu-title">Storyboard Viral</div><div class="menu-desc">Cria um storyboard completo com as cenas sugeridas para o video, baseado nos momentos de maior impacto emocional da letra.</div></div></div>
+    <div class="menu-card"><div class="menu-num">10</div><div><div class="menu-title">CTR Intelligence</div><div class="menu-desc">Relatorio de CTR (Click-Through Rate) previsto para as thumbnails. Mostra qual imagem tem mais chance de ser clicada e por que.</div></div></div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-icon">&#9986;&#65039;</div>
+    <div><h2>Edicao</h2><div class="sub">Preparacao para o CapCut</div></div>
+  </div>
+  <div class="divider"></div>
+  <div class="menu-grid">
+    <div class="menu-card"><div class="menu-num">11</div><div><div class="menu-title">Montar Sequencia CapCut</div><div class="menu-desc">Organiza e nomeia os clipes na sequencia certa para importar no CapCut. Copia de <em>03_MIDIAS_BRUTAS/</em> para <em>04_CAPCUT/</em> com numeracao sequencial.</div></div></div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-icon">&#128640;</div>
+    <div><h2>Publicacao</h2><div class="sub">Reel Machine + Plataformas</div></div>
+  </div>
+  <div class="divider"></div>
+  <div class="menu-grid">
+    <div class="menu-card"><div class="menu-num">12</div><div><div class="menu-title">REEL MACHINE &mdash; Cria video 45s</div><div class="menu-desc">O coracao do sistema. Cria automaticamente um Reel vertical de 45 segundos (1080x1920):<ul><li>Combina clipes PERSONA + SEM_PERSONA</li><li>Legendas karaoke sincronizadas (fonte Anton, cor dourada)</li><li>Whisper AI para sincronizacao palavra por palavra</li><li>Tela de CTA final com link do canal</li><li>Salva em <em>05_EXPORTACOES/REELS/</em></li></ul></div></div></div>
+    <div class="menu-card"><div class="menu-num">13</div><div><div class="menu-title">YouTube Shorts</div><div class="menu-desc">Publica o Reel no canal <strong>Cross Valley Country Gospel</strong> como YouTube Short. Usa autenticacao OAuth ja configurada.</div></div></div>
+    <div class="menu-card"><div class="menu-num">14</div><div><div class="menu-title">Instagram Reels</div><div class="menu-desc">Publica o Reel no Instagram <strong>@crossvalleycountry</strong>. Inclui legenda com SEO e hashtags automaticamente. Login por Session ID configurado.</div></div></div>
+    <div class="menu-card"><div class="menu-num">15</div><div><div class="menu-title">TikTok</div><div class="menu-desc">Publica o Reel no TikTok do canal. Inclui titulo e hashtags automaticamente. Login por Session ID configurado.</div></div></div>
+    <div class="menu-card highlight"><div class="menu-num">16</div><div><div class="menu-title">&#9733; PUBLICAR TUDO</div><div class="menu-desc">O botao principal do sistema. Executa tudo em sequencia automatica:<ul style="margin-top:8px;color:#bba040"><li>1. Cria o Reel de 45s (Reel Machine)</li><li>2. Publica no YouTube Shorts</li><li>3. Publica no Instagram Reels</li><li>4. Publica no TikTok</li></ul><span style="display:block;margin-top:8px;color:#888">Se uma plataforma der erro, continua as outras e mostra relatorio no final.</span></div></div></div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-icon">&#9881;&#65039;</div>
+    <div><h2>Sistema</h2><div class="sub">Configuracoes e memoria visual</div></div>
+  </div>
+  <div class="divider"></div>
+  <div class="menu-grid">
+    <div class="menu-card"><div class="menu-num">17</div><div><div class="menu-title">Configurar Chave OpenAI</div><div class="menu-desc">Define ou atualiza a chave de API do ChatGPT. Necessaria para geracao de imagens, SEO e analises de conteudo.</div></div></div>
+    <div class="menu-card"><div class="menu-num">18</div><div><div class="menu-title">Aprovar Thumbnail</div><div class="menu-desc">Move uma thumbnail para a pasta de aprovados (<em>DNA_MEMORY/APPROVED</em>). O sistema aprende com as escolhas para gerar imagens melhores no futuro.</div></div></div>
+    <div class="menu-card"><div class="menu-num">19</div><div><div class="menu-title">Rejeitar Thumbnail</div><div class="menu-desc">Move uma thumbnail para a pasta de rejeitados (<em>DNA_MEMORY/REJECTED</em>). Tambem faz parte do aprendizado do sistema visual.</div></div></div>
+    <div class="menu-card"><div class="menu-num">20</div><div><div class="menu-title">Atualizar Persona Master</div><div class="menu-desc">Atualiza a imagem de referencia do persona <strong>Cross Valley</strong> (foto oficial do canal). Usada como base para todas as geracoes de imagem com IA.</div></div></div>
+    <div class="menu-card"><div class="menu-num">21</div><div><div class="menu-title">Diagnostico DNA</div><div class="menu-desc">Relatorio do estado atual do DNA Visual: imagens aprovadas, rejeitadas, masterpieces e status geral do sistema de memoria visual.</div></div></div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-icon">&#128273;</div>
+    <div><h2>Credenciais</h2><div class="sub">Plataformas configuradas</div></div>
+  </div>
+  <div class="divider"></div>
+  <div class="cred-grid">
+    <div class="cred-card"><div class="cred-icon">&#9654;</div><div><div class="cred-plat">YouTube</div><div class="cred-info">crossvalleycountrygospel@gmail.com<br>Token OAuth salvo automaticamente</div></div><div class="cred-ok">&#10003; OK</div></div>
+    <div class="cred-card"><div class="cred-icon">&#9711;</div><div><div class="cred-plat">Instagram</div><div class="cred-info">@crossvalleycountry<br>Session ID salvo no config.json</div></div><div class="cred-ok">&#10003; OK</div></div>
+    <div class="cred-card"><div class="cred-icon">&#9834;</div><div><div class="cred-plat">TikTok</div><div class="cred-info">@crossvalleycountry<br>Session ID salvo no config.json</div></div><div class="cred-ok">&#10003; OK</div></div>
+    <div class="cred-card"><div class="cred-icon">&#10022;</div><div><div class="cred-plat">OpenAI</div><div class="cred-info">GPT-4 + GPT Image (gpt-image-1)<br>Chave salva no config.json</div></div><div class="cred-ok">&#10003; OK</div></div>
+  </div>
+
+  <div class="section-header">
+    <div class="section-icon">&#128161;</div>
+    <div><h2>Dicas Importantes</h2><div class="sub">Para usar o app corretamente</div></div>
+  </div>
+  <div class="divider"></div>
+  <div class="tips-grid">
+    <div class="tip"><div class="tip-icon">&#128432;&#65039;</div><div class="tip-text"><strong>Scroll no menu lateral</strong><br>Role com o mouse para ver todos os itens, especialmente em tela menor.</div></div>
+    <div class="tip"><div class="tip-icon">&#128193;</div><div class="tip-text"><strong>Sempre selecione o projeto</strong><br>Clique em Selecionar antes de executar qualquer funcao que precise de projeto.</div></div>
+    <div class="tip"><div class="tip-icon">&#127925;</div><div class="tip-text"><strong>Letra da musica</strong><br>O arquivo deve estar em <strong>02_ROTEIRO/musica.txt</strong> para as funcoes de IA funcionarem.</div></div>
+    <div class="tip"><div class="tip-icon">&#127916;</div><div class="tip-text"><strong>Videos no lugar certo</strong><br>COM persona Cross Valley &rarr; <strong>PERSONA/</strong><br>B-roll/paisagens &rarr; <strong>SEM_PERSONA/</strong></div></div>
+    <div class="tip"><div class="tip-icon">&#127850;</div><div class="tip-text"><strong>Session ID expirou?</strong><br>Chrome &rarr; F12 &rarr; Application &rarr; Cookies &rarr; copie o valor de <strong>sessionid</strong> do Instagram ou TikTok.</div></div>
+    <div class="tip"><div class="tip-icon">&#9749;</div><div class="tip-text"><strong>PUBLICAR TUDO demora</strong><br>O processo completo leva alguns minutos. O Whisper AI transcreve o audio &mdash; e normal esperar.</div></div>
+  </div>
+
+  <div class="footer">
+    <div>
+      <div class="footer-logo">&#x271D; CROSSVALLEY STUDIO</div>
+      <div style="font-size:11px;color:#444;margin-top:4px">Canal Gospel Country &mdash; Producao com IA</div>
+    </div>
+    <div class="footer-info">BUILD 017 &mdash; Maquina de Videos<br>Desenvolvido com Claude AI &middot; Junho 2025</div>
+  </div>
+
+</div>
+</body>
+</html>
