@@ -474,7 +474,8 @@ _COMPOSICOES = [
         'descricao': (
             'HALF-BODY EMOTIONAL POSE.\n'
             'Cross Valley visible from waist up. Hands and arms fully visible and expressive.\n'
-            'Pose must express the specific emotion: hands open to sky, fists clenched, hand on heart, arms wide.\n'
+            'Pose must express ONE clear gesture: EITHER hands open to sky, OR fists clenched, OR hand on heart, OR arms wide. Pick ONE only.\n'
+            'ANATOMY RULES: exactly 2 arms, exactly 2 hands, exactly 5 fingers per hand. NO extra limbs. NO floating hands. NO deformed fingers. Anatomically perfect human body.\n'
             'Background: environment clearly visible — landscape, road, field, sky. NOT just blur.\n'
             'Lighting: natural golden hour light from behind or side. Face illuminated. No dark face.\n'
             'Camera angle: medium shot, slightly wide to show the environment and the gesture.\n'
@@ -565,6 +566,7 @@ def build_story_prompts(p):
 
             f'=== OUTPUT ===\n'
             f'16:9 ratio, 1536x1024, cinematic Country Gospel, photorealistic quality.\n'
+            f'ANATOMY: exactly 2 arms, 2 hands, 5 fingers each. NO extra limbs, NO deformed hands, NO floating body parts. Anatomically perfect.\n'
             f'This thumbnail must look DIFFERENT from the others — unique composition, unique mood.\n\n'
 
             f'DNA:\n{canal_dna}\n'
