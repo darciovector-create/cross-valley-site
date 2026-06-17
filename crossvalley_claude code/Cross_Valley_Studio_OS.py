@@ -453,16 +453,53 @@ def get_openai_key(): return os.environ.get('OPENAI_API_KEY') or CFG.get('openai
 # Composições distintas para cada thumbnail — nunca as 3 iguais
 _COMPOSICOES = [
     {
-        'descricao': 'CLOSE EXTREMO: rosto preenchendo 70-80% do quadro. Olhar direto para a câmera ou levemente para cima. Fundo completamente desfocado (bokeh pesado). Iluminação cinematográfica: luz rim dourada de um lado, fill suave do outro. Rosto SEMPRE bem iluminado — sem sombras pesadas no rosto.',
-        'zona_texto': 'ZONA DO TEXTO: área ABAIXO do queixo ou no PEITO/BLAZER do personagem. NUNCA sobreponha o texto ao chapéu ou ao rosto. O texto deve estar em uma região de cor escura para garantir contraste e leitura.',
+        'descricao': (
+            'EXTREME CLOSE-UP PORTRAIT.\n'
+            'The face of Cross Valley MUST fill 70-80% of the ENTIRE image.\n'
+            'Forehead nearly touches the TOP edge. Chin is at the BOTTOM third.\n'
+            'Only head and top of shoulders visible. NO hands. NO arms. NO body below chest.\n'
+            'Background: completely blurred (f/1.4 bokeh), only soft color and light visible behind.\n'
+            'Lighting: cinematic rim light on one side (golden), soft fill on the other. Face fully lit.\n'
+            'Camera angle: straight on or very slightly from below (heroic angle).\n'
+            'THIS IS NOT A HALF-BODY SHOT. The face is the entire image.'
+        ),
+        'zona_texto': (
+            'TEXT PLACEMENT: bottom 20% of image, over the dark blazer/chest area.\n'
+            'NEVER place text on the hat, face, or forehead.\n'
+            'Text color: white or cream with dark outline for contrast.'
+        ),
     },
     {
-        'descricao': 'MEIO CORPO: da cintura para cima. Postura expressiva e específica da emoção (mãos abertas, braços abertos, mão no coração). Ambiente atmosférico visível ao fundo. Rosto SEMPRE iluminado por luz natural do ambiente (pôr do sol, amanhecer). Sem sombra dura no rosto.',
-        'zona_texto': 'ZONA DO TEXTO: base inferior da imagem (últimos 25% da altura), centralizado ou alinhado à esquerda. Fundo atrás do texto deve ser escuro ou desfocado — nunca texto sobre região clara ou sobre o rosto.',
+        'descricao': (
+            'HALF-BODY EMOTIONAL POSE.\n'
+            'Cross Valley visible from waist up. Hands and arms fully visible and expressive.\n'
+            'Pose must express the specific emotion: hands open to sky, fists clenched, hand on heart, arms wide.\n'
+            'Background: environment clearly visible — landscape, road, field, sky. NOT just blur.\n'
+            'Lighting: natural golden hour light from behind or side. Face illuminated. No dark face.\n'
+            'Camera angle: medium shot, slightly wide to show the environment and the gesture.\n'
+            'THIS IS NOT A CLOSE-UP. The pose and environment are as important as the face.'
+        ),
+        'zona_texto': (
+            'TEXT PLACEMENT: bottom 25% of image, large and horizontal.\n'
+            'Text sits BELOW the hands, over the dark lower portion of the image.\n'
+            'NEVER place text over the face or the hands.'
+        ),
     },
     {
-        'descricao': 'SILHUETA + HORIZONTE: figura em contraste dramático contra céu com cores intensas (dourado, laranja, roxo). ATENÇÃO: mesmo sendo silhueta, o rosto deve ter contorno visível (rim light forte dourado ou branco) para que o personagem seja reconhecível. Não esconda o rosto em escuridão total.',
-        'zona_texto': 'ZONA DO TEXTO: parte SUPERIOR da imagem (primeiros 30% da altura), em arco ou linha reta, centralizado. O texto fica acima da silhueta, no céu colorido — sempre com boa legibilidade pelo contraste com o céu.',
+        'descricao': (
+            'DRAMATIC SILHOUETTE against vivid sky.\n'
+            'Cross Valley is a DARK FIGURE (silhouette) against an INTENSELY COLORFUL sky.\n'
+            'Sky colors: dramatic orange, deep purple, fiery red, or intense golden — NOT plain sunset.\n'
+            'The person is shown FULL BODY or from knees up, small in the frame (30-40% of image height).\n'
+            'A strong rim light (golden or white) MUST outline the hat and shoulders so the figure is recognizable.\n'
+            'The SKY and LANDSCAPE dominate the image. The person is part of the landscape.\n'
+            'THIS IS NOT A CLOSE-UP AND NOT A HALF-BODY. The person is small against the epic sky.'
+        ),
+        'zona_texto': (
+            'TEXT PLACEMENT: top 30% of image, large text across the colorful sky.\n'
+            'Text in arc or bold horizontal above the silhouette figure.\n'
+            'White or cream text with strong outline for maximum sky contrast.'
+        ),
     },
 ]
 
@@ -488,50 +525,45 @@ def build_story_prompts(p):
             texto_thumb = ' '.join(palavras[:4])
 
         prompt = (
-            f'REFERENCE IMAGE IS MANDATORY.\n'
-            f'Use PERSONA_MASTER.png como identidade oficial do Cross Valley.\n'
-            f'PRESERVE: homem maduro, cabeça raspada, barba preta cheia, chapéu country preto, blazer preto, camisa preta.\n'
-            f'NÃO redesenhe o rosto. NÃO crie um cowboy genérico.\n\n'
+            f'REFERENCE IMAGE IS MANDATORY. Use PERSONA_MASTER.png as the ONLY face reference.\n'
+            f'PRESERVE EXACTLY: mature man, shaved head, full black beard, black cowboy hat, black blazer, black shirt.\n'
+            f'Do NOT redesign face. Do NOT create a generic cowboy.\n\n'
 
-            f'=== MÚSICA ===\n'
-            f'Título: {title}\n'
-            f'Tema: {music_dna["tema"]}\n'
-            f'Verso/base: {lyric_base}\n\n'
+            f'=== SONG: {title} ===\n'
+            f'Theme: {music_dna["tema"]}\n'
+            f'Lyric moment: {lyric_base}\n\n'
 
-            f'=== PASSO 1 — EMOÇÃO ===\n'
-            f'Emoção principal: {music_dna["emocao"]}\n'
-            f'Expressão facial específica: {music_dna["expressao"]}\n'
-            f'PROIBIDO: choro genérico, expressão neutra, rosto apagado. A emoção deve ser ESPECÍFICA desta música.\n\n'
-
-            f'=== PASSO 2 — COMPOSIÇÃO ===\n'
+            f'=== CRITICAL: COMPOSITION (MUST FOLLOW EXACTLY) ===\n'
             f'{comp["descricao"]}\n\n'
 
-            f'=== PASSO 3 — PALETA DE CORES ===\n'
+            f'=== EMOTION ===\n'
+            f'Primary emotion: {music_dna["emocao"]}\n'
+            f'Specific facial expression: {music_dna["expressao"]}\n'
+            f'FORBIDDEN: generic crying, neutral expression, blank stare.\n\n'
+
+            f'=== COLOR PALETTE ===\n'
             f'{music_dna["paleta"]}\n'
-            f'Cores derivadas do TEMA da música. Alto contraste. Atmosfera cinematográfica. Qualidade de filme.\n\n'
+            f'High contrast. Cinematic quality. Colors must match THIS song mood.\n\n'
 
-            f'=== PASSO 4 — AMBIENTE / CENÁRIO ===\n'
-            f'{music_dna["ambiente"]}\n'
-            f'O cenário reforça a mensagem da música — não é decoração genérica.\n\n'
+            f'=== ENVIRONMENT ===\n'
+            f'{music_dna["ambiente"]}\n\n'
 
-            f'=== PASSO 5 — TEXTO NA THUMBNAIL ===\n'
-            f'Texto: {texto_thumb}\n'
-            f'MÁXIMO 4 PALAVRAS — regra absoluta. Se o texto tiver mais de 4 palavras, use apenas as 4 primeiras.\n'
+            f'=== TEXT ON IMAGE ===\n'
+            f'Text: {texto_thumb}\n'
+            f'MAXIMUM 4 WORDS. Write EXACTLY this text, no more, no less.\n'
             f'{comp["zona_texto"]}\n'
-            f'Fonte: grande, bold, distressed, impactante. Alta legibilidade em miniatura. SEM corte de texto. SEM texto escondido atrás do chapéu ou do rosto.\n\n'
+            f'Font: large, bold, distressed grunge style. Must be readable at YouTube thumbnail size (small).\n'
+            f'NEVER place text behind the hat. NEVER cut off text at edges.\n\n'
 
-            f'=== PASSO 6 — ELEMENTO EXTRA (SETA) ===\n'
+            f'=== ARROW ===\n'
             f'{music_dna["seta"]}\n'
-            f'REGRA ABSOLUTA: seta vermelha NÃO é padrão automático. Use seta APENAS se reforçar a narrativa desta música.\n'
-            f'Se usar seta: estilo grosso, curvo, pintado — não PowerPoint. Cores possíveis: vermelha, amarela, laranja — conforme a emoção.\n\n'
+            f'Red arrow is NOT a default. Only use arrow if it serves THIS specific image.\n\n'
 
-            f'=== REGRAS FINAIS ===\n'
-            f'Formato: 16:9 — 1536x1024. Cinematic Country Gospel. Alta qualidade.\n'
-            f'Cada thumbnail deve ter conceito visual ÚNICO e diferente das outras.\n'
-            f'NÃO repita: fundo escuro genérico + choro + seta vermelha + texto no mesmo lugar.\n'
-            f'A imagem deve contar a história DESTA música especificamente.\n\n'
+            f'=== OUTPUT ===\n'
+            f'16:9 ratio, 1536x1024, cinematic Country Gospel, photorealistic quality.\n'
+            f'This thumbnail must look DIFFERENT from the others — unique composition, unique mood.\n\n'
 
-            f'DNA DO CANAL:\n{canal_dna}\n'
+            f'DNA:\n{canal_dna}\n'
         )
         safe = api_safe(prompt)
         prompts.append(safe)
