@@ -579,8 +579,39 @@ def generate_story_thumbs(p):
             with open(persona,'rb') as img: res=client.images.edit(model=CFG.get('openai_image_model','gpt-image-1'),image=img,prompt=pr,size=CFG.get('thumb_size','1536x1024'),n=1)
             out.write_bytes(base64.b64decode(res.data[0].b64_json)); print('OK:',out.name); ok+=1
         except Exception as e:
-            (thumb_dir/f'ERRO_STORY_THUMB_{i:02d}.txt').write_text(api_safe(str(e)),encoding='utf-8'); print('Erro:',e)
+            erro_str = str(e).lower()
+            (thumb_dir/f'ERRO_STORY_THUMB_{i:02d}.txt').write_text(api_safe(str(e)),encoding='utf-8')
+            if 'billing' in erro_str or 'limit' in erro_str or 'quota' in erro_str or 'insufficient' in erro_str:
+                print('=' * 52)
+                print('  CREDITOS OPENAI ESGOTADOS!')
+                print('=' * 52)
+                print('  Seus creditos da API OpenAI acabaram.')
+                print('  Para recarregar:')
+                print('  Use a opcao 22 do menu (RECARREGAR API OPENAI)')
+                print('  ou acesse: platform.openai.com/settings/organization/billing')
+                print('=' * 52)
+                break
+            else:
+                print('Erro:',e)
     ctr_report(p); return ok>0
+
+def abrir_recarga_openai():
+    """Abre a pagina de billing da OpenAI no navegador."""
+    import webbrowser
+    url = 'https://platform.openai.com/settings/organization/billing/overview'
+    print('=' * 52)
+    print('  RECARREGAR API OPENAI')
+    print('=' * 52)
+    print('  Abrindo o navegador na pagina de creditos...')
+    print(f'  URL: {url}')
+    print()
+    print('  Passos:')
+    print('  1. Faca login com sua conta OpenAI')
+    print('  2. Clique em "Add to credit balance"')
+    print('  3. Adicione creditos (minimo $5)')
+    print('  4. Volte ao app e tente gerar as thumbnails novamente')
+    print('=' * 52)
+    webbrowser.open(url)
 def create_project():
     root=clean(input(f'Caminho onde criar o projeto [ENTER = {DEFAULT_PATH}]: ')) or DEFAULT_PATH; name=input('Nome do projeto: ').strip();
     if not name: print('Informe o nome.'); return
@@ -1637,7 +1668,8 @@ def menu():
         print('19 - Publicar no Instagram Reels')
         print('20 - Publicar no TikTok')
         print('21 - *** PUBLICAR TUDO (Cria + YouTube + Instagram + TikTok) ***')
-        print('22 - Sair')
+        print('22 - Recarregar API OpenAI (abre pagina de creditos)')
+        print('23 - Sair')
         op=input('Escolha: ').strip()
         if op=='1': create_project(); pause()
         elif op=='2': organize_project(); pause()
@@ -1660,6 +1692,7 @@ def menu():
         elif op=='19': p=Path(clean(input('Caminho do projeto: '))); upload_instagram_reels(p) if p.exists() else print('Projeto não encontrado.'); pause()
         elif op=='20': p=Path(clean(input('Caminho do projeto: '))); upload_tiktok(p) if p.exists() else print('Projeto não encontrado.'); pause()
         elif op=='21': p=Path(clean(input('Caminho do projeto: '))); publicar_tudo(p) if p.exists() else print('Projeto não encontrado.'); pause()
-        elif op=='22': break
+        elif op=='22': abrir_recarga_openai(); pause()
+        elif op=='23': break
         else: print('Opção inválida.'); pause()
 if __name__=='__main__': menu()

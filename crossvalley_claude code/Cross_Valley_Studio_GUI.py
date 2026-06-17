@@ -139,6 +139,7 @@ class CrossValleyApp(ctk.CTk):
         (19, "Rejeitar Thumbnail",           "reject_thumb",         False),
         (20, "Atualizar Persona Master",     "update_persona_master",False),
         (21, "Diagnostico DNA",              "dna_diagnostic",       False),
+        (22, "Recarregar API OpenAI",        "abrir_recarga_openai", False),
     ]
 
     def __init__(self):
@@ -401,6 +402,10 @@ class CrossValleyApp(ctk.CTk):
             elif fn_name == "dna_diagnostic":
                 with contextlib.redirect_stdout(buf):
                     engine.dna_diagnostic()
+
+            elif fn_name == "abrir_recarga_openai":
+                with contextlib.redirect_stdout(buf):
+                    engine.abrir_recarga_openai()
 
             output = buf.getvalue()
             if output:
