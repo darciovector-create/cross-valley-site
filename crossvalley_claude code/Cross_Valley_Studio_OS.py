@@ -765,8 +765,10 @@ def detect_viral_hook(p):
 def _natural_sort_key(path):
     name = Path(path).stem.lower()
     nums = re.findall(r'\d+', name)
-    first_num = int(nums[0]) if nums else 999999
-    return (first_num, name)
+    # Usa o SEGUNDO bloco de números (numeração original dos prompts/cenas)
+    # Ex: 0001_004_LOCKED... → ordena por 004 (não por 0001)
+    sort_num = int(nums[1]) if len(nums) >= 2 else (int(nums[0]) if nums else 999999)
+    return (sort_num, name)
 
 def _media_files(folder):
     if not folder.exists():
