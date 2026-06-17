@@ -454,19 +454,20 @@ def get_openai_key(): return os.environ.get('OPENAI_API_KEY') or CFG.get('openai
 _COMPOSICOES = [
     {
         'descricao': (
-            'EXTREME CLOSE-UP PORTRAIT.\n'
-            'The face of Cross Valley MUST fill 70-80% of the ENTIRE image.\n'
-            'Forehead nearly touches the TOP edge. Chin is at the BOTTOM third.\n'
-            'Only head and top of shoulders visible. NO hands. NO arms. NO body below chest.\n'
-            'Background: completely blurred (f/1.4 bokeh), only soft color and light visible behind.\n'
-            'Lighting: cinematic rim light on one side (golden), soft fill on the other. Face fully lit.\n'
-            'Camera angle: straight on or very slightly from below (heroic angle).\n'
-            'THIS IS NOT A HALF-BODY SHOT. The face is the entire image.'
+            'EXTREME CLOSE-UP PORTRAIT — FACE IS THE ENTIRE IMAGE.\n'
+            'Crop TIGHT: from the hat brim at the TOP EDGE to the chin at the BOTTOM EDGE.\n'
+            'The face MUST fill at least 75% of the image area. Minimal neck/collar visible — almost none.\n'
+            'NO chest. NO blazer. NO shoulders. NO hands. NO arms. Just face + hat + tiny collar.\n'
+            'Background: completely blurred (f/1.4 extreme bokeh), only soft color visible.\n'
+            'Lighting: cinematic golden rim light on one side, soft fill on the other. Face FULLY lit, every detail visible.\n'
+            'Camera angle: straight on or VERY slightly from below (heroic angle).\n'
+            'Think: YouTube thumbnail where the FACE is the hook. Like a movie poster extreme close-up.\n'
+            'THIS IS NOT A HALF-BODY SHOT. If chest or blazer is visible more than 10%, you failed.'
         ),
         'zona_texto': (
-            'TEXT PLACEMENT: bottom 20% of image, over the dark blazer/chest area.\n'
-            'NEVER place text on the hat, face, or forehead.\n'
-            'Text color: white or cream with dark outline for contrast.'
+            'TEXT PLACEMENT: bottom 15% of image, overlapping the tiny collar/chin area.\n'
+            'Large bold distressed white/cream text with strong dark outline.\n'
+            'NEVER place text on the hat or over the eyes.'
         ),
     },
     {
@@ -555,9 +556,12 @@ def build_story_prompts(p):
             f'Font: large, bold, distressed grunge style. Must be readable at YouTube thumbnail size (small).\n'
             f'NEVER place text behind the hat. NEVER cut off text at edges.\n\n'
 
-            f'=== ARROW ===\n'
+            f'=== ARROW (if applicable) ===\n'
             f'{music_dna["seta"]}\n'
-            f'Red arrow is NOT a default. Only use arrow if it serves THIS specific image.\n\n'
+            f'Red arrow is NOT a default. Only add arrow if it serves THIS specific image.\n'
+            f'Arrow style when used: thick, hand-painted, curved, with bright GLOW effect (like neon light).\n'
+            f'Color: bright yellow, orange, or red — whichever matches the mood. Must feel premium and viral.\n'
+            f'NOT a flat vector arrow. NOT PowerPoint. It should look like a professional YouTube creator drew it.\n\n'
 
             f'=== OUTPUT ===\n'
             f'16:9 ratio, 1536x1024, cinematic Country Gospel, photorealistic quality.\n'
