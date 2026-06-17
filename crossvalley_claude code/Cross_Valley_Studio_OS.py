@@ -104,6 +104,29 @@ def _find_music_file(p):
             return found[0]
     return None
 
+def _get_audio_duration(music_path):
+    """Detecta duracao do audio em segundos usando ffprobe ou mutagen."""
+    if not music_path:
+        return None
+    try:
+        import subprocess
+        r = subprocess.run(
+            ['ffprobe', '-v', 'quiet', '-show_entries', 'format=duration',
+             '-of', 'default=noprint_wrappers=1:nokey=1', str(music_path)],
+            capture_output=True, text=True, timeout=10)
+        if r.returncode == 0 and r.stdout.strip():
+            return float(r.stdout.strip())
+    except Exception:
+        pass
+    try:
+        from mutagen import File as MutagenFile
+        audio = MutagenFile(str(music_path))
+        if audio and audio.info:
+            return float(audio.info.length)
+    except Exception:
+        pass
+    return None
+
 def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
     """Usa Whisper para alinhar as linhas da letra com o timing real do áudio."""
     try:
@@ -267,7 +290,13 @@ def generate_srt(p, total_seconds=None, start_offset=0.0):
         print('  SRT gerado com TIMING REAL (Whisper AI).')
     else:
         if total_seconds is None:
-            total_seconds = SCENES * SECONDS
+            detected = _get_audio_duration(music_file)
+            if detected:
+                total_seconds = detected
+                print(f'  Duracao detectada do audio: {int(detected//60)}:{int(detected%60):02d}')
+            else:
+                total_seconds = SCENES * SECONDS
+                print(f'  Duracao nao detectada — usando padrao {total_seconds}s. Informe total_seconds para melhor resultado.')
         start_offset = float(start_offset or 0)
         end_max = float(total_seconds)
 
@@ -1893,7 +1922,17 @@ def menu():
         if op=='1': create_project(); pause()
         elif op=='2': organize_project(); pause()
         elif op=='3': p=Path(clean(input('Caminho do projeto: '))); build_story_prompts(p) if p.exists() else print('Projeto não encontrado.'); pause()
-        elif op=='4': p=Path(clean(input('Caminho do projeto: '))); generate_srt(p) if p.exists() else print('Projeto não encontrado.'); pause()
+        elif op=='4':
+            p=Path(clean(input('Caminho do projeto: ')))
+            if p.exists():
+                _dur_str = input('Duracao total da musica (MM:SS) [Enter=auto]: ').strip()
+                _off_str = input('Segundo que comeca a cantar (ex: 2) [Enter=0]: ').strip()
+                _dur = parse_duration(_dur_str) if _dur_str else None
+                _off = parse_duration(_off_str) if _off_str else 0.0
+                generate_srt(p, total_seconds=_dur, start_offset=_off or 0.0)
+            else:
+                print('Projeto nao encontrado.')
+            pause()
         elif op=='5': p=Path(clean(input('Caminho do projeto: '))); generate_seo(p) if p.exists() else print('Projeto não encontrado.'); pause()
         elif op=='6': youtube_package(); pause()
         elif op=='7': p=Path(clean(input('Caminho do projeto: '))); generate_story_thumbs(p) if p.exists() else print('Projeto não encontrado.'); pause()
