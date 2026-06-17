@@ -165,6 +165,74 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
         print(f'  Whisper: {len(blocos)}/{len(lyrics_lines)} linhas alinhadas com timing real.')
     return blocos if blocos else None
 
+def _lyrics_with_structure(p):
+    """Retorna lista de linhas da letra preservando linhas vazias como marcadores de pausa."""
+    raw_text = read_text(p)
+    if not raw_text.strip():
+        return []
+    result = []
+    for line in raw_text.splitlines():
+        cleaned = norm(line) if line.strip() else ''
+        if cleaned and (non_lyric(cleaned) or (cleaned.startswith('[') and cleaned.endswith(']'))):
+            continue
+        result.append(cleaned)
+    while result and not result[0]:
+        result.pop(0)
+    while result and not result[-1]:
+        result.pop()
+    return result
+
+def _build_verse_aware_timing(structured_lines, start_offset, end_max):
+    """Distribui timing respeitando pausas entre versos (linhas vazias)."""
+    sing_duration = end_max - start_offset
+    if sing_duration <= 0:
+        return []
+
+    verses = []
+    current_verse = []
+    for line in structured_lines:
+        if not line:
+            if current_verse:
+                verses.append(current_verse)
+                current_verse = []
+        else:
+            current_verse.append(line)
+    if current_verse:
+        verses.append(current_verse)
+
+    if not verses:
+        return []
+
+    total_lines = sum(len(v) for v in verses)
+    if total_lines == 0:
+        return []
+
+    num_gaps = max(0, len(verses) - 1)
+    gap_seconds = min(2.0, sing_duration * 0.03) if num_gaps > 0 else 0.0
+    total_gap_time = gap_seconds * num_gaps
+    singing_time = sing_duration - total_gap_time
+
+    blocos = []
+    cursor = start_offset
+
+    for vi, verse in enumerate(verses):
+        verse_proportion = len(verse) / total_lines
+        verse_duration = singing_time * verse_proportion
+        line_step = verse_duration / len(verse)
+
+        for li, line in enumerate(verse):
+            ts = cursor + li * line_step
+            te = min(cursor + (li + 1) * line_step - 0.08, end_max)
+            dur = te - ts
+            if dur > 4.5:
+                te = ts + 4.5
+            if ts < end_max:
+                blocos.append((ts, te, line))
+
+        cursor += verse_duration + gap_seconds
+
+    return blocos
+
 def generate_srt(p, total_seconds=None, start_offset=0.0):
     ensure_project(p)
     raw = lyrics(p) or ['Trust in the Lord', 'He will make your paths straight']
@@ -180,27 +248,30 @@ def generate_srt(p, total_seconds=None, start_offset=0.0):
         blocos = whisper_blocos
         print('  SRT gerado com TIMING REAL (Whisper AI).')
     else:
-        # Fallback: distribuição uniforme (método antigo)
         if total_seconds is None:
             total_seconds = SCENES * SECONDS
         start_offset = float(start_offset or 0)
         end_max = float(total_seconds)
-        sing_duration = end_max - start_offset
-        step = sing_duration / max(1, len(lines))
 
-        blocos = []
-        for i, line in enumerate(lines):
-            ts = start_offset + i * step
-            te = min(start_offset + (i + 1) * step - 0.08, end_max)
-            if not line.strip():
-                continue
-            if ts >= end_max:
-                continue
-            blocos.append((ts, te, line))
-        if not whisper_blocos and music_file:
-            print('  Whisper nao disponivel — usando distribuicao uniforme.')
+        structured = _lyrics_with_structure(p)
+        if structured:
+            blocos = _build_verse_aware_timing(structured, start_offset, end_max)
+            print(f'  SRT com estrutura de versos: {len(blocos)} legendas.')
+        else:
+            sing_duration = end_max - start_offset
+            step = sing_duration / max(1, len(lines))
+            blocos = []
+            for i, line in enumerate(lines):
+                ts = start_offset + i * step
+                te = min(start_offset + (i + 1) * step - 0.08, end_max)
+                if not line.strip() or ts >= end_max:
+                    continue
+                blocos.append((ts, te, line))
+
+        if music_file:
+            print('  Whisper nao disponivel — instale: pip install openai-whisper')
         elif not music_file:
-            print('  Nenhum audio em 01_MUSICA/ — usando distribuicao uniforme.')
+            print('  Nenhum audio em 01_MUSICA/ — usando distribuicao por versos.')
 
     # Monta SRT numerado sequencialmente
     out = []
