@@ -166,12 +166,20 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
     return blocos if blocos else None
 
 def _lyrics_with_structure(p):
-    """Retorna lista de linhas da letra preservando linhas vazias como marcadores de pausa."""
-    raw_text = read_text(p)
-    if not raw_text.strip():
+    """Retorna lista de linhas da letra preservando linhas vazias como marcadores de pausa entre versos."""
+    f = text_file(p)
+    if not f:
         return []
+    raw = f.read_text(encoding='utf-8', errors='ignore')
+    if f.name.lower().startswith('cv-'):
+        m = re.search(r'LETRA EM INGL[ÊE]S\s*', raw, re.I)
+        if m:
+            raw = raw[m.end():]
+        end_m = re.search(r'(?i)(letra em portugu|country gospel,|\(0:)', raw)
+        if end_m:
+            raw = raw[:end_m.start()]
     result = []
-    for line in raw_text.splitlines():
+    for line in raw.splitlines():
         cleaned = norm(line) if line.strip() else ''
         if cleaned and (non_lyric(cleaned) or (cleaned.startswith('[') and cleaned.endswith(']'))):
             continue
@@ -180,7 +188,17 @@ def _lyrics_with_structure(p):
         result.pop(0)
     while result and not result[-1]:
         result.pop()
-    return result
+    prev_empty = False
+    deduped = []
+    for line in result:
+        if not line:
+            if not prev_empty:
+                deduped.append(line)
+            prev_empty = True
+        else:
+            deduped.append(line)
+            prev_empty = False
+    return deduped
 
 def _build_verse_aware_timing(structured_lines, start_offset, end_max):
     """Distribui timing respeitando pausas entre versos (linhas vazias)."""
@@ -264,6 +282,9 @@ def generate_srt(p, total_seconds=None, start_offset=0.0):
             for i, line in enumerate(lines):
                 ts = start_offset + i * step
                 te = min(start_offset + (i + 1) * step - 0.08, end_max)
+                dur = te - ts
+                if dur > 4.5:
+                    te = ts + 4.5
                 if not line.strip() or ts >= end_max:
                     continue
                 blocos.append((ts, te, line))
