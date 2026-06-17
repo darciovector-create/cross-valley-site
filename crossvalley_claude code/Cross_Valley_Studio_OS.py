@@ -821,13 +821,14 @@ def montar_sequencia_capcut(p=None):
         if old.is_file():
             old.unlink()
 
-    sequence = []
-    max_len = max(len(persona), len(sem))
-    for i in range(max_len):
-        if i < len(persona):
-            sequence.append(("PERSONA", persona[i]))
-        if i < len(sem):
-            sequence.append(("SEM_PERSONA", sem[i]))
+    # Junta TODOS os arquivos e ordena pelo segundo bloco de números (ordem original dos prompts)
+    all_files = []
+    for f in persona:
+        all_files.append(("PERSONA", f))
+    for f in sem:
+        all_files.append(("SEM_PERSONA", f))
+    all_files.sort(key=lambda x: _natural_sort_key(x[1]))
+    sequence = all_files
 
     copied = []
     for idx, (kind, src) in enumerate(sequence, 1):
