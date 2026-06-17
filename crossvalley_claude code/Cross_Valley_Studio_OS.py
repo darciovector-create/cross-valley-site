@@ -93,28 +93,114 @@ def parse_duration(s):
     except Exception:
         return None
 
+def _find_music_file(p):
+    """Procura o arquivo de áudio na pasta 01_MUSICA."""
+    music_dir = p / '01_MUSICA'
+    if not music_dir.exists():
+        return None
+    for ext in ('*.mp3', '*.wav', '*.m4a', '*.aac'):
+        found = list(music_dir.glob(ext))
+        if found:
+            return found[0]
+    return None
+
+def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
+    """Usa Whisper para alinhar as linhas da letra com o timing real do áudio."""
+    try:
+        import whisper as _whisper
+    except ImportError:
+        return None
+
+    print('  Transcrevendo com Whisper AI para timing real...')
+    model = _whisper.load_model('base')
+    result = model.transcribe(str(music_path), word_timestamps=True, language='en')
+
+    # Extrai todos os segmentos com timestamps
+    segments = []
+    for seg in result.get('segments', []):
+        text = seg.get('text', '').strip()
+        if text:
+            segments.append({
+                'text': text,
+                'start': float(seg['start']),
+                'end': float(seg['end']),
+            })
+
+    if not segments:
+        return None
+
+    # Alinha cada linha da letra com o segmento mais parecido do Whisper
+    from difflib import SequenceMatcher
+    blocos = []
+    used_segs = set()
+
+    for line in lyrics_lines:
+        line_lower = line.lower().strip()
+        best_score = 0.0
+        best_seg = None
+        best_idx = -1
+
+        for idx, seg in enumerate(segments):
+            if idx in used_segs:
+                continue
+            seg_lower = seg['text'].lower().strip()
+            score = SequenceMatcher(None, line_lower, seg_lower).ratio()
+            # Bonus para segmentos que contenham as primeiras palavras da linha
+            first_words = ' '.join(line_lower.split()[:3])
+            if first_words in seg_lower:
+                score += 0.3
+            if score > best_score:
+                best_score = score
+                best_seg = seg
+                best_idx = idx
+
+        if best_seg and best_score >= 0.3:
+            used_segs.add(best_idx)
+            blocos.append((best_seg['start'], best_seg['end'], line))
+
+    # Ordena por timestamp
+    blocos.sort(key=lambda x: x[0])
+
+    if blocos:
+        print(f'  Whisper: {len(blocos)}/{len(lyrics_lines)} linhas alinhadas com timing real.')
+    return blocos if blocos else None
+
 def generate_srt(p, total_seconds=None, start_offset=0.0):
     ensure_project(p)
     raw = lyrics(p) or ['Trust in the Lord', 'He will make your paths straight']
-    # Regra 1: apenas linhas com texto real
     lines = [l.strip() for l in raw if l and l.strip()]
-    if total_seconds is None:
-        total_seconds = SCENES * SECONDS
-    start_offset  = float(start_offset or 0)
-    end_max       = float(total_seconds)
-    sing_duration = end_max - start_offset
-    step          = sing_duration / max(1, len(lines))
 
-    # Gera blocos validados
-    blocos = []
-    for i, line in enumerate(lines):
-        ts = start_offset + i * step
-        te = min(start_offset + (i + 1) * step - 0.08, end_max)
-        if not line.strip():        # Regra 1: sem texto — ignora
-            continue
-        if ts >= end_max:           # Regra 2: inicio fora do limite — ignora
-            continue
-        blocos.append((ts, te, line))
+    # Tenta alinhar com Whisper (timing real do áudio)
+    music_file = _find_music_file(p)
+    whisper_blocos = None
+    if music_file:
+        whisper_blocos = _whisper_align_lyrics(music_file, lines, total_seconds)
+
+    if whisper_blocos:
+        blocos = whisper_blocos
+        print('  SRT gerado com TIMING REAL (Whisper AI).')
+    else:
+        # Fallback: distribuição uniforme (método antigo)
+        if total_seconds is None:
+            total_seconds = SCENES * SECONDS
+        start_offset = float(start_offset or 0)
+        end_max = float(total_seconds)
+        sing_duration = end_max - start_offset
+        step = sing_duration / max(1, len(lines))
+
+        blocos = []
+        for i, line in enumerate(lines):
+            ts = start_offset + i * step
+            te = min(start_offset + (i + 1) * step - 0.08, end_max)
+            if not line.strip():
+                continue
+            if ts >= end_max:
+                continue
+            blocos.append((ts, te, line))
+        if not whisper_blocos and music_file:
+            print('  Whisper nao disponivel — usando distribuicao uniforme.')
+        elif not music_file:
+            print('  Nenhum audio em 01_MUSICA/ — usando distribuicao uniforme.')
 
     # Monta SRT numerado sequencialmente
     out = []
