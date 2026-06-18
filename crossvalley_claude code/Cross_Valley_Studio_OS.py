@@ -1448,11 +1448,13 @@ def upload_youtube_shorts(p):
         total_chars = 0
         valid_tags = []
         for t in tags:
-            if total_chars + len(t) > 490:
+            separator = 2 if valid_tags else 0
+            if total_chars + len(t) + separator > 450:
                 break
             valid_tags.append(t)
-            total_chars += len(t)
+            total_chars += len(t) + separator
         tags = valid_tags
+        print(f'  Tags sanitizadas: {len(tags)} tags, {total_chars} chars')
 
     # Instala dependencias se necessario
     try:
