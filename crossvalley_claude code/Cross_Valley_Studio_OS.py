@@ -128,13 +128,13 @@ def _get_audio_duration(music_path):
     return None
 
 def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
-    """Usa a API Whisper da OpenAI para alinhar legendas com timing real do audio."""
+    """Usa a API Whisper da OpenAI para gerar SRT com timing real do audio.
+    Usa a transcricao do Whisper DIRETAMENTE (igual legendas automaticas do CapCut)."""
     api_key = get_openai_key()
     if not api_key:
         print('  Whisper API: chave OpenAI nao encontrada.')
         return None
 
-    # Tenta API Whisper da OpenAI (remota, nao precisa instalar nada)
     try:
         from openai import OpenAI
     except ImportError:
@@ -145,7 +145,7 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
             print('  Whisper API: openai nao instalado.')
             return None
 
-    print('  Transcrevendo com Whisper API (OpenAI) para timing real...')
+    print('  Transcrevendo audio com Whisper API (OpenAI)...')
     client = OpenAI(api_key=api_key)
 
     try:
@@ -182,77 +182,37 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
         print('  Whisper API: nenhum segmento detectado.')
         return None
 
-    print(f'  Whisper: {len(segments)} segmentos de audio detectados.')
+    print(f'  Whisper: {len(segments)} segmentos detectados no audio.')
 
-    # Salva transcricao do Whisper para debug
+    # USA A TRANSCRICAO DO WHISPER DIRETAMENTE (sem tentar casar com lyrics)
+    # Isso e exatamente o que o CapCut "legendas automaticas" faz
+    blocos = []
+    for seg in segments:
+        text = seg['text'].strip()
+        if not text:
+            continue
+        start = seg['start']
+        end = seg['end']
+        # Se o segmento for muito longo (>8s), pode ser instrumental mal detectado — pula
+        if (end - start) > 8.0 and len(text.split()) < 3:
+            continue
+        blocos.append((start, end, text))
+
+    # Salva transcricao do Whisper para conferencia
     whisper_debug = music_path.parent.parent / '06_LEGENDAS' / 'WHISPER_TRANSCRICAO.txt'
     try:
         debug_lines = []
-        for s in segments:
-            m1 = int(s['start'] // 60)
-            s1 = int(s['start'] % 60)
-            m2 = int(s['end'] // 60)
-            s2 = int(s['end'] % 60)
-            debug_lines.append(f'[{m1}:{s1:02d}-{m2}:{s2:02d}] {s["text"]}')
+        for ts, te, txt in blocos:
+            m1 = int(ts // 60); s1 = int(ts % 60)
+            m2 = int(te // 60); s2 = int(te % 60)
+            debug_lines.append(f'[{m1}:{s1:02d} - {m2}:{s2:02d}]  {txt}')
         whisper_debug.write_text('\n'.join(debug_lines), encoding='utf-8')
+        print(f'  Salvo: WHISPER_TRANSCRICAO.txt ({len(blocos)} blocos)')
     except Exception:
         pass
 
-    # Alinha cada linha da letra com o segmento mais parecido do Whisper
-    from difflib import SequenceMatcher
-    blocos = []
-    seg_cursor = 0
-
-    for line in lyrics_lines:
-        line_lower = line.lower().strip()
-        if not line_lower:
-            continue
-
-        best_score = 0.0
-        best_seg = None
-        best_idx = -1
-
-        # Procura a partir do cursor (nao volta pra tras)
-        for idx in range(seg_cursor, len(segments)):
-            seg = segments[idx]
-            seg_lower = seg['text'].lower().strip()
-
-            # Score de similaridade
-            score = SequenceMatcher(None, line_lower, seg_lower).ratio()
-
-            # Bonus se primeiras palavras da linha aparecem no segmento
-            first_words = ' '.join(line_lower.split()[:3])
-            if first_words and first_words in seg_lower:
-                score += 0.35
-
-            # Bonus se o segmento contem a maioria das palavras da linha
-            line_words = set(line_lower.split())
-            seg_words = set(seg_lower.split())
-            if line_words and len(line_words & seg_words) / len(line_words) > 0.5:
-                score += 0.2
-
-            if score > best_score:
-                best_score = score
-                best_seg = seg
-                best_idx = idx
-
-        if best_seg and best_score >= 0.25:
-            blocos.append((best_seg['start'], best_seg['end'], line))
-            seg_cursor = best_idx + 1
-
-    # Ordena por timestamp
-    blocos.sort(key=lambda x: x[0])
-
     if blocos:
-        print(f'  Whisper: {len(blocos)}/{len(lyrics_lines)} linhas alinhadas com timing real.')
-
-        # Se algumas linhas ficaram sem match, distribui entre os gaps
-        if len(blocos) < len(lyrics_lines):
-            matched_lines = {b[2] for b in blocos}
-            unmatched = [l for l in lyrics_lines if l not in matched_lines]
-            if unmatched:
-                print(f'  Whisper: {len(unmatched)} linhas sem match direto — distribuidas nos gaps.')
-
+        print(f'  SRT gerado com {len(blocos)} legendas do Whisper (timing real).')
     return blocos if blocos else None
 
 def _lyrics_with_structure(p):
