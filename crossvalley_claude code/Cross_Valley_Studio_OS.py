@@ -392,10 +392,49 @@ def _build_verse_aware_timing(structured_lines, start_offset, end_max):
 
     return blocos
 
+def _is_portuguese(line):
+    """Detecta se uma linha esta em portugues."""
+    low = line.lower()
+    pt_words = [
+        'versículo', 'versiculo', 'mateus', 'salmo', 'provérbios', 'proverbios',
+        'senhor', 'coração', 'coracao', 'você', 'voce', 'não', 'nao',
+        'também', 'tambem', 'então', 'entao', 'porque', 'quando',
+        'estava', 'estou', 'tinha', 'minha', 'minho', 'olhos',
+        'chão', 'chao', 'céu', 'ceu', 'mãos', 'maos',
+        'orgulho', 'coroa', 'pedra', 'peso', 'fingir',
+        'escombros', 'ajoelhado', 'joelhos', 'trono',
+        'construído', 'construido', 'desmoronou', 'ergueu',
+        'quanto mais', 'mais perto', 'ele disse',
+        'caí tão', 'cai tao', 'parecia um teto',
+        'em algum lugar', 'nos escombros',
+        'letra em portugu', 'traducao', 'tradução',
+    ]
+    pt_patterns = ['ção', 'ções', 'ão ', 'ões ', 'ê ', 'í ', 'ú ',
+                   'ção,', 'ção.', 'ões,', 'ões.']
+    for w in pt_words:
+        if w in low:
+            return True
+    pt_hits = sum(1 for p in pt_patterns if p in low)
+    if pt_hits >= 2:
+        return True
+    return False
+
 def generate_srt(p, total_seconds=None, start_offset=0.0):
     ensure_project(p)
     raw = lyrics(p) or ['Trust in the Lord', 'He will make your paths straight']
     lines = [l.strip() for l in raw if l and l.strip()]
+
+    # Filtra linhas em portugues (o arquivo pode ter ingles + traducao)
+    en_lines = []
+    for line in lines:
+        if _is_portuguese(line):
+            continue
+        en_lines.append(line)
+    if en_lines:
+        pt_removed = len(lines) - len(en_lines)
+        if pt_removed > 0:
+            print(f'  [FILTRO] {pt_removed} linhas em portugues removidas. {len(en_lines)} linhas em ingles.')
+        lines = en_lines
 
     # Tenta alinhar com Whisper (timing real do áudio)
     music_file = _find_music_file(p)
