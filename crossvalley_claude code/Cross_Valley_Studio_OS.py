@@ -128,8 +128,8 @@ def _get_audio_duration(music_path):
     return None
 
 def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
-    """Usa a API Whisper da OpenAI para gerar SRT com timing real do audio.
-    Usa a transcricao do Whisper DIRETAMENTE (igual legendas automaticas do CapCut)."""
+    """Usa Whisper com timestamp POR PALAVRA para gerar SRT preciso.
+    Agrupa palavras em frases curtas e respeita pausas instrumentais."""
     api_key = get_openai_key()
     if not api_key:
         print('  Whisper API: chave OpenAI nao encontrada.')
@@ -145,7 +145,7 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
             print('  Whisper API: openai nao instalado.')
             return None
 
-    print('  Transcrevendo audio com Whisper API (OpenAI)...')
+    print('  Transcrevendo audio com Whisper API (palavra por palavra)...')
     client = OpenAI(api_key=api_key)
 
     try:
@@ -154,65 +154,88 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
                 model='whisper-1',
                 file=audio_file,
                 response_format='verbose_json',
-                timestamp_granularities=['segment'],
+                timestamp_granularities=['word'],
                 language='en',
             )
     except Exception as e:
         print(f'  Whisper API erro: {e}')
         return None
 
-    # Extrai segmentos com timestamps
-    segments = []
-    for seg in getattr(result, 'segments', []) or []:
-        text = ''
-        start = 0.0
-        end = 0.0
-        if isinstance(seg, dict):
-            text = seg.get('text', '').strip()
-            start = float(seg.get('start', 0))
-            end = float(seg.get('end', 0))
+    words = []
+    for w in getattr(result, 'words', []) or []:
+        if isinstance(w, dict):
+            txt = w.get('word', '').strip()
+            ws = float(w.get('start', 0))
+            we = float(w.get('end', 0))
         else:
-            text = getattr(seg, 'text', '').strip()
-            start = float(getattr(seg, 'start', 0))
-            end = float(getattr(seg, 'end', 0))
-        if text and end > start:
-            segments.append({'text': text, 'start': start, 'end': end})
+            txt = getattr(w, 'word', '').strip()
+            ws = float(getattr(w, 'start', 0))
+            we = float(getattr(w, 'end', 0))
+        if txt and we > ws:
+            words.append({'word': txt, 'start': ws, 'end': we})
 
-    if not segments:
-        print('  Whisper API: nenhum segmento detectado.')
+    if not words:
+        print('  Whisper API: nenhuma palavra detectada.')
         return None
 
-    print(f'  Whisper: {len(segments)} segmentos detectados no audio.')
+    print(f'  Whisper: {len(words)} palavras detectadas no audio.')
 
-    # USA A TRANSCRICAO DO WHISPER DIRETAMENTE (sem tentar casar com lyrics)
-    # Isso e exatamente o que o CapCut "legendas automaticas" faz
+    MAX_BLOCK_DURATION = 4.0
+    MAX_WORDS_PER_BLOCK = 10
+    PAUSE_THRESHOLD = 0.8
+
     blocos = []
-    for seg in segments:
-        text = seg['text'].strip()
-        if not text:
-            continue
-        start = seg['start']
-        end = seg['end']
-        # Se o segmento for muito longo (>8s), pode ser instrumental mal detectado — pula
-        if (end - start) > 8.0 and len(text.split()) < 3:
-            continue
-        blocos.append((start, end, text))
+    block_words = []
+    block_start = 0.0
+    block_end = 0.0
 
-    # Salva transcricao do Whisper para conferencia
+    for i, w in enumerate(words):
+        if not block_words:
+            block_words.append(w['word'])
+            block_start = w['start']
+            block_end = w['end']
+            continue
+
+        gap_since_last = w['start'] - block_end
+        block_duration = w['end'] - block_start
+        word_count = len(block_words)
+
+        should_split = False
+        if gap_since_last >= PAUSE_THRESHOLD:
+            should_split = True
+        elif block_duration >= MAX_BLOCK_DURATION:
+            should_split = True
+        elif word_count >= MAX_WORDS_PER_BLOCK:
+            should_split = True
+
+        if should_split:
+            text = ' '.join(block_words)
+            blocos.append((block_start, block_end, text))
+            block_words = [w['word']]
+            block_start = w['start']
+            block_end = w['end']
+        else:
+            block_words.append(w['word'])
+            block_end = w['end']
+
+    if block_words:
+        text = ' '.join(block_words)
+        blocos.append((block_start, block_end, text))
+
     whisper_debug = music_path.parent.parent / '06_LEGENDAS' / 'WHISPER_TRANSCRICAO.txt'
     try:
         debug_lines = []
         for ts, te, txt in blocos:
             m1 = int(ts // 60); s1 = int(ts % 60)
             m2 = int(te // 60); s2 = int(te % 60)
-            debug_lines.append(f'[{m1}:{s1:02d} - {m2}:{s2:02d}]  {txt}')
+            debug_lines.append(f'[{m1}:{s1:02d} - {m2}:{s2:02d}]  ({te-ts:.1f}s)  {txt}')
         whisper_debug.write_text('\n'.join(debug_lines), encoding='utf-8')
         print(f'  Salvo: WHISPER_TRANSCRICAO.txt ({len(blocos)} blocos)')
     except Exception:
         pass
 
     if blocos:
-        print(f'  SRT gerado com {len(blocos)} legendas do Whisper (timing real).')
+        print(f'  SRT gerado com {len(blocos)} legendas (timing por palavra).')
     return blocos if blocos else None
 
 def _lyrics_with_structure(p):
