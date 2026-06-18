@@ -1839,16 +1839,6 @@ def publicar_tudo(p):
     print('  PUBLICAR TUDO - MAQUINA DE VIDEOS AUTOMATICA')
     print(f'  Projeto: {titulo}')
     print('=' * 60)
-    print()
-    print('  Este processo vai:')
-    print('  1. Criar o Reel de 45 segundos com legendas')
-    print('  2. Publicar no YouTube Shorts')
-    print('  3. Publicar no Instagram Reels')
-    print('  4. Publicar no TikTok')
-    print()
-    ok = input('  Confirma? (S/N): ').strip().upper()
-    if ok != 'S':
-        print('  Cancelado.'); return
 
     erros = []
 
