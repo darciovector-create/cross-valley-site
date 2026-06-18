@@ -59,14 +59,28 @@ def read_text(p):
     f=text_file(p)
     if not f: return ''
     raw=f.read_text(encoding='utf-8',errors='ignore')
+    # Sempre tenta extrair so a parte em ingles (corta antes da traducao portuguesa)
+    m=re.search(r'LETRA EM INGL[ÊE]S\s*',raw,re.I)
+    if m: raw=raw[m.end():]
+    # Corta na traducao portuguesa ou metadados
+    end_markers = [
+        r'(?i)letra em portugu[eê]s',
+        r'(?i)tradu[cç][aã]o',
+        r'(?i)portuguese\s+lyrics',
+        r'(?i)portuguese\s+version',
+        r'(?i)country gospel,',
+        r'\(0:',
+    ]
+    for marker in end_markers:
+        em = re.search(marker, raw)
+        if em:
+            raw = raw[:em.start()]
+            break
     if f.name.lower().startswith('cv-'):
-        m=re.search(r'LETRA EM INGL[ÊE]S\s*',raw,re.I)
-        if m: raw=raw[m.end():]
         lines=[]; started=False
         for r in raw.splitlines():
             line=norm(r); low=line.lower()
             if not line: continue
-            if low.startswith('letra em português') or low.startswith('letra em portugues') or low.startswith('country gospel,') or low.startswith('(0:'): break
             if non_lyric(line): continue
             if not started:
                 if len(line.split())<=14 or any(x in low for x in ['trust','lord','road','heart','jesus','floor','three','3 am']): started=True
