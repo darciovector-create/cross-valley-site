@@ -127,10 +127,14 @@ def _get_audio_duration(music_path):
         pass
     return None
 
+def _norm_word(w):
+    """Normaliza palavra para comparacao (minuscula, sem pontuacao)."""
+    return re.sub(r'[^a-z0-9]', '', w.lower())
+
 def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
-    """Usa Whisper word+segment para SRT preciso.
-    Segments com no_speech_prob alto = instrumental (sem legenda).
-    Words agrupadas em frases curtas com gaps naturais."""
+    """Alinha LETRA REAL com TIMING do Whisper palavra por palavra.
+    Texto = letra do arquivo. Timing = Whisper word-level.
+    Trechos instrumentais (sem letra) = sem legenda = gap natural."""
     api_key = get_openai_key()
     if not api_key:
         print('  [WHISPER] ERRO: chave OpenAI nao encontrada no config.json')
@@ -156,37 +160,15 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
                 model='whisper-1',
                 file=audio_file,
                 response_format='verbose_json',
-                timestamp_granularities=['word', 'segment'],
+                timestamp_granularities=['word'],
                 language='en',
             )
     except Exception as e:
         print(f'  [WHISPER] ERRO na API: {e}')
         return None
 
-    # 1) Mapear segmentos instrumentais (no_speech_prob > 0.5)
-    no_speech_ranges = []
-    for seg in getattr(result, 'segments', []) or []:
-        if isinstance(seg, dict):
-            nsp = float(seg.get('no_speech_prob', 0))
-            ss = float(seg.get('start', 0))
-            se = float(seg.get('end', 0))
-        else:
-            nsp = float(getattr(seg, 'no_speech_prob', 0))
-            ss = float(getattr(seg, 'start', 0))
-            se = float(getattr(seg, 'end', 0))
-        if nsp > 0.5:
-            no_speech_ranges.append((ss, se))
-            print(f'  [WHISPER] Instrumental detectado: {int(ss//60)}:{int(ss%60):02d}-{int(se//60)}:{int(se%60):02d} (prob={nsp:.2f})')
-
-    def _is_instrumental(t):
-        for rs, re_ in no_speech_ranges:
-            if rs <= t <= re_:
-                return True
-        return False
-
-    # 2) Extrair palavras, filtrando as que caem em trechos instrumentais
-    words = []
-    skipped = 0
+    # Extrair todas as palavras com timestamps
+    wlist = []
     for w in getattr(result, 'words', []) or []:
         if isinstance(w, dict):
             txt = w.get('word', '').strip()
@@ -196,61 +178,96 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
             txt = getattr(w, 'word', '').strip()
             ws = float(getattr(w, 'start', 0))
             we = float(getattr(w, 'end', 0))
-        if not txt or we <= ws:
-            continue
-        if _is_instrumental(ws):
-            skipped += 1
-            continue
-        words.append({'word': txt, 'start': ws, 'end': we})
+        if txt and we > ws:
+            wlist.append({'word': txt, 'norm': _norm_word(txt), 'start': ws, 'end': we})
 
-    print(f'  [WHISPER] {len(words)} palavras de canto + {skipped} palavras instrumentais filtradas')
-
-    if not words:
-        print('  [WHISPER] ERRO: nenhuma palavra de canto detectada.')
+    if not wlist:
+        print('  [WHISPER] ERRO: nenhuma palavra detectada no audio.')
         return None
 
-    # 3) Agrupar palavras em blocos de legenda
-    MAX_BLOCK_SEC = 4.0
-    MAX_WORDS = 10
-    PAUSE_GAP = 0.7
+    print(f'  [WHISPER] {len(wlist)} palavras detectadas no audio.')
 
+    # Preparar linhas da letra (sem linhas vazias, sem linhas de estrutura)
+    clean_lines = []
+    for line in lyrics_lines:
+        stripped = line.strip()
+        if not stripped:
+            continue
+        words_in_line = stripped.split()
+        if len(words_in_line) < 2 and len(stripped) < 4:
+            continue
+        clean_lines.append(stripped)
+
+    if not clean_lines:
+        print('  [WHISPER] ERRO: nenhuma linha de letra encontrada.')
+        return None
+
+    print(f'  [WHISPER] {len(clean_lines)} linhas de letra para alinhar.')
+
+    # MATCHING: Para cada linha da letra, encontrar onde ela aparece nas palavras do Whisper
+    # Scan sequencial — letras e audio estao na mesma ordem
     blocos = []
-    bw = []
-    bs = 0.0
-    be = 0.0
+    w_idx = 0
 
-    for w in words:
-        if not bw:
-            bw.append(w['word'])
-            bs = w['start']
-            be = w['end']
+    for line in clean_lines:
+        line_words = line.split()
+        line_norms = [_norm_word(w) for w in line_words]
+        n = len(line_norms)
+        if n == 0:
             continue
 
-        gap = w['start'] - be
-        dur = w['end'] - bs
+        best_pos = -1
+        best_score = 0
 
-        if gap >= PAUSE_GAP or dur >= MAX_BLOCK_SEC or len(bw) >= MAX_WORDS:
-            blocos.append((bs, be, ' '.join(bw)))
-            bw = [w['word']]
-            bs = w['start']
-            be = w['end']
+        # Procurar a partir da posicao atual, janela de busca razoavel
+        search_end = min(len(wlist), w_idx + n + 40)
+
+        for pos in range(w_idx, search_end - n + 1):
+            score = 0
+            for j in range(n):
+                wn = wlist[pos + j]['norm']
+                ln = line_norms[j]
+                if wn == ln:
+                    score += 1.0
+                elif ln in wn or wn in ln:
+                    score += 0.7
+                elif len(ln) > 3 and len(wn) > 3 and (ln[:3] == wn[:3]):
+                    score += 0.4
+            ratio = score / n
+            if ratio > best_score:
+                best_score = ratio
+                best_pos = pos
+
+        if best_score >= 0.3 and best_pos >= 0:
+            ts = wlist[best_pos]['start']
+            te = wlist[best_pos + n - 1]['end']
+            # Se a linha for muito longa (>5s), dividir em 2
+            if te - ts > 5.0 and n > 4:
+                mid = n // 2
+                ts1 = wlist[best_pos]['start']
+                te1 = wlist[best_pos + mid - 1]['end']
+                ts2 = wlist[best_pos + mid]['start']
+                te2 = wlist[best_pos + n - 1]['end']
+                blocos.append((ts1, te1, ' '.join(line_words[:mid])))
+                blocos.append((ts2, te2, ' '.join(line_words[mid:])))
+            else:
+                blocos.append((ts, te, line))
+            w_idx = best_pos + n
+            print(f'  [MATCH] "{line[:40]}..." -> {int(ts//60)}:{int(ts%60):02d} (score={best_score:.0%})')
         else:
-            bw.append(w['word'])
-            be = w['end']
+            print(f'  [SKIP]  "{line[:40]}..." -> nao encontrada no audio')
 
-    if bw:
-        blocos.append((bs, be, ' '.join(bw)))
-
-    # 4) Debug: salvar transcricao com gaps visiveis
+    # Debug: salvar resultado
     whisper_debug = music_path.parent.parent / '06_LEGENDAS' / 'WHISPER_TRANSCRICAO.txt'
     try:
-        debug_lines = ['=== WHISPER WORD-LEVEL TRANSCRIPTION ===', '']
+        debug_lines = ['=== LETRA ALINHADA COM WHISPER (word-level) ===', '']
         prev_end = 0.0
         for ts, te, txt in blocos:
             gap_before = ts - prev_end
-            if gap_before > 1.0:
-                debug_lines.append(f'  --- PAUSA {gap_before:.1f}s (instrumental/silencio) ---')
-                debug_lines.append('')
+            if gap_before > 1.5:
+                debug_lines.append(f'')
+                debug_lines.append(f'  *** INSTRUMENTAL {gap_before:.1f}s ***')
+                debug_lines.append(f'')
             m1 = int(ts // 60); s1 = int(ts % 60)
             m2 = int(te // 60); s2 = int(te % 60)
             debug_lines.append(f'[{m1}:{s1:02d} - {m2}:{s2:02d}]  ({te-ts:.1f}s)  {txt}')
@@ -264,13 +281,15 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
         gaps = []
         for i in range(1, len(blocos)):
             g = blocos[i][0] - blocos[i-1][1]
-            if g > 1.0:
+            if g > 1.5:
                 gaps.append(g)
-        print(f'  [WHISPER] SRT: {len(blocos)} legendas, {len(gaps)} pausas instrumentais detectadas')
+        print(f'  [WHISPER] SRT FINAL: {len(blocos)} legendas')
+        print(f'  [WHISPER] Pausas instrumentais (>1.5s): {len(gaps)}')
+        if gaps:
+            print(f'  [WHISPER] Maior pausa: {max(gaps):.1f}s')
         first_t = blocos[0][0]
         last_t = blocos[-1][1]
-        print(f'  [WHISPER] Primeira legenda: {int(first_t//60)}:{int(first_t%60):02d}')
-        print(f'  [WHISPER] Ultima legenda: {int(last_t//60)}:{int(last_t%60):02d}')
+        print(f'  [WHISPER] Primeira: {int(first_t//60)}:{int(first_t%60):02d} / Ultima: {int(last_t//60)}:{int(last_t%60):02d}')
     return blocos if blocos else None
 
 def _lyrics_with_structure(p):
