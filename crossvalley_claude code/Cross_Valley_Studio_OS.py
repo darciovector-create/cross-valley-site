@@ -1432,13 +1432,27 @@ def upload_youtube_shorts(p):
 
     # Le SEO do projeto
     seo_dir = p / '08_SEO'
-    titulo = title_clean(p) + ' #Shorts'
+    titulo = title_clean(p)
     descricao = ''
     tags = []
     if (seo_dir / 'DESCRICAO_PREMIUM.txt').exists():
         descricao = (seo_dir / 'DESCRICAO_PREMIUM.txt').read_text(encoding='utf-8', errors='ignore')[:5000]
     if (seo_dir / 'TAGS_VIRAIS.txt').exists():
-        tags = [t.strip() for t in (seo_dir / 'TAGS_VIRAIS.txt').read_text(encoding='utf-8', errors='ignore').split(',') if t.strip()][:500]
+        raw_tags = [t.strip() for t in (seo_dir / 'TAGS_VIRAIS.txt').read_text(encoding='utf-8', errors='ignore').split(',') if t.strip()]
+        tags = []
+        for t in raw_tags:
+            t = t.replace('#', '').strip()
+            t = re.sub(r'[<>]', '', t)
+            if t and len(t) <= 500:
+                tags.append(t)
+        total_chars = 0
+        valid_tags = []
+        for t in tags:
+            if total_chars + len(t) > 490:
+                break
+            valid_tags.append(t)
+            total_chars += len(t)
+        tags = valid_tags
 
     # Instala dependencias se necessario
     try:
