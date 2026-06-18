@@ -128,64 +128,131 @@ def _get_audio_duration(music_path):
     return None
 
 def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
-    """Usa Whisper para alinhar as linhas da letra com o timing real do áudio."""
-    try:
-        import whisper as _whisper
-    except ImportError:
+    """Usa a API Whisper da OpenAI para alinhar legendas com timing real do audio."""
+    api_key = get_openai_key()
+    if not api_key:
+        print('  Whisper API: chave OpenAI nao encontrada.')
         return None
 
-    print('  Transcrevendo com Whisper AI para timing real...')
-    model = _whisper.load_model('base')
-    result = model.transcribe(str(music_path), word_timestamps=True, language='en')
+    # Tenta API Whisper da OpenAI (remota, nao precisa instalar nada)
+    try:
+        from openai import OpenAI
+    except ImportError:
+        try:
+            subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'openai', '-q'])
+            from openai import OpenAI
+        except Exception:
+            print('  Whisper API: openai nao instalado.')
+            return None
 
-    # Extrai todos os segmentos com timestamps
+    print('  Transcrevendo com Whisper API (OpenAI) para timing real...')
+    client = OpenAI(api_key=api_key)
+
+    try:
+        with open(str(music_path), 'rb') as audio_file:
+            result = client.audio.transcriptions.create(
+                model='whisper-1',
+                file=audio_file,
+                response_format='verbose_json',
+                timestamp_granularities=['segment'],
+                language='en',
+            )
+    except Exception as e:
+        print(f'  Whisper API erro: {e}')
+        return None
+
+    # Extrai segmentos com timestamps
     segments = []
-    for seg in result.get('segments', []):
-        text = seg.get('text', '').strip()
-        if text:
-            segments.append({
-                'text': text,
-                'start': float(seg['start']),
-                'end': float(seg['end']),
-            })
+    for seg in getattr(result, 'segments', []) or []:
+        text = ''
+        start = 0.0
+        end = 0.0
+        if isinstance(seg, dict):
+            text = seg.get('text', '').strip()
+            start = float(seg.get('start', 0))
+            end = float(seg.get('end', 0))
+        else:
+            text = getattr(seg, 'text', '').strip()
+            start = float(getattr(seg, 'start', 0))
+            end = float(getattr(seg, 'end', 0))
+        if text and end > start:
+            segments.append({'text': text, 'start': start, 'end': end})
 
     if not segments:
+        print('  Whisper API: nenhum segmento detectado.')
         return None
+
+    print(f'  Whisper: {len(segments)} segmentos de audio detectados.')
+
+    # Salva transcricao do Whisper para debug
+    whisper_debug = music_path.parent.parent / '06_LEGENDAS' / 'WHISPER_TRANSCRICAO.txt'
+    try:
+        debug_lines = []
+        for s in segments:
+            m1 = int(s['start'] // 60)
+            s1 = int(s['start'] % 60)
+            m2 = int(s['end'] // 60)
+            s2 = int(s['end'] % 60)
+            debug_lines.append(f'[{m1}:{s1:02d}-{m2}:{s2:02d}] {s["text"]}')
+        whisper_debug.write_text('\n'.join(debug_lines), encoding='utf-8')
+    except Exception:
+        pass
 
     # Alinha cada linha da letra com o segmento mais parecido do Whisper
     from difflib import SequenceMatcher
     blocos = []
-    used_segs = set()
+    seg_cursor = 0
 
     for line in lyrics_lines:
         line_lower = line.lower().strip()
+        if not line_lower:
+            continue
+
         best_score = 0.0
         best_seg = None
         best_idx = -1
 
-        for idx, seg in enumerate(segments):
-            if idx in used_segs:
-                continue
+        # Procura a partir do cursor (nao volta pra tras)
+        for idx in range(seg_cursor, len(segments)):
+            seg = segments[idx]
             seg_lower = seg['text'].lower().strip()
+
+            # Score de similaridade
             score = SequenceMatcher(None, line_lower, seg_lower).ratio()
-            # Bonus para segmentos que contenham as primeiras palavras da linha
+
+            # Bonus se primeiras palavras da linha aparecem no segmento
             first_words = ' '.join(line_lower.split()[:3])
-            if first_words in seg_lower:
-                score += 0.3
+            if first_words and first_words in seg_lower:
+                score += 0.35
+
+            # Bonus se o segmento contem a maioria das palavras da linha
+            line_words = set(line_lower.split())
+            seg_words = set(seg_lower.split())
+            if line_words and len(line_words & seg_words) / len(line_words) > 0.5:
+                score += 0.2
+
             if score > best_score:
                 best_score = score
                 best_seg = seg
                 best_idx = idx
 
-        if best_seg and best_score >= 0.3:
-            used_segs.add(best_idx)
+        if best_seg and best_score >= 0.25:
             blocos.append((best_seg['start'], best_seg['end'], line))
+            seg_cursor = best_idx + 1
 
     # Ordena por timestamp
     blocos.sort(key=lambda x: x[0])
 
     if blocos:
         print(f'  Whisper: {len(blocos)}/{len(lyrics_lines)} linhas alinhadas com timing real.')
+
+        # Se algumas linhas ficaram sem match, distribui entre os gaps
+        if len(blocos) < len(lyrics_lines):
+            matched_lines = {b[2] for b in blocos}
+            unmatched = [l for l in lyrics_lines if l not in matched_lines]
+            if unmatched:
+                print(f'  Whisper: {len(unmatched)} linhas sem match direto — distribuidas nos gaps.')
+
     return blocos if blocos else None
 
 def _lyrics_with_structure(p):
@@ -319,7 +386,8 @@ def generate_srt(p, total_seconds=None, start_offset=0.0):
                 blocos.append((ts, te, line))
 
         if music_file:
-            print('  Whisper nao disponivel — instale: pip install openai-whisper')
+            print('  AVISO: Whisper API nao conseguiu alinhar — usando distribuicao matematica.')
+            print('  Verifique se a chave OpenAI esta no config.json e se tem creditos.')
         elif not music_file:
             print('  Nenhum audio em 01_MUSICA/ — usando distribuicao por versos.')
 
