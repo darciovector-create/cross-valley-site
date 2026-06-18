@@ -1804,104 +1804,36 @@ def upload_tiktok(p):
     print(f'  Video : {video_path.name} ({video_path.stat().st_size // 1024 // 1024} MB)')
     print(f'  Titulo: {title}')
 
-    # Metodo: Selenium com perfil separado + cookies do TikTok injetados
+    # Copia o caminho do video para a area de transferencia
+    video_full_path = str(video_path.resolve())
     try:
-        from selenium import webdriver
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.support.ui import WebDriverWait
-        from selenium.webdriver.support import expected_conditions as EC
-        from selenium.webdriver.chrome.options import Options
-    except ImportError:
-        print('  Instalando selenium...')
-        subprocess.check_call([sys.executable, '-m', 'pip', 'install', 'selenium', '-q'])
-        from selenium import webdriver
-        from selenium.webdriver.common.by import By
-        from selenium.webdriver.support.ui import WebDriverWait
-        from selenium.webdriver.support import expected_conditions as EC
-        from selenium.webdriver.chrome.options import Options
+        subprocess.run(['clip'], input=video_full_path.encode('utf-8'), check=True)
+        print(f'  Caminho copiado para area de transferencia!')
+    except Exception:
+        print(f'  Caminho do video: {video_full_path}')
 
-    print('  Abrindo Chrome (janela separada — nao afeta suas abas)...')
-    chrome_options = Options()
-    # Perfil temporario para nao conflitar com o Chrome aberto
-    temp_profile = Path(APP_DIR) / 'tiktok_chrome_profile'
-    temp_profile.mkdir(exist_ok=True)
-    chrome_options.add_argument(f'--user-data-dir={temp_profile}')
-    chrome_options.add_argument('--disable-blink-features=AutomationControlled')
-    chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
+    # Abre o TikTok Studio Upload no navegador padrao (onde ja esta logado)
+    import webbrowser
+    webbrowser.open('https://www.tiktok.com/tiktokstudio/upload?from=upload&lang=en')
 
-    try:
-        driver = webdriver.Chrome(options=chrome_options)
-    except Exception as e:
-        print(f'  ERRO ao abrir Chrome: {e}')
-        print('  Verifique se o ChromeDriver esta instalado.')
-        print('  Tente: pip install webdriver-manager')
-        return
+    print()
+    print('=' * 52)
+    print('  TIKTOK STUDIO ABERTO NO NAVEGADOR!')
+    print('=' * 52)
+    print(f'  Video: {video_path.name}')
+    print(f'  Pasta: {video_path.parent}')
+    print()
+    print('  O que fazer:')
+    print('  1. O TikTok Studio abriu no seu Chrome')
+    print('  2. Clique em "Selecionar arquivo" ou arraste o video')
+    print('  3. O caminho do video ja esta na area de transferencia (Ctrl+V)')
+    print('  4. Preencha a descricao e clique em Publicar')
+    print('=' * 52)
 
-    import time
-    try:
-        # Abre TikTok para poder injetar o cookie
-        driver.get('https://www.tiktok.com')
-        time.sleep(3)
-
-        # Injeta o sessionid cookie
-        driver.add_cookie({
-            'name': 'sessionid',
-            'value': session_id,
-            'domain': '.tiktok.com',
-            'path': '/',
-        })
-        print('  Cookie sessionid injetado.')
-
-        # Agora vai para a pagina de upload
-        driver.get('https://www.tiktok.com/tiktokstudio/upload?from=upload&lang=en')
-        time.sleep(5)
-
-        # Procura o input de arquivo
-        file_input = WebDriverWait(driver, 30).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, 'input[type="file"]'))
-        )
-        file_input.send_keys(str(video_path))
-        print('  Video enviado! Aguardando processamento...')
-        time.sleep(5)
-
-        # Tenta preencher a descricao/caption
-        try:
-            caption_box = WebDriverWait(driver, 15).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, '[contenteditable="true"], .public-DraftEditor-content, [data-text="true"]'))
-            )
-            caption_box.click()
-            time.sleep(1)
-            from selenium.webdriver.common.keys import Keys
-            caption_box.send_keys(Keys.CONTROL, 'a')
-            caption_box.send_keys(caption[:300])
-            print(f'  Caption preenchido: {title[:50]}...')
-        except Exception:
-            print('  Caption nao preenchido automaticamente — preencha manualmente.')
-
-        print()
-        print('=' * 52)
-        print('  TIKTOK: VIDEO CARREGADO NO STUDIO!')
-        print(f'  Titulo: {title}')
-        print('  Uma janela do Chrome abriu com o TikTok Studio.')
-        print('  Confira a descricao e clique em PUBLICAR.')
-        print('  (Suas abas do Chrome NAO foram afetadas)')
-        print('=' * 52)
-
-        # Aguarda o usuario publicar manualmente (max 5 min)
-        print('  Aguardando voce clicar em Publicar... (fecha a janela quando terminar)')
-        try:
-            WebDriverWait(driver, 300).until(lambda d: False)
-        except Exception:
-            pass
-
-    except Exception as e:
-        print(f'  ERRO no TikTok Selenium: {e}')
-        print('  Tente publicar manualmente em tiktok.com/tiktokstudio/upload')
-    finally:
-        try:
-            driver.quit()
-        except Exception:
-            pass
+    # Salva a descricao num arquivo para facil copiar
+    desc_file = p / '09_DOCUMENTOS' / 'TIKTOK_CAPTION.txt'
+    desc_file.write_text(caption, encoding='utf-8')
+    print(f'  Descricao salva em: TIKTOK_CAPTION.txt (copie e cole no TikTok)')
 
 
 def publicar_tudo(p):
