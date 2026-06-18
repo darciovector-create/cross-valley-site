@@ -479,9 +479,18 @@ def generate_srt(p, total_seconds=None, start_offset=0.0):
         elif not music_file:
             print('  Nenhum audio em 01_MUSICA/ — usando distribuicao por versos.')
 
-    # Monta SRT numerado sequencialmente (sem blocos espacadores)
+    # Monta SRT com blocos de texto + espacadores nos gaps instrumentais
+    blocos_final = []
+    for i, (ts, te, txt) in enumerate(blocos):
+        blocos_final.append((ts, te, txt))
+        if i < len(blocos) - 1:
+            next_ts = blocos[i + 1][0]
+            gap = next_ts - te
+            if gap > 0.3:
+                blocos_final.append((te + 0.01, next_ts - 0.01, ' '))
+
     out = []
-    for seq, (ts, te, txt) in enumerate(blocos, 1):
+    for seq, (ts, te, txt) in enumerate(blocos_final, 1):
         out += [str(seq), f'{srt_time(ts)} --> {srt_time(te)}', txt, '']
     while out and not out[-1].strip():
         out.pop()
