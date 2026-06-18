@@ -1508,8 +1508,8 @@ def upload_youtube_shorts(p):
         'snippet': {
             'title': titulo[:100],
             'description': descricao,
-            'tags': tags,
-            'categoryId': '10',  # Music
+            'tags': tags if tags else [],
+            'categoryId': '10',
             'defaultLanguage': 'en',
         },
         'status': {
@@ -1519,14 +1519,28 @@ def upload_youtube_shorts(p):
     }
 
     media = MediaFileUpload(str(video_path), mimetype='video/mp4', resumable=True, chunksize=1024*1024*5)
-    request = youtube.videos().insert(part='snippet,status', body=body, media_body=media)
-
-    response = None
-    while response is None:
-        status, response = request.next_chunk()
-        if status:
-            pct = int(status.progress() * 100)
-            print(f'  Upload: {pct}%', end='\r')
+    try:
+        request = youtube.videos().insert(part='snippet,status', body=body, media_body=media)
+        response = None
+        while response is None:
+            status, response = request.next_chunk()
+            if status:
+                pct = int(status.progress() * 100)
+                print(f'  Upload: {pct}%', end='\r')
+    except Exception as e:
+        if 'invalidTags' in str(e) or 'invalid video keywords' in str(e):
+            print(f'  Tags rejeitadas pelo YouTube. Tentando sem tags...')
+            body['snippet']['tags'] = []
+            media = MediaFileUpload(str(video_path), mimetype='video/mp4', resumable=True, chunksize=1024*1024*5)
+            request = youtube.videos().insert(part='snippet,status', body=body, media_body=media)
+            response = None
+            while response is None:
+                status, response = request.next_chunk()
+                if status:
+                    pct = int(status.progress() * 100)
+                    print(f'  Upload: {pct}%', end='\r')
+        else:
+            raise
 
     video_id = response.get('id', '')
     url = f'https://www.youtube.com/shorts/{video_id}'
@@ -1811,14 +1825,17 @@ def upload_tiktok(p):
 
     print('  Publicando no TikTok...')
     try:
-        upload_video(str(video_path), description=caption, cookies=str(cookies_file))
+        result = upload_video(str(video_path), description=caption, cookies=str(cookies_file))
         print()
         print('=' * 52)
-        print('  PUBLICADO NO TIKTOK COM SUCESSO!')
+        print('  TIKTOK UPLOAD ENVIADO')
         print(f'  Titulo: {title}')
+        print('  IMPORTANTE: Verifique em tiktok.com/tiktokstudio/content')
+        print('  se o video apareceu. O tiktok-uploader pode nao confirmar.')
+        print('  Se nao apareceu, atualize o sessionid (F12 > Cookies).')
         print('=' * 52)
         (p / '09_DOCUMENTOS' / 'TIKTOK_URL.txt').write_text(
-            f'Publicado no TikTok: {title}\nVerifique em: https://www.tiktok.com/@crossvalleycountry',
+            f'Upload TikTok enviado: {title}\nVerifique em: https://www.tiktok.com/@crossvalleycountry\nSe nao apareceu, atualize o sessionid.',
             encoding='utf-8'
         )
     except Exception as e:
