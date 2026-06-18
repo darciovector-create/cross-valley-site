@@ -220,10 +220,11 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
 
     # MATCHING: Para cada linha da letra, encontrar onde ela aparece nas palavras do Whisper
     # Scan sequencial — letras e audio estao na mesma ordem
-    blocos = []
+    matched = []
+    skipped = []
     w_idx = 0
 
-    for line in clean_lines:
+    for line_idx, line in enumerate(clean_lines):
         line_words = line.split()
         line_norms = [_norm_word(w) for w in line_words]
         n = len(line_norms)
@@ -233,8 +234,7 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
         best_pos = -1
         best_score = 0
 
-        # Procurar a partir da posicao atual, janela de busca razoavel
-        search_end = min(len(wlist), w_idx + n + 40)
+        search_end = min(len(wlist), w_idx + n + 50)
 
         for pos in range(w_idx, search_end - n + 1):
             score = 0
@@ -252,24 +252,48 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
                 best_score = ratio
                 best_pos = pos
 
-        if best_score >= 0.3 and best_pos >= 0:
+        if best_score >= 0.2 and best_pos >= 0:
             ts = wlist[best_pos]['start']
             te = wlist[best_pos + n - 1]['end']
-            # Se a linha for muito longa (>5s), dividir em 2
             if te - ts > 5.0 and n > 4:
                 mid = n // 2
                 ts1 = wlist[best_pos]['start']
                 te1 = wlist[best_pos + mid - 1]['end']
                 ts2 = wlist[best_pos + mid]['start']
                 te2 = wlist[best_pos + n - 1]['end']
-                blocos.append((ts1, te1, ' '.join(line_words[:mid])))
-                blocos.append((ts2, te2, ' '.join(line_words[mid:])))
+                matched.append((ts1, te1, ' '.join(line_words[:mid])))
+                matched.append((ts2, te2, ' '.join(line_words[mid:])))
             else:
-                blocos.append((ts, te, line))
+                matched.append((ts, te, line))
             w_idx = best_pos + n
             print(f'  [MATCH] "{line[:40]}..." -> {int(ts//60)}:{int(ts%60):02d} (score={best_score:.0%})')
         else:
+            skipped.append((line_idx, line))
             print(f'  [SKIP]  "{line[:40]}..." -> nao encontrada no audio')
+
+    # Tentar encaixar linhas SKIP nos gaps entre blocos matched
+    if skipped and matched:
+        for skip_idx, skip_line in skipped:
+            # Encontrar o gap onde essa linha deveria estar (baseado na ordem da letra)
+            insert_pos = 0
+            for i, (ts, te, txt) in enumerate(matched):
+                if skip_idx <= i:
+                    break
+                insert_pos = i + 1
+            # Calcular timing no gap
+            if insert_pos == 0 and matched:
+                gap_end = matched[0][0]
+                n_words = len(skip_line.split())
+                est_dur = min(n_words * 0.4, gap_end - 0.5)
+                if est_dur > 0.5:
+                    ts = gap_end - est_dur - 0.3
+                    te = gap_end - 0.3
+                    if ts >= 0:
+                        matched.insert(0, (ts, te, skip_line))
+                        print(f'  [PLACE] "{skip_line[:40]}..." -> {int(ts//60)}:{int(ts%60):02d} (antes do primeiro match)')
+        matched.sort(key=lambda x: x[0])
+
+    blocos = matched
 
     # Debug: salvar resultado
     whisper_debug = music_path.parent.parent / '06_LEGENDAS' / 'WHISPER_TRANSCRICAO.txt'
@@ -481,20 +505,9 @@ def generate_srt(p, total_seconds=None, start_offset=0.0):
         elif not music_file:
             print('  Nenhum audio em 01_MUSICA/ — usando distribuicao por versos.')
 
-    # Insere blocos vazios nos gaps para forcar CapCut a respeitar pausas
-    # O CapCut estica cada bloco ate o proximo — o bloco vazio PREENCHE o gap inteiro
-    blocos_com_gaps = []
-    for i, (ts, te, txt) in enumerate(blocos):
-        blocos_com_gaps.append((ts, te, txt))
-        if i < len(blocos) - 1:
-            next_ts = blocos[i + 1][0]
-            gap = next_ts - te
-            if gap > 0.3:
-                blocos_com_gaps.append((te + 0.01, next_ts - 0.01, ' '))
-
-    # Monta SRT numerado sequencialmente
+    # Monta SRT numerado sequencialmente (sem blocos espacadores)
     out = []
-    for seq, (ts, te, txt) in enumerate(blocos_com_gaps, 1):
+    for seq, (ts, te, txt) in enumerate(blocos, 1):
         out += [str(seq), f'{srt_time(ts)} --> {srt_time(te)}', txt, '']
     while out and not out[-1].strip():
         out.pop()
