@@ -220,11 +220,10 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
 
     # MATCHING: Para cada linha da letra, encontrar onde ela aparece nas palavras do Whisper
     # Scan sequencial — letras e audio estao na mesma ordem
-    matched = []
-    skipped = []
+    blocos = []
     w_idx = 0
 
-    for line_idx, line in enumerate(clean_lines):
+    for line in clean_lines:
         line_words = line.split()
         line_norms = [_norm_word(w) for w in line_words]
         n = len(line_norms)
@@ -234,7 +233,7 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
         best_pos = -1
         best_score = 0
 
-        search_end = min(len(wlist), w_idx + n + 50)
+        search_end = min(len(wlist), w_idx + n + 40)
 
         for pos in range(w_idx, search_end - n + 1):
             score = 0
@@ -252,7 +251,7 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
                 best_score = ratio
                 best_pos = pos
 
-        if best_score >= 0.2 and best_pos >= 0:
+        if best_score >= 0.3 and best_pos >= 0:
             ts = wlist[best_pos]['start']
             te = wlist[best_pos + n - 1]['end']
             if te - ts > 5.0 and n > 4:
@@ -261,39 +260,14 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
                 te1 = wlist[best_pos + mid - 1]['end']
                 ts2 = wlist[best_pos + mid]['start']
                 te2 = wlist[best_pos + n - 1]['end']
-                matched.append((ts1, te1, ' '.join(line_words[:mid])))
-                matched.append((ts2, te2, ' '.join(line_words[mid:])))
+                blocos.append((ts1, te1, ' '.join(line_words[:mid])))
+                blocos.append((ts2, te2, ' '.join(line_words[mid:])))
             else:
-                matched.append((ts, te, line))
+                blocos.append((ts, te, line))
             w_idx = best_pos + n
             print(f'  [MATCH] "{line[:40]}..." -> {int(ts//60)}:{int(ts%60):02d} (score={best_score:.0%})')
         else:
-            skipped.append((line_idx, line))
             print(f'  [SKIP]  "{line[:40]}..." -> nao encontrada no audio')
-
-    # Tentar encaixar linhas SKIP nos gaps entre blocos matched
-    if skipped and matched:
-        for skip_idx, skip_line in skipped:
-            # Encontrar o gap onde essa linha deveria estar (baseado na ordem da letra)
-            insert_pos = 0
-            for i, (ts, te, txt) in enumerate(matched):
-                if skip_idx <= i:
-                    break
-                insert_pos = i + 1
-            # Calcular timing no gap
-            if insert_pos == 0 and matched:
-                gap_end = matched[0][0]
-                n_words = len(skip_line.split())
-                est_dur = min(n_words * 0.4, gap_end - 0.5)
-                if est_dur > 0.5:
-                    ts = gap_end - est_dur - 0.3
-                    te = gap_end - 0.3
-                    if ts >= 0:
-                        matched.insert(0, (ts, te, skip_line))
-                        print(f'  [PLACE] "{skip_line[:40]}..." -> {int(ts//60)}:{int(ts%60):02d} (antes do primeiro match)')
-        matched.sort(key=lambda x: x[0])
-
-    blocos = matched
 
     # Debug: salvar resultado
     whisper_debug = music_path.parent.parent / '06_LEGENDAS' / 'WHISPER_TRANSCRICAO.txt'
