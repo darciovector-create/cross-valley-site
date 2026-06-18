@@ -428,9 +428,20 @@ def generate_srt(p, total_seconds=None, start_offset=0.0):
         elif not music_file:
             print('  Nenhum audio em 01_MUSICA/ — usando distribuicao por versos.')
 
+    # Insere blocos vazios nos gaps para forcar CapCut a respeitar pausas
+    # O CapCut estica cada bloco ate o proximo — o bloco vazio PREENCHE o gap inteiro
+    blocos_com_gaps = []
+    for i, (ts, te, txt) in enumerate(blocos):
+        blocos_com_gaps.append((ts, te, txt))
+        if i < len(blocos) - 1:
+            next_ts = blocos[i + 1][0]
+            gap = next_ts - te
+            if gap > 0.3:
+                blocos_com_gaps.append((te + 0.01, next_ts - 0.01, ' '))
+
     # Monta SRT numerado sequencialmente
     out = []
-    for seq, (ts, te, txt) in enumerate(blocos, 1):
+    for seq, (ts, te, txt) in enumerate(blocos_com_gaps, 1):
         out += [str(seq), f'{srt_time(ts)} --> {srt_time(te)}', txt, '']
     while out and not out[-1].strip():
         out.pop()
