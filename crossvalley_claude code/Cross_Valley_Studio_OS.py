@@ -146,9 +146,9 @@ def _norm_word(w):
     return re.sub(r'[^a-z0-9]', '', w.lower())
 
 def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
-    """Alinha LETRA REAL com TIMING do Whisper palavra por palavra.
-    Texto = letra do arquivo. Timing = Whisper word-level.
-    Trechos instrumentais (sem letra) = sem legenda = gap natural."""
+    """Alinha LETRA REAL com TIMING do Whisper — matching PALAVRA por PALAVRA.
+    Cada palavra da letra e casada com a palavra mais proxima do Whisper.
+    Depois reconstroi as linhas originais com os timestamps das palavras casadas."""
     api_key = get_openai_key()
     if not api_key:
         print('  [WHISPER] ERRO: chave OpenAI nao encontrada no config.json')
@@ -181,7 +181,6 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
         print(f'  [WHISPER] ERRO na API: {e}')
         return None
 
-    # Extrair todas as palavras com timestamps
     wlist = []
     for w in getattr(result, 'words', []) or []:
         if isinstance(w, dict):
@@ -199,16 +198,15 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
         print('  [WHISPER] ERRO: nenhuma palavra detectada no audio.')
         return None
 
-    print(f'  [WHISPER] {len(wlist)} palavras detectadas no audio.')
+    print(f'  [WHISPER] {len(wlist)} palavras do Whisper.')
 
-    # Preparar linhas da letra (sem linhas vazias, sem linhas de estrutura)
+    # Preparar linhas da letra (sem vazias, sem muito curtas)
     clean_lines = []
     for line in lyrics_lines:
         stripped = line.strip()
         if not stripped:
             continue
-        words_in_line = stripped.split()
-        if len(words_in_line) < 2 and len(stripped) < 4:
+        if len(stripped.split()) < 2 and len(stripped) < 4:
             continue
         clean_lines.append(stripped)
 
@@ -216,69 +214,79 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
         print('  [WHISPER] ERRO: nenhuma linha de letra encontrada.')
         return None
 
-    print(f'  [WHISPER] {len(clean_lines)} linhas de letra para alinhar.')
+    # 1) Flatten: todas as palavras da letra com referencia a linha original
+    all_lyrics_words = []
+    line_map = []
+    for li, line in enumerate(clean_lines):
+        for w in line.split():
+            all_lyrics_words.append(_norm_word(w))
+            line_map.append(li)
 
-    # MATCHING: Para cada linha da letra, encontrar onde ela aparece nas palavras do Whisper
-    # Scan sequencial — letras e audio estao na mesma ordem
+    print(f'  [WHISPER] {len(clean_lines)} linhas, {len(all_lyrics_words)} palavras na letra.')
+
+    # 2) Match sequencial: cada palavra da letra -> melhor palavra do Whisper
+    wp = 0
+    word_times = [None] * len(all_lyrics_words)
+
+    for i, lw in enumerate(all_lyrics_words):
+        if wp >= len(wlist):
+            break
+        best = -1
+        search_limit = min(len(wlist), wp + 8)
+        for candidate in range(wp, search_limit):
+            wn = wlist[candidate]['norm']
+            if wn == lw:
+                best = candidate
+                break
+            elif lw in wn or wn in lw:
+                if best < 0:
+                    best = candidate
+            elif len(lw) > 3 and len(wn) > 3 and lw[:3] == wn[:3]:
+                if best < 0:
+                    best = candidate
+        if best >= 0:
+            word_times[i] = (wlist[best]['start'], wlist[best]['end'])
+            wp = best + 1
+
+    matched_count = sum(1 for t in word_times if t is not None)
+    print(f'  [WHISPER] {matched_count}/{len(all_lyrics_words)} palavras casadas com Whisper.')
+
+    # 3) Reconstruir linhas com timestamps das palavras casadas
     blocos = []
-    w_idx = 0
-
-    for line in clean_lines:
-        line_words = line.split()
-        line_norms = [_norm_word(w) for w in line_words]
-        n = len(line_norms)
-        if n == 0:
-            continue
-
-        best_pos = -1
-        best_score = 0
-
-        search_end = min(len(wlist), w_idx + n + 40)
-
-        for pos in range(w_idx, search_end - n + 1):
-            score = 0
-            for j in range(n):
-                wn = wlist[pos + j]['norm']
-                ln = line_norms[j]
-                if wn == ln:
-                    score += 1.0
-                elif ln in wn or wn in ln:
-                    score += 0.7
-                elif len(ln) > 3 and len(wn) > 3 and (ln[:3] == wn[:3]):
-                    score += 0.4
-            ratio = score / n
-            if ratio > best_score:
-                best_score = ratio
-                best_pos = pos
-
-        if best_score >= 0.3 and best_pos >= 0:
-            ts = wlist[best_pos]['start']
-            te = wlist[best_pos + n - 1]['end']
-            if te - ts > 5.0 and n > 4:
-                mid = n // 2
-                ts1 = wlist[best_pos]['start']
-                te1 = wlist[best_pos + mid - 1]['end']
-                ts2 = wlist[best_pos + mid]['start']
-                te2 = wlist[best_pos + n - 1]['end']
-                blocos.append((ts1, te1, ' '.join(line_words[:mid])))
-                blocos.append((ts2, te2, ' '.join(line_words[mid:])))
+    for li, line in enumerate(clean_lines):
+        indices = [i for i, lm in enumerate(line_map) if lm == li]
+        times = [word_times[i] for i in indices if word_times[i] is not None]
+        if times:
+            ts = times[0][0]
+            te = times[-1][1]
+            if te - ts > 5.0 and len(line.split()) > 6:
+                words = line.split()
+                mid = len(words) // 2
+                mid_indices = [i for i in indices[:mid] if word_times[i] is not None]
+                end_indices = [i for i in indices[mid:] if word_times[i] is not None]
+                if mid_indices and end_indices:
+                    te1 = word_times[mid_indices[-1]][1]
+                    ts2 = word_times[end_indices[0]][0]
+                    blocos.append((ts, te1, ' '.join(words[:mid])))
+                    blocos.append((ts2, te, ' '.join(words[mid:])))
+                else:
+                    blocos.append((ts, te, line))
             else:
                 blocos.append((ts, te, line))
-            w_idx = best_pos + n
-            print(f'  [MATCH] "{line[:40]}..." -> {int(ts//60)}:{int(ts%60):02d} (score={best_score:.0%})')
+            print(f'  [OK]   "{line[:45]}..." -> {int(ts//60)}:{int(ts%60):02d}')
         else:
-            print(f'  [SKIP]  "{line[:40]}..." -> nao encontrada no audio')
+            print(f'  [SKIP] "{line[:45]}..." -> sem match no audio')
 
-    # Debug: salvar resultado
+    # Debug
     whisper_debug = music_path.parent.parent / '06_LEGENDAS' / 'WHISPER_TRANSCRICAO.txt'
     try:
-        debug_lines = ['=== LETRA ALINHADA COM WHISPER (word-level) ===', '']
+        debug_lines = ['=== LETRA ALINHADA COM WHISPER (word-by-word) ===', '']
         prev_end = 0.0
         for ts, te, txt in blocos:
-            gap_before = ts - prev_end
-            if gap_before > 1.5:
+            gap = ts - prev_end
+            if gap > 1.5:
                 debug_lines.append(f'')
-                debug_lines.append(f'  *** INSTRUMENTAL {gap_before:.1f}s ***')
+                debug_lines.append(f'  *** INSTRUMENTAL {gap:.1f}s ***')
                 debug_lines.append(f'')
             m1 = int(ts // 60); s1 = int(ts % 60)
             m2 = int(te // 60); s2 = int(te % 60)
@@ -290,18 +298,12 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
         pass
 
     if blocos:
-        gaps = []
-        for i in range(1, len(blocos)):
-            g = blocos[i][0] - blocos[i-1][1]
-            if g > 1.5:
-                gaps.append(g)
+        gaps = [blocos[i][0] - blocos[i-1][1] for i in range(1, len(blocos)) if blocos[i][0] - blocos[i-1][1] > 1.5]
         print(f'  [WHISPER] SRT FINAL: {len(blocos)} legendas')
         print(f'  [WHISPER] Pausas instrumentais (>1.5s): {len(gaps)}')
         if gaps:
             print(f'  [WHISPER] Maior pausa: {max(gaps):.1f}s')
-        first_t = blocos[0][0]
-        last_t = blocos[-1][1]
-        print(f'  [WHISPER] Primeira: {int(first_t//60)}:{int(first_t%60):02d} / Ultima: {int(last_t//60)}:{int(last_t%60):02d}')
+        print(f'  [WHISPER] Primeira: {int(blocos[0][0]//60)}:{int(blocos[0][0]%60):02d} / Ultima: {int(blocos[-1][1]//60)}:{int(blocos[-1][1]%60):02d}')
     return blocos if blocos else None
 
 def _lyrics_with_structure(p):
