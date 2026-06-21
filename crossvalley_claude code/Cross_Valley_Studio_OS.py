@@ -225,15 +225,19 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
     print(f'  [WHISPER] {len(clean_lines)} linhas, {len(all_lyrics_words)} palavras na letra.')
 
     # 2) Match sequencial: cada palavra da letra -> melhor palavra do Whisper
+    #    Busca em 2 fases: perto (wp+8) e longe (wp+40) para resync apos instrumental
     wp = 0
     word_times = [None] * len(all_lyrics_words)
+    misses = 0
 
     for i, lw in enumerate(all_lyrics_words):
         if wp >= len(wlist):
             break
         best = -1
-        search_limit = min(len(wlist), wp + 8)
-        for candidate in range(wp, search_limit):
+
+        # Fase 1: busca proxima (wp ate wp+8) — match exato ou fuzzy
+        close_limit = min(len(wlist), wp + 8)
+        for candidate in range(wp, close_limit):
             wn = wlist[candidate]['norm']
             if wn == lw:
                 best = candidate
@@ -244,9 +248,23 @@ def _whisper_align_lyrics(music_path, lyrics_lines, total_seconds=None):
             elif len(lw) > 3 and len(wn) > 3 and lw[:3] == wn[:3]:
                 if best < 0:
                     best = candidate
+
+        # Fase 2: se nao achou perto, busca mais longe (match EXATO so)
+        # Isso permite pular palavras alucinadas pelo Whisper durante instrumental
+        if best < 0:
+            far_limit = min(len(wlist), wp + 40)
+            for candidate in range(close_limit, far_limit):
+                wn = wlist[candidate]['norm']
+                if wn == lw:
+                    best = candidate
+                    break
+
         if best >= 0:
             word_times[i] = (wlist[best]['start'], wlist[best]['end'])
             wp = best + 1
+            misses = 0
+        else:
+            misses += 1
 
     matched_count = sum(1 for t in word_times if t is not None)
     print(f'  [WHISPER] {matched_count}/{len(all_lyrics_words)} palavras casadas com Whisper.')
