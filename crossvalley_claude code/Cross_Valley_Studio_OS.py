@@ -844,64 +844,121 @@ def write_storyboard(p):
     out.write_text('\n'.join(lines),encoding='utf-8'); print(out); return moments
 def get_openai_key(): return os.environ.get('OPENAI_API_KEY') or CFG.get('openai_api_key','')
 
-# Composições distintas para cada thumbnail — nunca as 3 iguais
-# REGRA GLOBAL: texto NUNCA sobre o rosto. Persona à direita → texto à esquerda. Persona à esquerda → texto à direita.
+# Composições — texto adicionado via PIL depois da geração (nunca pelo modelo de IA)
+# zona: 'left' | 'right' | 'top' | 'bottom' — onde o PIL vai escrever o texto
 _COMPOSICOES = [
     {
+        'zona': 'left',
         'descricao': (
-            'THUMBNAIL A — CLOSE-UP, PERSON ON THE RIGHT.\n'
-            'Think of a vertical line cutting the image exactly in half. The person (face, hat, shoulders) lives ENTIRELY on the RIGHT half. The LEFT half is completely empty — only background, no person at all.\n'
-            'Crop from hat brim at top to upper chest. Face and hat visible. NO hands, NO props, NO signs being held.\n'
-            'BACKGROUND: pure dark studio — solid deep charcoal or near-black. No landscape, no sky, no environment. Just darkness behind the figure.\n'
-            'Lighting: strong side light from left hitting the face. Golden rim light on hat brim edge.\n'
-            'DO NOT place any part of the face, hat, or body in the left half of the image.'
-        ),
-        'zona_texto': (
-            'TEXT ZONE: the LEFT HALF of the image — where there is NO person.\n'
-            'Stack the text vertically: main word large at top, subtitle smaller below.\n'
-            'Text must stay entirely left of center. ZERO text on the right half.\n'
-            'White or cream text, bold distressed font, strong black outline.\n'
-            '⛔ TEXT MUST NOT TOUCH OR OVERLAP THE FACE, HAT, OR ANY BODY PART.'
+            'CLOSE-UP PORTRAIT. Face, hat and collar fill the RIGHT side of the frame.\n'
+            'The LEFT side of the image is open/empty — just the dark background with no body parts.\n'
+            'BACKGROUND: dark studio, deep charcoal near-black. NO landscape. NO sky. Pure dark behind figure.\n'
+            'Lighting: rim light on hat brim, golden side light on face from left.\n'
+            'NO text. NO words. NO letters anywhere in the image.'
         ),
     },
     {
+        'zona': 'bottom',
         'descricao': (
-            'THUMBNAIL B — HALF-BODY, PERSON ON THE LEFT.\n'
-            'Think of a vertical line cutting the image exactly in half. The person (face, hat, chest, arms) lives ENTIRELY on the LEFT half. The RIGHT half is completely empty — only open landscape background, no person at all.\n'
-            'Show Cross Valley from waist to hat top. ONE gesture only: hand on chest OR looking sideways. NO props, NO signs.\n'
-            'ANATOMY: 2 arms, 2 hands, 5 fingers each. Anatomically correct.\n'
-            'BACKGROUND: bright warm sunny day — wide open field or country road at golden hour with blue sky and warm sunlight. Completely DIFFERENT from A (dark studio) and C (night/storm). This must look like a bright sunny afternoon outdoors.\n'
-            'Lighting: warm golden sunlight from the right, face clearly lit, no dark shadows on face.\n'
-            'DO NOT place any part of the face, hat, or body in the right half of the image.'
-        ),
-        'zona_texto': (
-            'TEXT ZONE: the RIGHT HALF of the image — where there is NO person.\n'
-            'Stack the text vertically: main word large at top, subtitle smaller below.\n'
-            'Text must stay entirely right of center. ZERO text on the left half.\n'
-            'White or golden text, bold distressed font, dark outline for contrast on bright sky.\n'
-            '⛔ TEXT MUST NOT TOUCH OR OVERLAP THE FACE, HAT, OR ANY BODY PART.'
+            'HALF-BODY SHOT. Cross Valley from waist up, centered or slightly right.\n'
+            'Expressive pose: one hand on heart, OR arm raised, OR looking up. ONE gesture only.\n'
+            'BACKGROUND: bright sunny countryside — open field, blue sky, warm golden light. Completely different from dark/studio look.\n'
+            'Lighting: natural golden hour sunlight from the side. Face fully lit, no dark shadows.\n'
+            'ANATOMY: 2 arms, 2 hands, 5 fingers each. No extra limbs.\n'
+            'The bottom 25% of the image should be darker (ground, shadow) to allow text contrast.\n'
+            'NO text. NO words. NO letters anywhere in the image.'
         ),
     },
     {
+        'zona': 'top',
         'descricao': (
-            'THUMBNAIL C — PERSON AT BOTTOM, SKY DOMINATES TOP.\n'
-            'The image is divided horizontally: TOP 60% = sky only (no person). BOTTOM 40% = person standing.\n'
-            'Cross Valley stands at the VERY BOTTOM of the image, centered, visible from knees to hat top.\n'
-            'The hat brim must NOT reach above the 45% mark from the bottom. The upper 55% is pure sky with zero body parts.\n'
-            'NO props, NO signs being held.\n'
-            'BACKGROUND: dramatic night/supernatural sky — deep purple and electric blue clouds, stars or divine light rays breaking through. Completely DIFFERENT from A (dark studio) and B (sunny day). This is a supernatural/heavenly atmosphere at night.\n'
-            'Strong golden rim light outlining the hat and shoulders against the dark sky.\n'
-            'The sky is the hero of this image. The person is small at the bottom.'
-        ),
-        'zona_texto': (
-            'TEXT ZONE: the TOP 40% of the image — the sky area where there is NO person.\n'
-            'Place text as large bold words across the upper sky area.\n'
-            'Text must stay in the upper half. The person is at the bottom — text is at the top.\n'
-            'White or cream text with strong dark glow outline against the night sky.\n'
-            '⛔ TEXT MUST NOT TOUCH OR OVERLAP THE FACE, HAT, OR ANY BODY PART. The hat is at the bottom; text is at the top. They must not meet.'
+            'WIDE DRAMATIC SHOT. Person is SMALL — only 35% of image height — standing at the BOTTOM CENTER.\n'
+            'The TOP 55% of the image is pure sky with NO body parts at all.\n'
+            'BACKGROUND: supernatural night sky — deep purple, electric blue, dramatic clouds, divine light rays. Completely different from dark studio and sunny day.\n'
+            'Strong golden rim light on hat and shoulders. The sky is the hero of this image.\n'
+            'NO text. NO words. NO letters anywhere in the image.'
         ),
     },
 ]
+
+
+def _overlay_text_on_thumb(img_path, texto, zona='bottom'):
+    """Adiciona texto à thumbnail na zona segura (longe do rosto) usando PIL."""
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+        img = Image.open(img_path).convert('RGB')
+        w, h = img.size
+
+        # Centro da zona de texto
+        zona_cx = {'left': int(w*0.22), 'right': int(w*0.78), 'top': int(w*0.50), 'bottom': int(w*0.50)}
+        zona_cy = {'left': int(h*0.50), 'right': int(h*0.50), 'top': int(h*0.20), 'bottom': int(h*0.82)}
+        cx = zona_cx.get(zona, int(w*0.50))
+        cy = zona_cy.get(zona, int(h*0.82))
+
+        # Fundo escuro semi-transparente na zona para garantir legibilidade
+        overlay = Image.new('RGBA', (w, h), (0, 0, 0, 0))
+        od = ImageDraw.Draw(overlay)
+        if zona == 'left':
+            od.rectangle([0, 0, int(w*0.44), h], fill=(0, 0, 0, 150))
+        elif zona == 'right':
+            od.rectangle([int(w*0.56), 0, w, h], fill=(0, 0, 0, 150))
+        elif zona == 'top':
+            od.rectangle([0, 0, w, int(h*0.38)], fill=(0, 0, 0, 150))
+        else:
+            od.rectangle([0, int(h*0.65), w, h], fill=(0, 0, 0, 160))
+        img = Image.alpha_composite(img.convert('RGBA'), overlay).convert('RGB')
+
+        # Fonte: tenta fontes bold do sistema
+        font_size = int(h * 0.15)
+        font = None
+        for fp in [
+            'C:/Windows/Fonts/impact.ttf',
+            'C:/Windows/Fonts/arialbd.ttf',
+            'C:/Windows/Fonts/arial.ttf',
+            '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
+            '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf',
+            '/System/Library/Fonts/Helvetica.ttc',
+        ]:
+            if Path(fp).exists():
+                try:
+                    font = ImageFont.truetype(fp, font_size)
+                    break
+                except Exception:
+                    pass
+        use_anchor = font is not None
+        if font is None:
+            font = ImageFont.load_default()
+
+        draw = ImageDraw.Draw(img)
+        words = texto.upper().split()
+        # Divide em no máximo 2 linhas
+        if len(words) <= 2:
+            lines = [' '.join(words)]
+        else:
+            mid = (len(words) + 1) // 2
+            lines = [' '.join(words[:mid]), ' '.join(words[mid:])]
+
+        line_h = int(font_size * 1.25)
+        total_h = line_h * len(lines)
+        y_start = cy - total_h // 2 + line_h // 2
+
+        for li, line in enumerate(lines):
+            lx = cx
+            ly = y_start + li * line_h
+            if use_anchor:
+                # Outline espesso
+                for dx in range(-4, 5, 2):
+                    for dy in range(-4, 5, 2):
+                        draw.text((lx + dx, ly + dy), line, font=font, fill=(0, 0, 0), anchor='mm')
+                draw.text((lx, ly), line, font=font, fill=(255, 255, 255), anchor='mm')
+            else:
+                draw.text((lx, ly), line, font=font, fill=(255, 255, 255))
+
+        img.save(img_path)
+        return True
+    except Exception as e:
+        print(f'  Aviso texto overlay: {e}')
+        return False
 
 def build_story_prompts(p):
     ensure_project(p)
@@ -915,6 +972,7 @@ def build_story_prompts(p):
     moments = write_storyboard(p)[:3]
 
     prompts = []
+    textos_thumb = []
     for i, (m, comp) in enumerate(zip(moments, _COMPOSICOES), 1):
         texto_thumb = m.get('thumb', 'GOD WAS THERE')
         lyric_base  = m.get('lyric', '')
@@ -928,10 +986,8 @@ def build_story_prompts(p):
             f'REFERENCE IMAGE IS MANDATORY. Use PERSONA_MASTER.png as the ONLY face reference.\n'
             f'PRESERVE EXACTLY: mature man, shaved head, full black beard, black cowboy hat, black blazer, black shirt.\n'
             f'Do NOT redesign face. Do NOT create a generic cowboy.\n\n'
-            f'!!! MOST IMPORTANT RULE — READ BEFORE ANYTHING ELSE !!!\n'
-            f'TEXT MUST NEVER BE PLACED OVER THE PERSON\'S FACE, HEAD, OR HAT.\n'
-            f'The image has TWO ZONES: (1) PERSON ZONE and (2) EMPTY ZONE.\n'
-            f'ALL text goes in the EMPTY ZONE only. Person zone has ZERO text.\n\n'
+            f'⛔ CRITICAL: DO NOT ADD ANY TEXT, WORDS, OR LETTERS TO THE IMAGE.\n'
+            f'Generate only the person and the background. Zero text. Zero words. Zero letters.\n\n'
 
             f'=== SONG: {title} ===\n'
             f'Theme: {music_dna["tema"]}\n'
@@ -952,20 +1008,9 @@ def build_story_prompts(p):
             f'=== ENVIRONMENT ===\n'
             f'{music_dna["ambiente"]}\n\n'
 
-            f'=== TEXT ON IMAGE ===\n'
-            f'Text: {texto_thumb}\n'
-            f'MAXIMUM 4 WORDS. Write EXACTLY this text, no more, no less.\n'
-            f'{comp["zona_texto"]}\n'
-            f'Font: large, bold, distressed grunge style. Must be readable at YouTube thumbnail size (small).\n'
-            f'ABSOLUTE RULE — TEXT PLACEMENT:\n'
-            f'  • TEXT MUST NEVER OVERLAP THE PERSON\'S FACE, HEAD, OR HAT.\n'
-            f'  • The image is divided into zones: person zone and empty zone.\n'
-            f'  • Text goes ONLY in the EMPTY ZONE (where there is no person).\n'
-            f'  • If person is on the RIGHT → text is on the LEFT.\n'
-            f'  • If person is on the LEFT → text is on the RIGHT.\n'
-            f'  • If person is centered at bottom → text is at the TOP above the head.\n'
-            f'  • VIOLATION: placing text anywhere near the face = generation failure.\n'
-            f'NEVER place text behind the hat. NEVER cut off text at edges.\n\n'
+            f'=== NO TEXT IN IMAGE ===\n'
+            f'Do NOT add any text, words, letters, numbers, or captions anywhere in this image.\n'
+            f'The image must be completely text-free. Text will be added by post-processing.\n\n'
 
             f'=== ARROW (if applicable) ===\n'
             f'{music_dna["seta"]}\n'
@@ -988,6 +1033,7 @@ def build_story_prompts(p):
         )
         safe = api_safe(prompt)
         prompts.append(safe)
+        textos_thumb.append(texto_thumb)
         (thumb_dir / f'STORY_PROMPT_THUMB_{i:02d}.txt').write_text(safe, encoding='utf-8')
 
     # Salva os 10 textos disponíveis para escolha
@@ -1011,7 +1057,7 @@ def build_story_prompts(p):
     print(f'  Paleta          : {music_dna["paleta"][:60]}...')
     print(f'  3 prompts gerados com composições distintas.')
     print(f'  10 textos salvos: TEXTOS_THUMBNAIL_10_OPCOES.txt')
-    return prompts
+    return prompts, textos_thumb
 def ctr_report(p):
     moments=thumb_psychology_variants(analyze_story_moments(p))[:3]; out=p/'09_DOCUMENTOS'/'CTR_INTELLIGENCE_REPORT.txt'; lines=['CTR INTELLIGENCE REPORT - BUILD 015','='*60,f'Projeto: {p.name}','']
     for i,m in enumerate(moments,1): lines += [f'THUMB {i:02d} - {m["thumb"]}',f'CTR estimado: {m["score"]}/100','Pontos fortes:',f'- Cena específica da música',f'- Emoção: {m["emotion"]}',f'- Texto curto: {m["thumb"]}',f'- Elemento visual: {m["god"]}',f'- Seta: {m["arrow"]}','-'*60]
@@ -1025,12 +1071,19 @@ def generate_story_thumbs(p):
         from openai import OpenAI
     except Exception:
         subprocess.check_call([sys.executable,'-m','pip','install','openai','pillow']); from openai import OpenAI
-    client=OpenAI(api_key=key); prompts=build_story_prompts(p); thumb_dir=p/'07_THUMBNAILS'; ok=0
-    for i,pr in enumerate(prompts,1):
+    client=OpenAI(api_key=key)
+    prompts, textos_thumb = build_story_prompts(p)
+    thumb_dir=p/'07_THUMBNAILS'; ok=0
+    for i, (pr, comp) in enumerate(zip(prompts, _COMPOSICOES), 1):
         out=thumb_dir/f'STORY_THUMB_CROSS_VALLEY_{i:02d}.png'
         try:
             with open(persona,'rb') as img: res=client.images.edit(model=CFG.get('openai_image_model','gpt-image-1'),image=img,prompt=pr,size=CFG.get('thumb_size','1536x1024'),n=1)
-            out.write_bytes(base64.b64decode(res.data[0].b64_json)); print('OK:',out.name); ok+=1
+            out.write_bytes(base64.b64decode(res.data[0].b64_json))
+            # Adiciona texto via PIL na zona segura (longe do rosto)
+            texto = textos_thumb[i-1] if i-1 < len(textos_thumb) else 'GOD IS GOOD'
+            zona = comp.get('zona', 'bottom')
+            _overlay_text_on_thumb(str(out), texto, zona)
+            print('OK:',out.name); ok+=1
         except Exception as e:
             erro_str = str(e).lower()
             (thumb_dir/f'ERRO_STORY_THUMB_{i:02d}.txt').write_text(api_safe(str(e)),encoding='utf-8')
