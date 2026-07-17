@@ -848,12 +848,12 @@ def get_openai_key(): return os.environ.get('OPENAI_API_KEY') or CFG.get('openai
 # zona: 'left' | 'right' | 'top' | 'bottom' — onde o PIL vai escrever o texto
 _COMPOSICOES = [
     {
-        'zona': 'bottom',
+        'zona': 'left',
         'descricao': (
-            'EXTREME CLOSE-UP PORTRAIT. Face and hat fill 80% of the frame. Chin visible at bottom.\n'
+            'CLOSE-UP PORTRAIT. Face, hat, and collar fill the RIGHT two-thirds of the frame.\n'
             'BACKGROUND: dark dramatic studio — deep charcoal or near-black. No landscape, no sky.\n'
             'Lighting: golden rim light on hat brim edge. Strong side light on face.\n'
-            'The BOTTOM 20% of the image must be darker (collar/chest area) to allow text contrast.\n'
+            'The person must be positioned on the RIGHT side. The LEFT side is background only.\n'
             'NO props. NO objects being held. NO text. NO words. NO letters anywhere in the image.'
         ),
     },
@@ -897,21 +897,21 @@ def _overlay_text_on_thumb(img_path, texto, zona='bottom'):
         cx = zona_cx.get(zona, int(w*0.50))
         cy = zona_cy.get(zona, int(h*0.82))
 
-        # Fundo escuro semi-transparente na zona para garantir legibilidade
+        # Fundo escuro na zona — SÓLIDO (alpha 220) para cobrir qualquer texto da IA
         overlay = Image.new('RGBA', (w, h), (0, 0, 0, 0))
         od = ImageDraw.Draw(overlay)
         if zona == 'left':
-            od.rectangle([0, 0, int(w*0.44), h], fill=(0, 0, 0, 150))
+            od.rectangle([0, 0, int(w*0.46), h], fill=(0, 0, 0, 220))
         elif zona == 'right':
-            od.rectangle([int(w*0.56), 0, w, h], fill=(0, 0, 0, 150))
+            od.rectangle([int(w*0.54), 0, w, h], fill=(0, 0, 0, 220))
         elif zona == 'top':
-            od.rectangle([0, 0, w, int(h*0.38)], fill=(0, 0, 0, 150))
-        else:
-            od.rectangle([0, int(h*0.65), w, h], fill=(0, 0, 0, 160))
+            od.rectangle([0, 0, w, int(h*0.40)], fill=(0, 0, 0, 210))
+        else:  # bottom
+            od.rectangle([0, int(h*0.70), w, h], fill=(0, 0, 0, 220))
         img = Image.alpha_composite(img.convert('RGBA'), overlay).convert('RGB')
 
         # Fonte: tenta fontes bold do sistema
-        font_size = int(h * 0.15)
+        font_size = int(h * 0.18)
         font = None
         for fp in [
             'C:/Windows/Fonts/impact.ttf',
