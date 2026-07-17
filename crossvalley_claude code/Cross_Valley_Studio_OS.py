@@ -883,25 +883,28 @@ _COMPOSICOES = [
 
 
 def _overlay_text_on_thumb(img_path, texto, zona='bottom'):
-    """Texto em UMA LINHA na barra preta embaixo. Corta topo para liberar espaço."""
+    """Texto em UMA LINHA na barra preta embaixo. Compatível com qualquer versão do Pillow."""
     try:
         from PIL import Image, ImageDraw, ImageFont
+        print(f'  PIL overlay: {img_path} | texto={texto}')
+
         img = Image.open(img_path).convert('RGB')
         w, h = img.size
 
-        bar_h = int(h * 0.20)       # altura da barra de texto (20% da imagem)
-        crop_top = int(h * 0.08)    # corta 8% do topo (chapéu) para empurrar foto pra cima
+        bar_h  = int(h * 0.20)   # barra preta 20% embaixo
+        crop_t = int(h * 0.08)   # corta 8% do topo (chapéu)
 
-        # Recorta o topo e redimensiona para preencher até onde começa a barra
+        # Empurra a foto pra cima e abre espaço na barra embaixo
         content_h = h - bar_h
-        img_cropped = img.crop((0, crop_top, w, h))
-        img_resized = img_cropped.resize((w, content_h), Image.LANCZOS)
+        img_crop = img.crop((0, crop_t, w, h))
+        resample = getattr(Image, 'LANCZOS', getattr(Image, 'ANTIALIAS', 1))
+        img_content = img_crop.resize((w, content_h), resample)
 
-        # Monta nova imagem: foto (em cima) + barra preta (embaixo)
         new_img = Image.new('RGB', (w, h), (8, 8, 8))
-        new_img.paste(img_resized, (0, 0))
+        new_img.paste(img_content, (0, 0))
+        draw = ImageDraw.Draw(new_img)
 
-        # Busca fonte bold
+        # Busca fonte bold disponível
         font_paths = [
             'C:/Windows/Fonts/impact.ttf',
             'C:/Windows/Fonts/arialbd.ttf',
@@ -910,44 +913,51 @@ def _overlay_text_on_thumb(img_path, texto, zona='bottom'):
             '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf',
             '/System/Library/Fonts/Helvetica.ttc',
         ]
-        font_path = None
-        for fp in font_paths:
-            if Path(fp).exists():
-                font_path = fp
-                break
+        font_path = next((fp for fp in font_paths if Path(fp).exists()), None)
+        print(f'  Fonte: {font_path}')
 
         texto_up = texto.upper()
-        draw = ImageDraw.Draw(new_img)
         cx = w // 2
-        cy = content_h + bar_h // 2  # centro vertical da barra preta
+        cy = content_h + bar_h // 2
+
+        def medir(f, t):
+            try:    return f.getbbox(t)[2] - f.getbbox(t)[0]
+            except Exception:
+                try: return f.getsize(t)[0]
+                except Exception: return len(t) * 14
+
+        def escrever(d, x, y, t, f, cor):
+            try:
+                d.text((x, y), t, font=f, fill=cor, anchor='mm')
+            except TypeError:
+                try:    tw, th = f.getsize(t)
+                except Exception: tw, th = len(t)*14, 20
+                d.text((x - tw//2, y - th//2), t, font=f, fill=cor)
 
         if font_path:
-            # Auto-ajusta tamanho para caber em UMA linha dentro de 90% da largura
-            font_size = int(bar_h * 0.70)
+            font_size = int(bar_h * 0.68)
             max_w = int(w * 0.90)
-            while font_size > 16:
+            while font_size > 12:
                 font = ImageFont.truetype(font_path, font_size)
-                try:
-                    bbox = font.getbbox(texto_up)
-                    text_w = bbox[2] - bbox[0]
-                except Exception:
-                    text_w = len(texto_up) * font_size * 0.6
-                if text_w <= max_w:
+                if medir(font, texto_up) <= max_w:
                     break
                 font_size -= 4
-            # Outline preto espesso + texto branco
-            for dx in range(-5, 6, 2):
-                for dy in range(-5, 6, 2):
-                    draw.text((cx + dx, cy + dy), texto_up, font=font, fill=(0, 0, 0), anchor='mm')
-            draw.text((cx, cy), texto_up, font=font, fill=(255, 255, 255), anchor='mm')
+            # Outline preto + texto branco
+            for dx in range(-4, 5, 2):
+                for dy in range(-4, 5, 2):
+                    escrever(draw, cx + dx, cy + dy, texto_up, font, (0, 0, 0))
+            escrever(draw, cx, cy, texto_up, font, (255, 255, 255))
         else:
             font = ImageFont.load_default()
-            draw.text((cx, cy - 8), texto_up, font=font, fill=(255, 255, 255))
+            draw.text((20, cy - 8), texto_up, font=font, fill=(255, 255, 255))
 
         new_img.save(img_path)
+        print(f'  PIL overlay OK.')
         return True
     except Exception as e:
-        print(f'  Aviso texto overlay: {e}')
+        import traceback
+        print(f'  ERRO PIL overlay: {e}')
+        print(traceback.format_exc())
         return False
 
 def build_story_prompts(p):
