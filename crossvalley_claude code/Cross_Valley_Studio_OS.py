@@ -848,34 +848,36 @@ def get_openai_key(): return os.environ.get('OPENAI_API_KEY') or CFG.get('openai
 # zona: 'left' | 'right' | 'top' | 'bottom' — onde o PIL vai escrever o texto
 _COMPOSICOES = [
     {
-        'zona': 'left',
+        'zona': 'bottom',
         'descricao': (
-            'CLOSE-UP PORTRAIT. Face, hat and collar fill the RIGHT side of the frame.\n'
-            'The LEFT side of the image is open/empty — just the dark background with no body parts.\n'
-            'BACKGROUND: dark studio, deep charcoal near-black. NO landscape. NO sky. Pure dark behind figure.\n'
-            'Lighting: rim light on hat brim, golden side light on face from left.\n'
-            'NO text. NO words. NO letters anywhere in the image.'
+            'EXTREME CLOSE-UP PORTRAIT. Face and hat fill 80% of the frame. Chin visible at bottom.\n'
+            'BACKGROUND: dark dramatic studio — deep charcoal or near-black. No landscape, no sky.\n'
+            'Lighting: golden rim light on hat brim edge. Strong side light on face.\n'
+            'The BOTTOM 20% of the image must be darker (collar/chest area) to allow text contrast.\n'
+            'NO props. NO objects being held. NO text. NO words. NO letters anywhere in the image.'
         ),
     },
     {
         'zona': 'bottom',
         'descricao': (
-            'HALF-BODY SHOT. Cross Valley from waist up, centered or slightly right.\n'
-            'Expressive pose: one hand on heart, OR arm raised, OR looking up. ONE gesture only.\n'
-            'BACKGROUND: bright sunny countryside — open field, blue sky, warm golden light. Completely different from dark/studio look.\n'
-            'Lighting: natural golden hour sunlight from the side. Face fully lit, no dark shadows.\n'
+            'HALF-BODY SHOT. Cross Valley from waist up, face and hat in upper portion of frame.\n'
+            'ONE expressive gesture: hand on heart, OR arms open wide. NO props, NO objects being held.\n'
             'ANATOMY: 2 arms, 2 hands, 5 fingers each. No extra limbs.\n'
-            'The bottom 25% of the image should be darker (ground, shadow) to allow text contrast.\n'
+            'BACKGROUND: bright sunny countryside — wide open field, warm blue sky, golden hour light. Completely different look from dark studio.\n'
+            'Lighting: natural warm sunlight from the side. Face fully lit.\n'
+            'The BOTTOM 25% of the image must be ground/shadow area (darker) to allow text contrast.\n'
             'NO text. NO words. NO letters anywhere in the image.'
         ),
     },
     {
         'zona': 'top',
         'descricao': (
-            'WIDE DRAMATIC SHOT. Person is SMALL — only 35% of image height — standing at the BOTTOM CENTER.\n'
-            'The TOP 55% of the image is pure sky with NO body parts at all.\n'
-            'BACKGROUND: supernatural night sky — deep purple, electric blue, dramatic clouds, divine light rays. Completely different from dark studio and sunny day.\n'
-            'Strong golden rim light on hat and shoulders. The sky is the hero of this image.\n'
+            'WIDE SHOT SILHOUETTE. Person stands at BOTTOM CENTER, small — only 35% of image height.\n'
+            'The TOP 55% of the image is pure dramatic sky with ZERO body parts in it.\n'
+            'NO props. NO objects being held. NO signs. NO glowing items.\n'
+            'BACKGROUND: supernatural night sky — deep purple, electric blue clouds, divine light rays or stars. Completely different from dark studio and sunny day.\n'
+            'Strong golden rim light outlining the hat and shoulders against the sky.\n'
+            'The sky must be vivid and colorful. The person is small at the bottom.\n'
             'NO text. NO words. NO letters anywhere in the image.'
         ),
     },
