@@ -845,56 +845,63 @@ def write_storyboard(p):
 def get_openai_key(): return os.environ.get('OPENAI_API_KEY') or CFG.get('openai_api_key','')
 
 # Composições distintas para cada thumbnail — nunca as 3 iguais
+# REGRA GLOBAL: texto NUNCA sobre o rosto. Persona à direita → texto à esquerda. Persona à esquerda → texto à direita.
 _COMPOSICOES = [
     {
         'descricao': (
-            'EXTREME CLOSE-UP PORTRAIT — FACE IS THE ENTIRE IMAGE.\n'
-            'Crop TIGHT: from the hat brim at the TOP EDGE to the chin at the BOTTOM EDGE.\n'
-            'The face MUST fill at least 75% of the image area. Minimal neck/collar visible — almost none.\n'
-            'NO chest. NO blazer. NO shoulders. NO hands. NO arms. Just face + hat + tiny collar.\n'
-            'Background: completely blurred (f/1.4 extreme bokeh), only soft color visible.\n'
-            'Lighting: cinematic golden rim light on one side, soft fill on the other. Face FULLY lit, every detail visible.\n'
-            'Camera angle: straight on or VERY slightly from below (heroic angle).\n'
-            'Think: YouTube thumbnail where the FACE is the hook. Like a movie poster extreme close-up.\n'
-            'THIS IS NOT A HALF-BODY SHOT. If chest or blazer is visible more than 10%, you failed.'
+            'CLOSE-UP PORTRAIT — PERSON POSITIONED ON THE RIGHT SIDE.\n'
+            'Cross Valley face and hat occupy the RIGHT 55% of the image (right edge to center).\n'
+            'The LEFT 40% of the image is EMPTY — this is the text zone. Background fills the left side.\n'
+            'Crop from hat brim at top to upper chest at bottom. Face, hat, and collar visible. NO hands or arms.\n'
+            'Background: DARK DRAMATIC STUDIO — deep charcoal or near-black gradient behind the figure. Completely different from compositions B and C.\n'
+            'Lighting: cinematic side light from the LEFT hitting the face, creating strong shadow on the right. Rim light on hat brim.\n'
+            'Camera angle: slightly from below (heroic angle), face turned slightly LEFT toward camera.\n'
+            'CRITICAL: the LEFT THIRD of the image must be clearly empty with NO face, NO hat, NO body parts. Only background.'
         ),
         'zona_texto': (
-            'TEXT PLACEMENT: bottom 15% of image, overlapping the tiny collar/chin area.\n'
-            'Large bold distressed white/cream text with strong dark outline.\n'
-            'NEVER place text on the hat or over the eyes.'
+            'TEXT PLACEMENT: LEFT SIDE of image — the left 38% that has NO person.\n'
+            'Text is VERTICAL STACK or large bold horizontal in the empty left zone.\n'
+            'Text must NOT cross the center line. Text stays entirely in the left 38%.\n'
+            'CRITICAL: text must NEVER overlap the face, the hat, or any body part.\n'
+            'Large bold distressed white or cream text with strong dark outline for contrast against dark background.'
         ),
     },
     {
         'descricao': (
-            'HALF-BODY EMOTIONAL POSE.\n'
-            'Cross Valley visible from waist up. Hands and arms fully visible and expressive.\n'
-            'Pose must express ONE clear gesture: EITHER hands open to sky, OR fists clenched, OR hand on heart, OR arms wide. Pick ONE only.\n'
-            'ANATOMY RULES: exactly 2 arms, exactly 2 hands, exactly 5 fingers per hand. NO extra limbs. NO floating hands. NO deformed fingers. Anatomically perfect human body.\n'
-            'Background: environment clearly visible — landscape, road, field, sky. NOT just blur.\n'
-            'Lighting: natural golden hour light from behind or side. Face illuminated. No dark face.\n'
-            'Camera angle: medium shot, slightly wide to show the environment and the gesture.\n'
-            'THIS IS NOT A CLOSE-UP. The pose and environment are as important as the face.'
+            'HALF-BODY PORTRAIT — PERSON POSITIONED ON THE LEFT SIDE.\n'
+            'Cross Valley visible from waist up, body and face occupying the LEFT 55% of the image.\n'
+            'The RIGHT 40% of the image is EMPTY — background only, no body parts.\n'
+            'Pose: ONE expressive gesture — hand on heart, OR fist raised, OR arm extended. Pick ONE.\n'
+            'ANATOMY RULES: exactly 2 arms, exactly 2 hands, exactly 5 fingers per hand. NO extra limbs. Anatomically perfect.\n'
+            'Background: BRIGHT OPEN LANDSCAPE — golden hour field, rural road, or open sky with warm light. Completely different from compositions A and C.\n'
+            'Lighting: natural golden hour from the RIGHT side, rim lighting the hat and shoulder. Face illuminated facing camera.\n'
+            'Camera angle: medium shot. The right side of the frame shows the landscape horizon.\n'
+            'CRITICAL: the RIGHT THIRD of the image must be clearly empty with NO face or body parts. Only landscape.'
         ),
         'zona_texto': (
-            'TEXT PLACEMENT: bottom 25% of image, large and horizontal.\n'
-            'Text sits BELOW the hands, over the dark lower portion of the image.\n'
-            'NEVER place text over the face or the hands.'
+            'TEXT PLACEMENT: RIGHT SIDE of image — the right 38% that has NO person.\n'
+            'Text is large bold horizontal or vertical stack in the empty right zone.\n'
+            'Text must NOT cross the center line. Text stays entirely in the right 38%.\n'
+            'CRITICAL: text must NEVER overlap the face, the hat, or any body part.\n'
+            'Large bold distressed white or golden text with strong dark outline. Readable against the bright landscape.'
         ),
     },
     {
         'descricao': (
-            'DRAMATIC SILHOUETTE against vivid sky.\n'
-            'Cross Valley is a DARK FIGURE (silhouette) against an INTENSELY COLORFUL sky.\n'
-            'Sky colors: dramatic orange, deep purple, fiery red, or intense golden — NOT plain sunset.\n'
-            'The person is shown FULL BODY or from knees up, small in the frame (30-40% of image height).\n'
-            'A strong rim light (golden or white) MUST outline the hat and shoulders so the figure is recognizable.\n'
-            'The SKY and LANDSCAPE dominate the image. The person is part of the landscape.\n'
-            'THIS IS NOT A CLOSE-UP AND NOT A HALF-BODY. The person is small against the epic sky.'
+            'DRAMATIC SILHOUETTE — PERSON CENTERED, SMALL AGAINST EPIC SKY.\n'
+            'Cross Valley is a DARK SILHOUETTE figure standing at the BOTTOM CENTER of the image.\n'
+            'The person occupies only 30-40% of the image HEIGHT and is positioned at the horizontal center.\n'
+            'A strong rim light (golden or white) outlines the hat and shoulders so the figure is recognizable.\n'
+            'The SKY dominates 65% of the image. Sky colors: vivid purple, deep orange, fiery crimson — NOT a plain sunset.\n'
+            'Background: STORMY OR SUPERNATURAL SKY — dramatic clouds, lightning glow, or heavenly light rays. Completely different from compositions A and B.\n'
+            'THIS IS NOT A CLOSE-UP AND NOT A HALF-BODY. The person is small. The sky is the main visual.'
         ),
         'zona_texto': (
-            'TEXT PLACEMENT: top 30% of image, large text across the colorful sky.\n'
-            'Text in arc or bold horizontal above the silhouette figure.\n'
-            'White or cream text with strong outline for maximum sky contrast.'
+            'TEXT PLACEMENT: TOP PORTION of image — the upper 30% of the sky, ABOVE the silhouette figure.\n'
+            'Text placed horizontally across the sky, far above the person\'s hat.\n'
+            'CRITICAL: text must be entirely above the figure. No text near the hat or body.\n'
+            'White or bright cream text with strong dark glow/outline for maximum sky contrast.\n'
+            'The figure is at the bottom — text is at the top. Zero overlap possible.'
         ),
     },
 ]
@@ -924,6 +931,10 @@ def build_story_prompts(p):
             f'REFERENCE IMAGE IS MANDATORY. Use PERSONA_MASTER.png as the ONLY face reference.\n'
             f'PRESERVE EXACTLY: mature man, shaved head, full black beard, black cowboy hat, black blazer, black shirt.\n'
             f'Do NOT redesign face. Do NOT create a generic cowboy.\n\n'
+            f'!!! MOST IMPORTANT RULE — READ BEFORE ANYTHING ELSE !!!\n'
+            f'TEXT MUST NEVER BE PLACED OVER THE PERSON\'S FACE, HEAD, OR HAT.\n'
+            f'The image has TWO ZONES: (1) PERSON ZONE and (2) EMPTY ZONE.\n'
+            f'ALL text goes in the EMPTY ZONE only. Person zone has ZERO text.\n\n'
 
             f'=== SONG: {title} ===\n'
             f'Theme: {music_dna["tema"]}\n'
@@ -949,6 +960,14 @@ def build_story_prompts(p):
             f'MAXIMUM 4 WORDS. Write EXACTLY this text, no more, no less.\n'
             f'{comp["zona_texto"]}\n'
             f'Font: large, bold, distressed grunge style. Must be readable at YouTube thumbnail size (small).\n'
+            f'ABSOLUTE RULE — TEXT PLACEMENT:\n'
+            f'  • TEXT MUST NEVER OVERLAP THE PERSON\'S FACE, HEAD, OR HAT.\n'
+            f'  • The image is divided into zones: person zone and empty zone.\n'
+            f'  • Text goes ONLY in the EMPTY ZONE (where there is no person).\n'
+            f'  • If person is on the RIGHT → text is on the LEFT.\n'
+            f'  • If person is on the LEFT → text is on the RIGHT.\n'
+            f'  • If person is centered at bottom → text is at the TOP above the head.\n'
+            f'  • VIOLATION: placing text anywhere near the face = generation failure.\n'
             f'NEVER place text behind the hat. NEVER cut off text at edges.\n\n'
 
             f'=== ARROW (if applicable) ===\n'
@@ -961,7 +980,12 @@ def build_story_prompts(p):
             f'=== OUTPUT ===\n'
             f'16:9 ratio, 1536x1024, cinematic Country Gospel, photorealistic quality.\n'
             f'ANATOMY: exactly 2 arms, 2 hands, 5 fingers each. NO extra limbs, NO deformed hands, NO floating body parts. Anatomically perfect.\n'
-            f'This thumbnail must look DIFFERENT from the others — unique composition, unique mood.\n\n'
+            f'This thumbnail must look DIFFERENT from the others — unique composition, unique mood.\n'
+            f'BACKGROUND VARIATION RULE: each of the 3 thumbnails must have a COMPLETELY DIFFERENT background:\n'
+            f'  • Thumbnail A: dark studio / bokeh — deep charcoal, near-black.\n'
+            f'  • Thumbnail B: bright outdoor landscape — golden field, rural road, warm sunlight.\n'
+            f'  • Thumbnail C: dramatic sky — stormy clouds, vivid purple/orange/crimson sky.\n'
+            f'DO NOT repeat similar backgrounds across thumbnails. Each must feel like a totally different world.\n\n'
 
             f'DNA:\n{canal_dna}\n'
         )
