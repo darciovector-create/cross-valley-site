@@ -844,49 +844,52 @@ def write_storyboard(p):
     out.write_text('\n'.join(lines),encoding='utf-8'); print(out); return moments
 def get_openai_key(): return os.environ.get('OPENAI_API_KEY') or CFG.get('openai_api_key','')
 
-# Composições — texto adicionado via PIL depois da geração (nunca pelo modelo de IA)
-# zona: 'left' | 'right' | 'top' | 'bottom' — onde o PIL vai escrever o texto
+# Composições: fundo gerado separado (call 1) + persona inserida no fundo (call 2)
+# bg_desc: prompt do FUNDO PURO (sem pessoa, sem texto) para images.generate
+# pose: instrução de pose para o call de inserção da persona
 _COMPOSICOES = [
     {
         'zona': 'bottom',
-        'descricao': (
-            'CLOSE-UP PORTRAIT. Face and hat fill the upper 75% of the frame.\n'
-            'IMPORTANT: leave the bottom 20% of the image as dark collar/chest area — this space is reserved for text overlay.\n'
-            'BACKGROUND: dark dramatic studio — deep charcoal or near-black. No landscape, no sky.\n'
-            'Lighting: golden rim light on hat brim. Strong cinematic side light on face.\n'
-            'NO props. NO objects. NO text. NO words. NO letters anywhere in the image.'
+        'bg_desc': (
+            'Dramatic dark photography studio interior. Deep charcoal gradient from near-black to dark gray. '
+            'Cinematic side lighting beams from the left. Subtle bokeh dust particles. '
+            'Dark moody atmosphere. NO people. NO faces. NO text. NO words. Photorealistic.'
         ),
+        'pose': 'CLOSE-UP: face and hat fill 80% of the frame. Intense determined expression. Chin slightly down, eyes forward.',
     },
     {
         'zona': 'bottom',
-        'descricao': (
-            'HALF-BODY SHOT. Cross Valley from waist up. Face and upper body in the upper 75% of the frame.\n'
-            'IMPORTANT: leave the bottom 20% of the image as darker ground/shadow area — this space is reserved for text overlay.\n'
-            'ONE expressive gesture: hand on heart OR arms open. NO props. NO objects being held.\n'
-            'ANATOMY: 2 arms, 2 hands, 5 fingers each.\n'
-            'BACKGROUND: bright sunny countryside — open field, warm blue sky, golden hour light.\n'
-            'NO text. NO words. NO letters anywhere in the image.'
+        'bg_desc': (
+            'Wide open American countryside at golden hour. Green rolling fields stretching to horizon. '
+            'Warm golden sunlight rays from the right side. Blue sky with scattered warm clouds. '
+            'Rural dirt road disappearing into the distance. NO people. NO faces. NO text. NO words. Photorealistic.'
         ),
+        'pose': 'HALF-BODY: from waist up, one hand on heart. Warm golden lighting on face. Looking slightly upward.',
     },
     {
         'zona': 'bottom',
-        'descricao': (
-            'WIDE DRAMATIC SHOT. Person centered, visible from knees to hat. Upper body in top 75% of frame.\n'
-            'IMPORTANT: leave the bottom 20% of the image as darker ground area — this space is reserved for text overlay.\n'
-            'NO props. NO objects being held. NO signs.\n'
-            'BACKGROUND: supernatural dramatic sky — deep purple, electric blue clouds, divine light rays. Completely different from dark studio and sunny field.\n'
-            'Strong golden rim light on hat and shoulders.\n'
-            'NO text. NO words. NO letters anywhere in the image.'
+        'bg_desc': (
+            'Supernatural dramatic night sky. Deep purple and electric blue storm clouds. '
+            'Divine golden light rays breaking through the dark clouds from above. '
+            'Stars visible between cloud gaps. Epic cinematic atmosphere. '
+            'NO people. NO faces. NO text. NO words. Photorealistic.'
         ),
+        'pose': 'WIDE SHOT: visible from knees to hat, centered. Strong golden rim light outlining hat and shoulders against sky.',
     },
 ]
 
 
-def _overlay_text_on_thumb(img_path, texto, zona='bottom'):
+def _overlay_text_on_thumb(img_path, texto, zona='bottom', log_f=None):
     """Texto em UMA LINHA na barra preta embaixo. Compatível com qualquer versão do Pillow."""
+    def _log(msg):
+        print(msg)
+        if log_f:
+            try:
+                with open(log_f, 'a', encoding='utf-8') as lf: lf.write(msg + '\n')
+            except Exception: pass
     try:
         from PIL import Image, ImageDraw, ImageFont
-        print(f'  PIL overlay: {img_path} | texto={texto}')
+        _log(f'PIL overlay: {img_path} | texto={texto}')
 
         img = Image.open(img_path).convert('RGB')
         w, h = img.size
@@ -914,7 +917,7 @@ def _overlay_text_on_thumb(img_path, texto, zona='bottom'):
             '/System/Library/Fonts/Helvetica.ttc',
         ]
         font_path = next((fp for fp in font_paths if Path(fp).exists()), None)
-        print(f'  Fonte: {font_path}')
+        _log(f'Fonte: {font_path}')
 
         texto_up = texto.upper()
         cx = w // 2
@@ -952,12 +955,11 @@ def _overlay_text_on_thumb(img_path, texto, zona='bottom'):
             draw.text((20, cy - 8), texto_up, font=font, fill=(255, 255, 255))
 
         new_img.save(img_path)
-        print(f'  PIL overlay OK.')
+        _log('PIL overlay OK.')
         return True
     except Exception as e:
         import traceback
-        print(f'  ERRO PIL overlay: {e}')
-        print(traceback.format_exc())
+        _log(f'ERRO PIL overlay: {e}\n{traceback.format_exc()}')
         return False
 
 def build_story_prompts(p):
@@ -1057,7 +1059,7 @@ def build_story_prompts(p):
     print(f'  Paleta          : {music_dna["paleta"][:60]}...')
     print(f'  3 prompts gerados com composições distintas.')
     print(f'  10 textos salvos: TEXTOS_THUMBNAIL_10_OPCOES.txt')
-    return prompts, textos_thumb
+    return prompts, textos_thumb, music_dna
 def ctr_report(p):
     moments=thumb_psychology_variants(analyze_story_moments(p))[:3]; out=p/'09_DOCUMENTOS'/'CTR_INTELLIGENCE_REPORT.txt'; lines=['CTR INTELLIGENCE REPORT - BUILD 015','='*60,f'Projeto: {p.name}','']
     for i,m in enumerate(moments,1): lines += [f'THUMB {i:02d} - {m["thumb"]}',f'CTR estimado: {m["score"]}/100','Pontos fortes:',f'- Cena específica da música',f'- Emoção: {m["emotion"]}',f'- Texto curto: {m["thumb"]}',f'- Elemento visual: {m["god"]}',f'- Seta: {m["arrow"]}','-'*60]
@@ -1071,35 +1073,64 @@ def generate_story_thumbs(p):
         from openai import OpenAI
     except Exception:
         subprocess.check_call([sys.executable,'-m','pip','install','openai','pillow']); from openai import OpenAI
+    from io import BytesIO
     client=OpenAI(api_key=key)
-    prompts, textos_thumb = build_story_prompts(p)
-    thumb_dir=p/'07_THUMBNAILS'; ok=0
-    for i, (pr, comp) in enumerate(zip(prompts, _COMPOSICOES), 1):
+    _, textos_thumb, music_dna = build_story_prompts(p)
+    thumb_dir=p/'07_THUMBNAILS'; model=CFG.get('openai_image_model','gpt-image-1'); size=CFG.get('thumb_size','1536x1024'); ok=0
+    for i, comp in enumerate(_COMPOSICOES, 1):
         out=thumb_dir/f'STORY_THUMB_CROSS_VALLEY_{i:02d}.png'
+        log_f=thumb_dir/f'THUMB_LOG_{i:02d}.txt'
         try:
-            with open(persona,'rb') as img: res=client.images.edit(model=CFG.get('openai_image_model','gpt-image-1'),image=img,prompt=pr,size=CFG.get('thumb_size','1536x1024'),n=1)
+            # ── CHAMADA 1: gera o FUNDO sem pessoa e sem texto ──────────────
+            bg_prompt = api_safe(
+                f'BACKGROUND SCENE ONLY — NO PEOPLE, NO FACES, NO TEXT, NO WORDS.\n'
+                f'{comp["bg_desc"]}\n'
+                f'Mood: {music_dna["emocao"][:80]}\n'
+                f'Color palette: {music_dna["paleta"][:80]}\n'
+                f'16:9 cinematic photorealistic quality. YouTube thumbnail background.\n'
+                f'STRICTLY NO PEOPLE. STRICTLY NO TEXT OR WORDS ANYWHERE.'
+            )
+            log_f.write_text(f'BG prompt:\n{bg_prompt}\n', encoding='utf-8')
+            res_bg = client.images.generate(model=model, prompt=bg_prompt, size=size, n=1)
+            bg_bytes = base64.b64decode(res_bg.data[0].b64_json)
+            (thumb_dir/f'BG_ONLY_{i:02d}.png').write_bytes(bg_bytes)
+
+            # ── CHAMADA 2: insere a persona no fundo gerado ─────────────────
+            persona_prompt = api_safe(
+                f'COMPOSITE: place the person from the portrait photo into this background.\n'
+                f'PRESERVE EXACTLY: mature man, shaved head, full black beard, black cowboy hat, black blazer, black shirt.\n'
+                f'Pose: {comp["pose"]}\n'
+                f'Expression: {music_dna["expressao"]}\n'
+                f'Natural lighting integration with the background scene.\n'
+                f'ANATOMY: exactly 2 arms, 2 hands, 5 fingers per hand. No extra limbs.\n'
+                f'NO props. NO objects being held. NO signs.\n'
+                f'NO text. NO words. NO letters. NO numbers anywhere in the image.\n'
+                f'Photorealistic, cinematic quality.'
+            )
+            bg_io = BytesIO(bg_bytes); bg_io.name = 'background.png'
+            with open(persona, 'rb') as pf:
+                res = client.images.edit(model=model, image=[bg_io, pf], prompt=persona_prompt, size=size, n=1)
             out.write_bytes(base64.b64decode(res.data[0].b64_json))
-            # Adiciona texto via PIL na zona segura (longe do rosto)
+
+            # ── PIL: adiciona texto na barra preta embaixo ──────────────────
             texto = textos_thumb[i-1] if i-1 < len(textos_thumb) else 'GOD IS GOOD'
-            zona = comp.get('zona', 'bottom')
-            _overlay_text_on_thumb(str(out), texto, zona)
-            print('OK:',out.name); ok+=1
+            _overlay_text_on_thumb(str(out), texto, 'bottom', log_f)
+            print('OK:', out.name); ok += 1
+
         except Exception as e:
             erro_str = str(e).lower()
-            (thumb_dir/f'ERRO_STORY_THUMB_{i:02d}.txt').write_text(api_safe(str(e)),encoding='utf-8')
+            err_txt = api_safe(str(e))
+            (thumb_dir/f'ERRO_STORY_THUMB_{i:02d}.txt').write_text(err_txt, encoding='utf-8')
+            try: log_f.write_text(log_f.read_text(encoding='utf-8') + f'\nERRO: {err_txt}', encoding='utf-8')
+            except Exception: pass
             if 'billing' in erro_str or 'limit' in erro_str or 'quota' in erro_str or 'insufficient' in erro_str:
-                print('=' * 52)
-                print('  CREDITOS OPENAI ESGOTADOS!')
-                print('=' * 52)
-                print('  Seus creditos da API OpenAI acabaram.')
-                print('  Para recarregar:')
+                print('=' * 52); print('  CREDITOS OPENAI ESGOTADOS!'); print('=' * 52)
                 print('  Use a opcao 22 do menu (RECARREGAR API OPENAI)')
                 print('  ou acesse: platform.openai.com/settings/organization/billing')
-                print('=' * 52)
-                break
+                print('=' * 52); break
             else:
-                print('Erro:',e)
-    ctr_report(p); return ok>0
+                print('Erro thumb', i, ':', e)
+    ctr_report(p); return ok > 0
 
 def abrir_recarga_openai():
     """Abre a pagina de billing da OpenAI no navegador."""
