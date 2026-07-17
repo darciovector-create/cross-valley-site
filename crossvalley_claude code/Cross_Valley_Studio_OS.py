@@ -848,36 +848,34 @@ def get_openai_key(): return os.environ.get('OPENAI_API_KEY') or CFG.get('openai
 # zona: 'left' | 'right' | 'top' | 'bottom' — onde o PIL vai escrever o texto
 _COMPOSICOES = [
     {
-        'zona': 'left',
+        'zona': 'bottom',
         'descricao': (
-            'CLOSE-UP PORTRAIT. Face, hat, and collar fill the RIGHT two-thirds of the frame.\n'
+            'CLOSE-UP PORTRAIT. Face and hat fill the upper 75% of the frame.\n'
+            'IMPORTANT: leave the bottom 20% of the image as dark collar/chest area — this space is reserved for text overlay.\n'
             'BACKGROUND: dark dramatic studio — deep charcoal or near-black. No landscape, no sky.\n'
-            'Lighting: golden rim light on hat brim edge. Strong side light on face.\n'
-            'The person must be positioned on the RIGHT side. The LEFT side is background only.\n'
-            'NO props. NO objects being held. NO text. NO words. NO letters anywhere in the image.'
+            'Lighting: golden rim light on hat brim. Strong cinematic side light on face.\n'
+            'NO props. NO objects. NO text. NO words. NO letters anywhere in the image.'
         ),
     },
     {
         'zona': 'bottom',
         'descricao': (
-            'HALF-BODY SHOT. Cross Valley from waist up, face and hat in upper portion of frame.\n'
-            'ONE expressive gesture: hand on heart, OR arms open wide. NO props, NO objects being held.\n'
-            'ANATOMY: 2 arms, 2 hands, 5 fingers each. No extra limbs.\n'
-            'BACKGROUND: bright sunny countryside — wide open field, warm blue sky, golden hour light. Completely different look from dark studio.\n'
-            'Lighting: natural warm sunlight from the side. Face fully lit.\n'
-            'The BOTTOM 25% of the image must be ground/shadow area (darker) to allow text contrast.\n'
+            'HALF-BODY SHOT. Cross Valley from waist up. Face and upper body in the upper 75% of the frame.\n'
+            'IMPORTANT: leave the bottom 20% of the image as darker ground/shadow area — this space is reserved for text overlay.\n'
+            'ONE expressive gesture: hand on heart OR arms open. NO props. NO objects being held.\n'
+            'ANATOMY: 2 arms, 2 hands, 5 fingers each.\n'
+            'BACKGROUND: bright sunny countryside — open field, warm blue sky, golden hour light.\n'
             'NO text. NO words. NO letters anywhere in the image.'
         ),
     },
     {
-        'zona': 'top',
+        'zona': 'bottom',
         'descricao': (
-            'WIDE SHOT SILHOUETTE. Person stands at BOTTOM CENTER, small — only 35% of image height.\n'
-            'The TOP 55% of the image is pure dramatic sky with ZERO body parts in it.\n'
-            'NO props. NO objects being held. NO signs. NO glowing items.\n'
-            'BACKGROUND: supernatural night sky — deep purple, electric blue clouds, divine light rays or stars. Completely different from dark studio and sunny day.\n'
-            'Strong golden rim light outlining the hat and shoulders against the sky.\n'
-            'The sky must be vivid and colorful. The person is small at the bottom.\n'
+            'WIDE DRAMATIC SHOT. Person centered, visible from knees to hat. Upper body in top 75% of frame.\n'
+            'IMPORTANT: leave the bottom 20% of the image as darker ground area — this space is reserved for text overlay.\n'
+            'NO props. NO objects being held. NO signs.\n'
+            'BACKGROUND: supernatural dramatic sky — deep purple, electric blue clouds, divine light rays. Completely different from dark studio and sunny field.\n'
+            'Strong golden rim light on hat and shoulders.\n'
             'NO text. NO words. NO letters anywhere in the image.'
         ),
     },
@@ -885,78 +883,68 @@ _COMPOSICOES = [
 
 
 def _overlay_text_on_thumb(img_path, texto, zona='bottom'):
-    """Adiciona texto à thumbnail na zona segura (longe do rosto) usando PIL."""
+    """Texto em UMA LINHA na barra preta embaixo. Corta topo para liberar espaço."""
     try:
         from PIL import Image, ImageDraw, ImageFont
         img = Image.open(img_path).convert('RGB')
         w, h = img.size
 
-        # Centro da zona de texto
-        zona_cx = {'left': int(w*0.22), 'right': int(w*0.78), 'top': int(w*0.50), 'bottom': int(w*0.50)}
-        zona_cy = {'left': int(h*0.50), 'right': int(h*0.50), 'top': int(h*0.20), 'bottom': int(h*0.82)}
-        cx = zona_cx.get(zona, int(w*0.50))
-        cy = zona_cy.get(zona, int(h*0.82))
+        bar_h = int(h * 0.20)       # altura da barra de texto (20% da imagem)
+        crop_top = int(h * 0.08)    # corta 8% do topo (chapéu) para empurrar foto pra cima
 
-        # Fundo escuro na zona — SÓLIDO (alpha 220) para cobrir qualquer texto da IA
-        overlay = Image.new('RGBA', (w, h), (0, 0, 0, 0))
-        od = ImageDraw.Draw(overlay)
-        if zona == 'left':
-            od.rectangle([0, 0, int(w*0.46), h], fill=(0, 0, 0, 220))
-        elif zona == 'right':
-            od.rectangle([int(w*0.54), 0, w, h], fill=(0, 0, 0, 220))
-        elif zona == 'top':
-            od.rectangle([0, 0, w, int(h*0.40)], fill=(0, 0, 0, 210))
-        else:  # bottom
-            od.rectangle([0, int(h*0.70), w, h], fill=(0, 0, 0, 220))
-        img = Image.alpha_composite(img.convert('RGBA'), overlay).convert('RGB')
+        # Recorta o topo e redimensiona para preencher até onde começa a barra
+        content_h = h - bar_h
+        img_cropped = img.crop((0, crop_top, w, h))
+        img_resized = img_cropped.resize((w, content_h), Image.LANCZOS)
 
-        # Fonte: tenta fontes bold do sistema
-        font_size = int(h * 0.18)
-        font = None
-        for fp in [
+        # Monta nova imagem: foto (em cima) + barra preta (embaixo)
+        new_img = Image.new('RGB', (w, h), (8, 8, 8))
+        new_img.paste(img_resized, (0, 0))
+
+        # Busca fonte bold
+        font_paths = [
             'C:/Windows/Fonts/impact.ttf',
             'C:/Windows/Fonts/arialbd.ttf',
             'C:/Windows/Fonts/arial.ttf',
             '/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf',
             '/usr/share/fonts/truetype/liberation/LiberationSans-Bold.ttf',
             '/System/Library/Fonts/Helvetica.ttc',
-        ]:
+        ]
+        font_path = None
+        for fp in font_paths:
             if Path(fp).exists():
+                font_path = fp
+                break
+
+        texto_up = texto.upper()
+        draw = ImageDraw.Draw(new_img)
+        cx = w // 2
+        cy = content_h + bar_h // 2  # centro vertical da barra preta
+
+        if font_path:
+            # Auto-ajusta tamanho para caber em UMA linha dentro de 90% da largura
+            font_size = int(bar_h * 0.70)
+            max_w = int(w * 0.90)
+            while font_size > 16:
+                font = ImageFont.truetype(font_path, font_size)
                 try:
-                    font = ImageFont.truetype(fp, font_size)
-                    break
+                    bbox = font.getbbox(texto_up)
+                    text_w = bbox[2] - bbox[0]
                 except Exception:
-                    pass
-        use_anchor = font is not None
-        if font is None:
-            font = ImageFont.load_default()
-
-        draw = ImageDraw.Draw(img)
-        words = texto.upper().split()
-        # Divide em no máximo 2 linhas
-        if len(words) <= 2:
-            lines = [' '.join(words)]
+                    text_w = len(texto_up) * font_size * 0.6
+                if text_w <= max_w:
+                    break
+                font_size -= 4
+            # Outline preto espesso + texto branco
+            for dx in range(-5, 6, 2):
+                for dy in range(-5, 6, 2):
+                    draw.text((cx + dx, cy + dy), texto_up, font=font, fill=(0, 0, 0), anchor='mm')
+            draw.text((cx, cy), texto_up, font=font, fill=(255, 255, 255), anchor='mm')
         else:
-            mid = (len(words) + 1) // 2
-            lines = [' '.join(words[:mid]), ' '.join(words[mid:])]
+            font = ImageFont.load_default()
+            draw.text((cx, cy - 8), texto_up, font=font, fill=(255, 255, 255))
 
-        line_h = int(font_size * 1.25)
-        total_h = line_h * len(lines)
-        y_start = cy - total_h // 2 + line_h // 2
-
-        for li, line in enumerate(lines):
-            lx = cx
-            ly = y_start + li * line_h
-            if use_anchor:
-                # Outline espesso
-                for dx in range(-4, 5, 2):
-                    for dy in range(-4, 5, 2):
-                        draw.text((lx + dx, ly + dy), line, font=font, fill=(0, 0, 0), anchor='mm')
-                draw.text((lx, ly), line, font=font, fill=(255, 255, 255), anchor='mm')
-            else:
-                draw.text((lx, ly), line, font=font, fill=(255, 255, 255))
-
-        img.save(img_path)
+        new_img.save(img_path)
         return True
     except Exception as e:
         print(f'  Aviso texto overlay: {e}')
