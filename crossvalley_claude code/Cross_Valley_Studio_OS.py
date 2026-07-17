@@ -849,59 +849,56 @@ def get_openai_key(): return os.environ.get('OPENAI_API_KEY') or CFG.get('openai
 _COMPOSICOES = [
     {
         'descricao': (
-            'CLOSE-UP PORTRAIT — PERSON POSITIONED ON THE RIGHT SIDE.\n'
-            'Cross Valley face and hat occupy the RIGHT 55% of the image (right edge to center).\n'
-            'The LEFT 40% of the image is EMPTY — this is the text zone. Background fills the left side.\n'
-            'Crop from hat brim at top to upper chest at bottom. Face, hat, and collar visible. NO hands or arms.\n'
-            'Background: DARK DRAMATIC STUDIO — deep charcoal or near-black gradient behind the figure. Completely different from compositions B and C.\n'
-            'Lighting: cinematic side light from the LEFT hitting the face, creating strong shadow on the right. Rim light on hat brim.\n'
-            'Camera angle: slightly from below (heroic angle), face turned slightly LEFT toward camera.\n'
-            'CRITICAL: the LEFT THIRD of the image must be clearly empty with NO face, NO hat, NO body parts. Only background.'
+            'THUMBNAIL A — CLOSE-UP, PERSON ON THE RIGHT.\n'
+            'Think of a vertical line cutting the image exactly in half. The person (face, hat, shoulders) lives ENTIRELY on the RIGHT half. The LEFT half is completely empty — only background, no person at all.\n'
+            'Crop from hat brim at top to upper chest. Face and hat visible. NO hands, NO props, NO signs being held.\n'
+            'BACKGROUND: pure dark studio — solid deep charcoal or near-black. No landscape, no sky, no environment. Just darkness behind the figure.\n'
+            'Lighting: strong side light from left hitting the face. Golden rim light on hat brim edge.\n'
+            'DO NOT place any part of the face, hat, or body in the left half of the image.'
         ),
         'zona_texto': (
-            'TEXT PLACEMENT: LEFT SIDE of image — the left 38% that has NO person.\n'
-            'Text is VERTICAL STACK or large bold horizontal in the empty left zone.\n'
-            'Text must NOT cross the center line. Text stays entirely in the left 38%.\n'
-            'CRITICAL: text must NEVER overlap the face, the hat, or any body part.\n'
-            'Large bold distressed white or cream text with strong dark outline for contrast against dark background.'
+            'TEXT ZONE: the LEFT HALF of the image — where there is NO person.\n'
+            'Stack the text vertically: main word large at top, subtitle smaller below.\n'
+            'Text must stay entirely left of center. ZERO text on the right half.\n'
+            'White or cream text, bold distressed font, strong black outline.\n'
+            '⛔ TEXT MUST NOT TOUCH OR OVERLAP THE FACE, HAT, OR ANY BODY PART.'
         ),
     },
     {
         'descricao': (
-            'HALF-BODY PORTRAIT — PERSON POSITIONED ON THE LEFT SIDE.\n'
-            'Cross Valley visible from waist up, body and face occupying the LEFT 55% of the image.\n'
-            'The RIGHT 40% of the image is EMPTY — background only, no body parts.\n'
-            'Pose: ONE expressive gesture — hand on heart, OR fist raised, OR arm extended. Pick ONE.\n'
-            'ANATOMY RULES: exactly 2 arms, exactly 2 hands, exactly 5 fingers per hand. NO extra limbs. Anatomically perfect.\n'
-            'Background: BRIGHT OPEN LANDSCAPE — golden hour field, rural road, or open sky with warm light. Completely different from compositions A and C.\n'
-            'Lighting: natural golden hour from the RIGHT side, rim lighting the hat and shoulder. Face illuminated facing camera.\n'
-            'Camera angle: medium shot. The right side of the frame shows the landscape horizon.\n'
-            'CRITICAL: the RIGHT THIRD of the image must be clearly empty with NO face or body parts. Only landscape.'
+            'THUMBNAIL B — HALF-BODY, PERSON ON THE LEFT.\n'
+            'Think of a vertical line cutting the image exactly in half. The person (face, hat, chest, arms) lives ENTIRELY on the LEFT half. The RIGHT half is completely empty — only open landscape background, no person at all.\n'
+            'Show Cross Valley from waist to hat top. ONE gesture only: hand on chest OR looking sideways. NO props, NO signs.\n'
+            'ANATOMY: 2 arms, 2 hands, 5 fingers each. Anatomically correct.\n'
+            'BACKGROUND: bright warm sunny day — wide open field or country road at golden hour with blue sky and warm sunlight. Completely DIFFERENT from A (dark studio) and C (night/storm). This must look like a bright sunny afternoon outdoors.\n'
+            'Lighting: warm golden sunlight from the right, face clearly lit, no dark shadows on face.\n'
+            'DO NOT place any part of the face, hat, or body in the right half of the image.'
         ),
         'zona_texto': (
-            'TEXT PLACEMENT: RIGHT SIDE of image — the right 38% that has NO person.\n'
-            'Text is large bold horizontal or vertical stack in the empty right zone.\n'
-            'Text must NOT cross the center line. Text stays entirely in the right 38%.\n'
-            'CRITICAL: text must NEVER overlap the face, the hat, or any body part.\n'
-            'Large bold distressed white or golden text with strong dark outline. Readable against the bright landscape.'
+            'TEXT ZONE: the RIGHT HALF of the image — where there is NO person.\n'
+            'Stack the text vertically: main word large at top, subtitle smaller below.\n'
+            'Text must stay entirely right of center. ZERO text on the left half.\n'
+            'White or golden text, bold distressed font, dark outline for contrast on bright sky.\n'
+            '⛔ TEXT MUST NOT TOUCH OR OVERLAP THE FACE, HAT, OR ANY BODY PART.'
         ),
     },
     {
         'descricao': (
-            'DRAMATIC SILHOUETTE — PERSON CENTERED, SMALL AGAINST EPIC SKY.\n'
-            'Cross Valley is a DARK SILHOUETTE figure standing at the BOTTOM CENTER of the image.\n'
-            'The person occupies only 30-40% of the image HEIGHT and is positioned at the horizontal center.\n'
-            'A strong rim light (golden or white) outlines the hat and shoulders so the figure is recognizable.\n'
-            'The SKY dominates 65% of the image. Sky colors: vivid purple, deep orange, fiery crimson — NOT a plain sunset.\n'
-            'Background: STORMY OR SUPERNATURAL SKY — dramatic clouds, lightning glow, or heavenly light rays. Completely different from compositions A and B.\n'
-            'THIS IS NOT A CLOSE-UP AND NOT A HALF-BODY. The person is small. The sky is the main visual.'
+            'THUMBNAIL C — PERSON AT BOTTOM, SKY DOMINATES TOP.\n'
+            'The image is divided horizontally: TOP 60% = sky only (no person). BOTTOM 40% = person standing.\n'
+            'Cross Valley stands at the VERY BOTTOM of the image, centered, visible from knees to hat top.\n'
+            'The hat brim must NOT reach above the 45% mark from the bottom. The upper 55% is pure sky with zero body parts.\n'
+            'NO props, NO signs being held.\n'
+            'BACKGROUND: dramatic night/supernatural sky — deep purple and electric blue clouds, stars or divine light rays breaking through. Completely DIFFERENT from A (dark studio) and B (sunny day). This is a supernatural/heavenly atmosphere at night.\n'
+            'Strong golden rim light outlining the hat and shoulders against the dark sky.\n'
+            'The sky is the hero of this image. The person is small at the bottom.'
         ),
         'zona_texto': (
-            'TEXT PLACEMENT: TOP PORTION of image — the upper 30% of the sky, ABOVE the silhouette figure.\n'
-            'Text placed horizontally across the sky, far above the person\'s hat.\n'
-            'CRITICAL: text must be entirely above the figure. No text near the hat or body.\n'
-            'White or bright cream text with strong dark glow/outline for maximum sky contrast.\n'
-            'The figure is at the bottom — text is at the top. Zero overlap possible.'
+            'TEXT ZONE: the TOP 40% of the image — the sky area where there is NO person.\n'
+            'Place text as large bold words across the upper sky area.\n'
+            'Text must stay in the upper half. The person is at the bottom — text is at the top.\n'
+            'White or cream text with strong dark glow outline against the night sky.\n'
+            '⛔ TEXT MUST NOT TOUCH OR OVERLAP THE FACE, HAT, OR ANY BODY PART. The hat is at the bottom; text is at the top. They must not meet.'
         ),
     },
 ]
